@@ -251,24 +251,6 @@ Hagere is being built around five core values:
 
 Every design decision is made with Ethiopian users in mind, ensuring the platform remains intuitive, responsive, and accessible to everyone.
 
----
-
-# 📂 Repository Structure
-
-```
-hagere/
-│
-├── client/
-├── server/
-├── docs/
-├── public/
-├── assets/
-├── README.md
-└── LICENSE
-```
-
----
-
 # 🤝 Contributing
 
 At the moment, Hagere is under active internal development.
