@@ -1,0 +1,28 @@
+{
+  "name": "-hagere-",
+  "version": "1.0.0",
+  "description": "Hagere (ሀገሬ) is an upcoming civic engagement platform designed to give Ethiopians a modern digital space to discover, understand, discuss, and evaluate public policies that shape the nation's future.",
+  "homepage": "https://github.com/Eazybel/-Hagere-#readme",
+  "bugs": {
+    "url": "https://github.com/Eazybel/-Hagere-/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eazybel/-Hagere-.git"
+  },
+  "license": "ISC",
+  "author": "Syntax-Designs (Ezedin Yassin)",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mongoose": "^9.9.1",
+    "nodemon": "^3.1.14"
+  }
+}
