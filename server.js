@@ -4,7 +4,7 @@ const path=require("path")
 const mongoose=require("mongoose")
 // Package initiation
 const app=express()
-app.use(express.static(path.join(__dirname,"public/pages")))
+app.use(express.static(path.join(__dirname,"public")))
 app.use(express.json())
 app.use(express.text())
 app.use(express.urlencoded({extended:true}))
