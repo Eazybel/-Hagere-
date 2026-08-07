@@ -15,13 +15,11 @@ const connectionString=process.env.CONNECTION_STRING
 app.listen(port,()=>{
     console.log("Server listening")
 })
-try{
-    const dbConnection=async()=>{
-
-        await mongoose.connect(connectionString).then(()=>{console.log("Database Connection started")})
-        
-    }
-    dbConnection()
-}catch(err){
-console.log(err)
-}
+// Database Connection initialization
+mongoose.connect(connectionString)
+.then(()=>
+    {console.log("Database Connection started")}
+).catch(err=>{
+    console.log(err)
+})
+// 
