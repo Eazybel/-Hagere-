@@ -8,23 +8,17 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/fireba
     messagingSenderId: "272791886594",
     appId: "1:272791886594:web:05b9f9fd6fc98cdca3c01b"
   };
-// variable initiation
-const signOutButton=document.getElementById(signOutButton)
+
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const auth=getAuth(app)
 onAuthStateChanged(auth, (user) => {
   if (user) {
+  window.location.replace("/feed.html")
     const uid = user.uid;
     // ...
   } else {
-window.location.href("./index.html")
+ console.log("User not Registered")
+ document.querySelector("body").classList.remove("hidden")
   }
 });
-signOutButton.onclick()=>{
-  signOut(auth).then(() => {
-    window.location.href("./index.html")
-}).catch((error) => {
-  console.log(error)
-});
-}
