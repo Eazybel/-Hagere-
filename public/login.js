@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
- import { getAuth, signInWithPopup, GoogleAuthProvider, getIdToken }  from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+ import { getAuth, signInWithRedirect, GoogleAuthProvider, getIdToken }  from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
   const firebaseConfig = {
     apiKey: "AIzaSyAXviVipDAJZl-xyiQE4JfACkcl1xt_CqM",
     authDomain: "hagere-c6abc.firebaseapp.com",
@@ -18,14 +18,13 @@ const captchaVerifyDiv=document.getElementById("captchaVerifyDiv")
 const otpButton=document.getElementById("otpButton")
 const otpInput=document.getElementById("otp-code")
 logInButton.onclick=()=>{
-signInWithPopup(auth, provider)
+signInWithRedirect(auth, provider)
   .then((result) => {
     const credential = GoogleAuthProvider.credentialFromResult(result);
     const token = credential.accessToken;
     const user = result.user;
-    console.log(user
+    const idToken=result._tokenResponce.idToken
 
-    )
    //NEW USER REGISTERING SYSTEM OR CHECKING USER AVAILABLITY
 fetch("/newUserRegister",
       {

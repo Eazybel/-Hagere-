@@ -6,7 +6,7 @@ const admin = require("firebase-admin")
 const userController=async(req,res)=>{
     if(req.headers.authorization){
        console.log(req.headers.authorization)
-    }else if(req.headers.authorizatio){
+    }else if(req.headers.authorization){
         console.log("no authorization")
     }
 // const isUser=await userModel.findOne({"email":req.body.email})
