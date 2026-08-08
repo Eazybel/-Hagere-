@@ -1,14 +1,9 @@
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-
-const auth = getAuth();
+const auth=require("./firebaseInit")
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // User is signed in, see docs for a list of available properties
-    // https://firebase.google.com/docs/reference/js/auth.user
     const uid = user.uid;
-    // ...
+   console.log("User Registered")
   } else {
-    // User is signed out
-    // ...
+  console.log("User Not Registered")
   }
 });
