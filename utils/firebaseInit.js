@@ -1,6 +1,5 @@
-
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+ import { getAuth, signInWithPopup, GoogleAuthProvider }  from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
   const firebaseConfig = {
     apiKey: "AIzaSyAXviVipDAJZl-xyiQE4JfACkcl1xt_CqM",
     authDomain: "hagere-c6abc.firebaseapp.com",
@@ -12,4 +11,5 @@
 
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
-  module.exports=app
+  const auth=getAuth(app)
+  module.exports=auth
