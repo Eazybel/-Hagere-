@@ -15,18 +15,17 @@ const logInBtn=document.getElementById("logInBtn")
 const adminEmail=document.getElementById("adminEmail")
 const adminPassword=document.getElementById("adminPassword")
 logInBtn.onclick=()=>{
-console.log(adminEmail.value, adminPassword.value)
 const email=adminEmail.value
 const password=adminPassword.value
     signInWithEmailAndPassword(auth, email, password)
   .then((userCredential) => {
     // Signed in 
     const user = userCredential.user;
-   console.log("user verified")
+ window.location.href="./admin.html"
   })
   .catch((error) => {
     const errorCode = error.code;
     const errorMessage = error.message;
-     console.log("user not verified")
+     alert("Incorrect Credential Used")
   });
 }
