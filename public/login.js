@@ -17,7 +17,7 @@ const logInButton=document.getElementById("logInButton")
 const captchaVerifyDiv=document.getElementById("captchaVerifyDiv")
 const otpButton=document.getElementById("otpButton")
 const otpInput=document.getElementById("otp-code")
-logInButton.onclick=async()=>{
+logInButton.onclick=()=>{
 signInWithPopup(auth, provider)
   .then((result) => {
     const credential = GoogleAuthProvider.credentialFromResult(result);
@@ -26,13 +26,11 @@ signInWithPopup(auth, provider)
     console.log(user
 
     )
-    const idTokens=await getIdToken(user)
-    console.log(idTokens)
    //NEW USER REGISTERING SYSTEM OR CHECKING USER AVAILABLITY
 fetch("/newUserRegister",
       {
         method:"POST",
-        headers:{"Content-type":"application/json","Authorization":`Bearer ${idTokens}`},
+        headers:{"Content-type":"application/json","Authorization":`Bearer`},
         body:JSON.stringify({"name":user.displayName,"email":user.email,"avatar":user.photoURL})
       }
     
