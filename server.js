@@ -15,6 +15,7 @@ const connectionString=process.env.CONNECTION_STRING
 app.listen(port,()=>{
     console.log("Server listening")
 })
+
 // Database Connection initialization
 mongoose.connect(connectionString)
 .then(()=>

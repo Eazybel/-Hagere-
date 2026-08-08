@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
- import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged }  from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+ import { getAuth }  from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
   const firebaseConfig = {
     apiKey: "AIzaSyAXviVipDAJZl-xyiQE4JfACkcl1xt_CqM",
     authDomain: "hagere-c6abc.firebaseapp.com",
