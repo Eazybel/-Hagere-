@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hagere - Administrator Moderation Console</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        antique: {
+                            bg: '#F9F6F0',      /* Warm parchment background */
+                            card: '#FFFDF9',    /* Lighter card fill */
+                            border: '#D8CEBC',  /* Muted warm border */
+                            text: '#2C2A29',    /* Deep charcoal for high readability */
+                            muted: '#6B6560',   /* Soft secondary text */
+                            accent: '#8C4A32',  /* Terracotta / classic brick accent */
+                            accentHover: '#733B26'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-antique-bg text-antique-text font-serif antialiased min-h-screen flex flex-col">
+
+    <!-- Navigation Header -->
+    <header class="border-b border-antique-border bg-antique-card sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="text-2xl font-bold tracking-tight text-antique-accent">Hagere</a>
+                <span class="px-2 py-0.5 bg-antique-bg border border-antique-border rounded text-[10px] font-sans text-antique-accent uppercase tracking-wider font-semibold">Admin Panel</span>
+            </div>
+            <nav class="hidden md:flex items-center space-x-6 text-sm font-sans">
+                <a href="admin-panel.html" class="text-antique-text font-medium hover:text-antique-accent">Moderation</a>
+                <a href="submit-policy.html" class="text-antique-muted hover:text-antique-accent">Publish Policy</a>
+                <a href="index.html" class="text-antique-muted hover:text-antique-accent">View Live Feed</a>
+            </nav>
+            <div>
+                <a href="index.html" class="text-sm font-sans px-4 py-2 border border-antique-border rounded bg-antique-bg hover:bg-antique-border transition-colors">
+                    Sign Out
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-6xl mx-auto px-4 py-8 w-full">
+
+        <!-- Admin Overview Banner -->
+        <section class="mb-8 bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-normal mb-1">System Oversight & Moderation</h1>
+                <p class="text-sm text-antique-muted font-sans">
+                    Manage active policies, review flagged citizen discussions, and monitor platform activity metrics.
+                </p>
+            </div>
+            <div class="flex items-center gap-3 font-sans text-xs">
+                <a href="submit-policy.html" class="px-4 py-2.5 bg-antique-accent text-white rounded font-medium hover:bg-antique-accentHover transition-colors shadow-sm">
+                    + Publish New Policy
+                </a>
+            </div>
+        </section>
+
+        <!-- Quick Platform Metrics -->
+        <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 font-sans">
+            <div class="bg-antique-card border border-antique-border rounded-lg p-4">
+                <span class="block text-xs uppercase tracking-wider text-antique-muted mb-1">Active Policies</span>
+                <strong class="text-2xl font-bold text-antique-text">24</strong>
+            </div>
+            <div class="bg-antique-card border border-antique-border rounded-lg p-4">
+                <span class="block text-xs uppercase tracking-wider text-antique-muted mb-1">Registered Citizens</span>
+                <strong class="text-2xl font-bold text-antique-text">4,812</strong>
+            </div>
+            <div class="bg-antique-card border border-antique-border rounded-lg p-4">
+                <span class="block text-xs uppercase tracking-wider text-antique-muted mb-1">Flagged Comments</span>
+                <strong class="text-2xl font-bold text-rose-700">3</strong>
+            </div>
+        </section>
+
+        <!-- Section Tabs / Filter -->
+        <div class="mb-6 flex space-x-6 border-b border-antique-border pb-3 font-sans text-sm">
+            <button class="font-medium text-antique-accent border-b-2 border-antique-accent pb-3 -mb-3">Flagged Discussions</button>
+            <button class="text-antique-muted hover:text-antique-text pb-3 -mb-3">Manage Policies</button>
+            <button class="text-antique-muted hover:text-antique-text pb-3 -mb-3">User Directory</button>
+        </div>
+
+        <!-- Moderation List Grid -->
+        <section class="space-y-4">
+
+            <!-- Moderation Card 1 -->
+            <article class="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center space-x-2 text-xs font-sans text-antique-muted">
+                        <span class="px-2 py-0.5 bg-antique-bg border border-antique-border rounded text-rose-700 font-medium">Flagged by 4 Users</span>
+                        <span>&bull; Policy: National Urban Transit Expansion</span>
+                        <span>&bull; Reported: May 15, 2026</span>
+                    </div>
+                    <p class="text-sm text-antique-text font-sans bg-antique-bg p-3 border border-antique-border rounded">
+                        "This proposal completely ignores outer district budgeting constraints and misrepresents municipal zoning laws entirely."
+                    </p>
+                    <span class="block text-xs text-antique-muted font-sans">Author: +251 9••••••89</span>
+                </div>
+
+                <div class="flex items-center gap-2 font-sans text-xs shrink-0 w-full md:w-auto justify-end">
+                    <button class="px-3 py-2 bg-antique-bg border border-antique-border rounded hover:bg-antique-border transition-colors text-antique-text font-medium">
+                        Dismiss Report
+                    </button>
+                    <button class="px-3 py-2 bg-rose-700 text-white rounded hover:bg-rose-800 transition-colors font-medium">
+                        Remove Comment
+                    </button>
+                </div>
+            </article>
+
+            <!-- Moderation Card 2 -->
+            <article class="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center space-x-2 text-xs font-sans text-antique-muted">
+                        <span class="px-2 py-0.5 bg-antique-bg border border-antique-border rounded text-rose-700 font-medium">Flagged by 2 Users</span>
+                        <span>&bull; Policy: Digital Commerce Tax Modernization Act</span>
+                        <span>&bull; Reported: May 10, 2026</span>
+                    </div>
+                    <p class="text-sm text-antique-text font-sans bg-antique-bg p-3 border border-antique-border rounded">
+                        "Spam link posted: check out external commercial software services at cheap rates..."
+                    </p>
+                    <span class="block text-xs text-antique-muted font-sans">Author: +251 9••••••12</span>
+                </div>
+
+                <div class="flex items-center gap-2 font-sans text-xs shrink-0 w-full md:w-auto justify-end">
+                    <button class="px-3 py-2 bg-antique-bg border border-antique-border rounded hover:bg-antique-border transition-colors text-antique-text font-medium">
+                        Dismiss Report
+                    </button>
+                    <button class="px-3 py-2 bg-rose-700 text-white rounded hover:bg-rose-800 transition-colors font-medium">
+                        Remove Comment
+                    </button>
+                </div>
+            </article>
+
+        </section>
+
+    </main>
+
+    <!-- Public Footer -->
+    <footer class="border-t border-antique-border bg-antique-card mt-16 py-6 font-sans text-xs text-antique-muted">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>&copy; 2026 Hagere Civic Platform. Administrator Console.</p>
+            <div class="flex space-x-6">
+                <a href="#" class="hover:text-antique-accent">About</a>
+                <a href="#" class="hover:text-antique-accent">Privacy Policy</a>
+                <a href="contributing.md" class="hover:text-antique-accent">Contribute</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hagere - Dashboard & Public Policy Feed</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        antique: {
+                            bg: '#F9F6F0',      /* Warm parchment background */
+                            card: '#FFFDF9',    /* Lighter card fill */
+                            border: '#D8CEBC',  /* Muted warm border */
+                            text: '#2C2A29',    /* Deep charcoal for high readability */
+                            muted: '#6B6560',   /* Soft secondary text */
+                            accent: '#8C4A32',  /* Terracotta / classic brick accent */
+                            accentHover: '#733B26'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-antique-bg text-antique-text font-serif antialiased min-h-screen flex flex-col">
+
+    <!-- 1. Navigation Header (Logged-In State) -->
+    <header class="border-b border-antique-border bg-antique-card sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="index.html" class="text-2xl font-bold tracking-tight text-antique-accent">Hagere</a>
+            <nav class="hidden md:flex items-center space-x-6 text-sm font-sans">
+                <a href="index.html" class="text-antique-text font-medium hover:text-antique-accent">Policies Feed</a>
+                <a href="#" class="text-antique-muted hover:text-antique-accent">About</a>
+                <a href="contributing.md" class="text-antique-muted hover:text-antique-accent">Contribute</a>
+            </nav>
+            <div class="flex items-center space-x-4 font-sans text-sm">
+                <a href="dashboard.html" class="px-3 py-1.5 bg-antique-bg border border-antique-border rounded hover:bg-antique-border transition-colors flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                    <span class="font-medium">My Dashboard</span>
+                </a>
+                <button id="signOutButton" class="text-xs text-antique-muted hover:text-antique-accent">
+                    Sign Out
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-6xl mx-auto px-4 py-8 w-full">
+
+        <!-- 2. Hero & Citizen Greeting Section -->
+        <section class="mb-10 text-center max-w-2xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-normal mb-3">Welcome back, Citizen</h1>
+            <p class="text-antique-muted text-base font-sans">
+                Your voice matters. Cast your official stance on current legislative proposals or review your voting record in your profile.
+            </p>
+        </section>
+
+        <!-- 3. Search & Filter Bar -->
+        <section class="mb-8 flex flex-col md:flex-row gap-4 items-center justify-between bg-antique-card p-4 border border-antique-border rounded-lg">
+            <div class="w-full md:w-3/5">
+                <input type="text" placeholder="Search policies by keyword or title..." class="w-full px-3 py-2 text-sm font-sans bg-antique-bg border border-antique-border rounded focus:outline-none focus:border-antique-accent">
+            </div>
+            <div class="w-full md:w-2/5 flex flex-col sm:flex-row items-center gap-2 font-sans text-sm">
+                <label for="policy-category" class="text-antique-muted text-xs whitespace-nowrap">Filter by Sector:</label>
+                <select id="policy-category" class="w-full px-3 py-2 text-xs bg-antique-bg border border-antique-border rounded focus:outline-none focus:border-antique-accent">
+                    <option value="all">All Major Sectors</option>
+                    <option value="economy">Economy & Finance</option>
+                    <option value="infrastructure">Infrastructure & Transport</option>
+                    <option value="health">Public Health & Welfare</option>
+                    <option value="education">Education & Culture</option>
+                    <option value="technology">Technology & Digital Services</option>
+                    <option value="agriculture">Agriculture & Environment</option>
+                    <option value="justice">Law & Governance</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- 4. Public Policy Feed Grid -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Policy Card 1 -->
+            <article class="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between text-xs font-sans text-antique-muted mb-2">
+                        <span class="uppercase tracking-wider px-2 py-0.5 bg-antique-bg border border-antique-border rounded">Infrastructure</span>
+                        <span>Published: May 14, 2026</span>
+                    </div>
+                    <h2 class="text-xl font-bold mb-2">
+                        National Urban Transit Expansion Proclamation
+                    </h2>
+                    <p class="text-sm text-antique-muted font-sans mb-4">
+                        A proposal aimed at scaling municipal mass transit systems, establishing dedicated light rail corridors, and funding regional station upgrades across major urban centers.
+                    </p>
+                </div>
+
+                <div>
+                    <!-- Vote Counts Breakdown & See Detail Button -->
+                    <div class="mb-4 pt-2 border-t border-antique-border font-sans text-xs flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center space-x-3 text-antique-muted">
+                            <span>Agree: <strong class="text-antique-text">923</strong></span>
+                            <span>Neutral: <strong class="text-antique-text">142</strong></span>
+                            <span>Disagree: <strong class="text-antique-text">355</strong></span>
+                        </div>
+                        <a href="policy-detail.html?id=1" class="text-antique-accent font-medium hover:underline">See the Detail &rarr;</a>
+                    </div>
+
+                    <!-- Voting & Interaction Form (Pre-selected simulated active vote) -->
+                    <form class="pt-3 border-t border-antique-border font-sans flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <div class="flex items-center space-x-4 text-xs">
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="vote-1" value="agree" checked class="accent-antique-accent">
+                                <span>Agree</span>
+                            </label>
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="vote-1" value="neutral" class="accent-antique-accent">
+                                <span>Neutral</span>
+                            </label>
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="vote-1" value="disagree" class="accent-antique-accent">
+                                <span>Disagree</span>
+                            </label>
+                        </div>
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <button type="submit" class="px-3 py-1.5 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors flex-1 sm:flex-none">
+                                Update Vote
+                            </button>
+                            <a href="policy-detail.html?id=1#comments" class="px-3 py-1.5 border border-antique-border rounded text-xs font-medium hover:bg-antique-border transition-colors flex items-center justify-center gap-1">
+                                Comments (48)
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </article>
+
+            <!-- Policy Card 2 -->
+            <article class="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between text-xs font-sans text-antique-muted mb-2">
+                        <span class="uppercase tracking-wider px-2 py-0.5 bg-antique-bg border border-antique-border rounded">Economy</span>
+                        <span>Published: May 02, 2026</span>
+                    </div>
+                    <h2 class="text-xl font-bold mb-2">
+                        Digital Commerce Tax Modernization Act
+                    </h2>
+                    <p class="text-sm text-antique-muted font-sans mb-4">
+                        Framework restructuring digital service taxation, streamlining compliance for small domestic tech enterprises, and establishing digital transaction standards.
+                    </p>
+                </div>
+
+                <div>
+                    <!-- Vote Counts Breakdown & See Detail Button -->
+                    <div class="mb-4 pt-2 border-t border-antique-border font-sans text-xs flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center space-x-3 text-antique-muted">
+                            <span>Agree: <strong class="text-antique-text">374</strong></span>
+                            <span>Neutral: <strong class="text-antique-text">160</strong></span>
+                            <span>Disagree: <strong class="text-antique-text">356</strong></span>
+                        </div>
+                        <a href="policy-detail.html?id=2" class="text-antique-accent font-medium hover:underline">See the Detail &rarr;</a>
+                    </div>
+
+                    <!-- Voting & Interaction Form -->
+                    <form class="pt-3 border-t border-antique-border font-sans flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <div class="flex items-center space-x-4 text-xs">
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="vote-2" value="agree" class="accent-antique-accent">
+                                <span>Agree</span>
+                            </label>
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="vote-2" value="neutral" class="accent-antique-accent">
+                                <span>Neutral</span>
+                            </label>
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="vote-2" value="disagree" class="accent-antique-accent">
+                                <span>Disagree</span>
+                            </label>
+                        </div>
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <button type="submit" class="px-3 py-1.5 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors flex-1 sm:flex-none">
+                                Submit Vote
+                            </button>
+                            <a href="policy-detail.html?id=2#comments" class="px-3 py-1.5 border border-antique-border rounded text-xs font-medium hover:bg-antique-border transition-colors flex items-center justify-center gap-1">
+                                Comments (19)
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </article>
+
+        </section>
+
+    </main>
+
+    <!-- 6. Public Footer -->
+    <footer class="border-t border-antique-border bg-antique-card mt-16 py-6 font-sans text-xs text-antique-muted">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>&copy; 2026 Hagere Civic Platform. Open Source Initiative.</p>
+            <div class="flex items-center space-x-6">
+                <a href="#" class="hover:text-antique-accent">About</a>
+                <a href="#" class="hover:text-antique-accent">Privacy Policy</a>
+                <a href="contributing.md" class="hover:text-antique-accent">Contribute</a>
+                <a href="./adminAuth.html" class="text-antique-accent hover:underline font-medium">Admin Portal</a>
+            </div>
+        </div>
+    </footer>
+<script type="module" src="./feed.js"></script>
+</body>
+</html>

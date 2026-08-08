@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hagere - Citizen Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        antique: {
+                            bg: '#F9F6F0',      /* Warm parchment background */
+                            card: '#FFFDF9',    /* Lighter card fill */
+                            border: '#D8CEBC',  /* Muted warm border */
+                            text: '#2C2A29',    /* Deep charcoal for high readability */
+                            muted: '#6B6560',   /* Soft secondary text */
+                            accent: '#8C4A32',  /* Terracotta / classic brick accent */
+                            accentHover: '#733B26'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-antique-bg text-antique-text font-serif antialiased min-h-screen flex flex-col">
+
+    <!-- Navigation Header -->
+    <header class="border-b border-antique-border bg-antique-card sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="index.html" class="text-2xl font-bold tracking-tight text-antique-accent">Hagere</a>
+            <nav class="hidden md:flex items-center space-x-6 text-sm font-sans">
+                <a href="index.html" class="text-antique-muted hover:text-antique-accent">Policies Feed</a>
+                <a href="dashboard.html" class="text-antique-text font-medium hover:text-antique-accent">My Dashboard</a>
+                <a href="contributing.md" class="text-antique-muted hover:text-antique-accent">Contribute</a>
+            </nav>
+            <div>
+                <a href="index.html" class="text-sm font-sans px-4 py-2 border border-antique-border rounded bg-antique-bg hover:bg-antique-border transition-colors">
+                    Sign Out
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-6xl mx-auto px-4 py-8 w-full">
+
+        <!-- Citizen Profile Banner -->
+        <section class="mb-8 bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center space-x-3 mb-1">
+                    <h1 class="text-2xl font-normal">Citizen Profile & Activity</h1>
+                    <span class="px-2 py-0.5 bg-antique-bg border border-antique-border rounded text-xs font-sans text-emerald-700 font-medium">Verified Resident</span>
+                </div>
+                <p class="text-sm text-antique-muted font-sans">
+                    Phone Number: +251 9••••••44 &bull; Member Since: May 2026
+                </p>
+            </div>
+            <div class="flex items-center gap-3 font-sans text-xs">
+                <div class="px-4 py-2 bg-antique-bg border border-antique-border rounded text-center">
+                    <span class="block text-antique-muted uppercase text-[10px]">Total Votes Cast</span>
+                    <strong class="text-base text-antique-text">14</strong>
+                </div>
+                <div class="px-4 py-2 bg-antique-bg border border-antique-border rounded text-center">
+                    <span class="block text-antique-muted uppercase text-[10px]">Comments Made</span>
+                    <strong class="text-base text-antique-text">5</strong>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Tabs / Filter -->
+        <div class="mb-6 flex space-x-4 border-b border-antique-border pb-3 font-sans text-sm">
+            <button class="font-medium text-antique-accent border-b-2 border-antique-accent pb-3 -mb-3">My Voting History</button>
+            <button class="text-antique-muted hover:text-antique-text pb-3 -mb-3">Saved Policies</button>
+            <button class="text-antique-muted hover:text-antique-text pb-3 -mb-3">Account Settings</button>
+        </div>
+
+        <!-- Voting History Feed Grid -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- History Card 1 -->
+            <article class="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between text-xs font-sans text-antique-muted mb-2">
+                        <span class="uppercase tracking-wider px-2 py-0.5 bg-antique-bg border border-antique-border rounded">Infrastructure</span>
+                        <span>Voted on: May 15, 2026</span>
+                    </div>
+                    <h2 class="text-xl font-bold mb-2">
+                        <a href="policy-detail.html?id=1" class="hover:text-antique-accent">National Urban Transit Expansion Proclamation</a>
+                    </h2>
+                    <p class="text-sm text-antique-muted font-sans mb-4">
+                        A proposal aimed at scaling municipal mass transit systems, establishing dedicated light rail corridors, and funding regional station upgrades across major urban centers.
+                    </p>
+                </div>
+
+                <div class="pt-4 border-t border-antique-border font-sans text-xs flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-antique-muted">Your Stance:</span>
+                        <span class="px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-accent">Agree</span>
+                    </div>
+                    <a href="policy-detail.html?id=1" class="text-antique-accent font-medium hover:underline">View Policy &rarr;</a>
+                </div>
+            </article>
+
+            <!-- History Card 2 -->
+            <article class="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between text-xs font-sans text-antique-muted mb-2">
+                        <span class="uppercase tracking-wider px-2 py-0.5 bg-antique-bg border border-antique-border rounded">Economy</span>
+                        <span>Voted on: May 05, 2026</span>
+                    </div>
+                    <h2 class="text-xl font-bold mb-2">
+                        <a href="policy-detail.html?id=2" class="hover:text-antique-accent">Digital Commerce Tax Modernization Act</a>
+                    </h2>
+                    <p class="text-sm text-antique-muted font-sans mb-4">
+                        Framework restructuring digital service taxation, streamlining compliance for small domestic tech enterprises, and establishing digital transaction standards.
+                    </p>
+                </div>
+
+                <div class="pt-4 border-t border-antique-border font-sans text-xs flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-antique-muted">Your Stance:</span>
+                        <span class="px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-muted">Neutral</span>
+                    </div>
+                    <a href="policy-detail.html?id=2" class="text-antique-accent font-medium hover:underline">View Policy &rarr;</a>
+                </div>
+            </article>
+
+        </section>
+
+    </main>
+
+    <!-- Public Footer -->
+    <footer class="border-t border-antique-border bg-antique-card mt-16 py-6 font-sans text-xs text-antique-muted">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>&copy; 2026 Hagere Civic Platform. Citizen Dashboard.</p>
+            <div class="flex space-x-6">
+                <a href="#" class="hover:text-antique-accent">About</a>
+                <a href="#" class="hover:text-antique-accent">Privacy Policy</a>
+                <a href="contributing.md" class="hover:text-antique-accent">Contribute</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
