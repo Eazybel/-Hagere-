@@ -7,6 +7,4 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/fireba
     messagingSenderId: "907064312662",
     appId: "1:907064312662:web:e716e0df19627c4a5dccf7"
   };
-
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
