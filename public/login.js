@@ -18,26 +18,26 @@ const captchaVerifyDiv=document.getElementById("captchaVerifyDiv")
 const otpButton=document.getElementById("otpButton")
 const otpInput=document.getElementById("otp-code")
 logInButton.onclick=()=>{
-   fetch("/newUserRegister",
+signInWithPopup(auth, provider)
+  .then((result) => {
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const token = credential.accessToken;
+    const user = result.user;
+   //NEW USER REGISTERING SYSTEM OR CHECKING USER AVAILABLITY
+ fetch("/newUserRegister",
       {
         method:"POST",
         headers:{"Content-type":"application/json"},
-        body:JSON.stringify({"userDate":"accepted"})
+        body:JSON.stringify({"name":user.displayName,"email":user.email,"avatar":user.photoUrl})
       }
     
-    ).then(res=>{return res.text()}).then(data=>{console.log(data)})
-// signInWithPopup(auth, provider)
-//   .then((result) => {
-//     const credential = GoogleAuthProvider.credentialFromResult(result);
-//     const token = credential.accessToken;
-//     const user = result.user;
-   
-//     window.location.href="./feed.html"
-//   }).catch((error) => {
-//     const errorCode = error.code;
-//     const errorMessage = error.message;
-//     const email = error.customData.email;
-//     const credential = GoogleAuthProvider.credentialFromError(error);
+    ).then(res=>{return res.json()}).then(data=>{console.log(data)})
+    // window.location.href="./feed.html"
+  }).catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    const email = error.customData.email;
+    const credential = GoogleAuthProvider.credentialFromError(error);
   
-//   });
+  });
 }
