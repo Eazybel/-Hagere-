@@ -18,17 +18,26 @@ const captchaVerifyDiv=document.getElementById("captchaVerifyDiv")
 const otpButton=document.getElementById("otpButton")
 const otpInput=document.getElementById("otp-code")
 logInButton.onclick=()=>{
-signInWithPopup(auth, provider)
-  .then((result) => {
-    const credential = GoogleAuthProvider.credentialFromResult(result);
-    const token = credential.accessToken;
-    const user = result.user;
-    window.location.href="./feed.html"
-  }).catch((error) => {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    const email = error.customData.email;
-    const credential = GoogleAuthProvider.credentialFromError(error);
+   fetch("/newUserRegister",
+      {
+        method:"POST",
+        headers:{"Content-type":"application/json"},
+        body:JSON.stringify({"userDate":"accepted"})
+      }
+    
+    ).then(res=>{return res.text()}).then(data=>{console.log(data)})
+// signInWithPopup(auth, provider)
+//   .then((result) => {
+//     const credential = GoogleAuthProvider.credentialFromResult(result);
+//     const token = credential.accessToken;
+//     const user = result.user;
+   
+//     window.location.href="./feed.html"
+//   }).catch((error) => {
+//     const errorCode = error.code;
+//     const errorMessage = error.message;
+//     const email = error.customData.email;
+//     const credential = GoogleAuthProvider.credentialFromError(error);
   
-  });
+//   });
 }

@@ -2,6 +2,8 @@
 const express=require("express")
 const path=require("path")
 const mongoose=require("mongoose")
+// CONTROLLER ROUTE
+const newUserRegister=require("./controller/userController")
 // Package initiation
 const app=express()
 app.use(express.static(path.join(__dirname,"public")))
@@ -15,6 +17,7 @@ const connectionString=process.env.CONNECTION_STRING
 app.get("/admin",(req,res)=>{
     res.sendFile(path.join(__dirname,"/admin.html"))
 })
+app.post("/newUserRegister",newUserRegister)
 app.listen(port,()=>{
     console.log("Server listening")
 })

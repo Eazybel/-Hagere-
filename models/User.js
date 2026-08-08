@@ -25,7 +25,7 @@ const UserSchema = new mongoose.Schema(
     votesCast: [
       {
         policyId: {
-          type: Schema.Types.ObjectId,
+          type: mongoose.Schema.Types.ObjectId,
           ref: "Policy",
           required: true,
         },
@@ -49,5 +49,5 @@ const UserSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-const userModel=mongoose.model("userModel",UserSchema)
+const userModel=mongoose.model("userModel",UserSchema,"users")
 module.exports=userModel
