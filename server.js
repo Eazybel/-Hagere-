@@ -12,6 +12,9 @@ require("dotenv").config()
 const port=process.env.PORT
 const connectionString=process.env.CONNECTION_STRING
 // Server listening port
+app.get("/admin",(req,res)=>{
+    res.sendFile(path.join(__dirname,"/admin.html"))
+})
 app.listen(port,()=>{
     console.log("Server listening")
 })
