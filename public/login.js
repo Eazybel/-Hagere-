@@ -23,8 +23,11 @@ signInWithPopup(auth, provider)
     const credential = GoogleAuthProvider.credentialFromResult(result);
     const token = credential.accessToken;
     const user = result.user;
+    console.log(user
+      
+    )
    //NEW USER REGISTERING SYSTEM OR CHECKING USER AVAILABLITY
- fetch("/newUserRegister",
+fetch("/newUserRegister",
       {
         method:"POST",
         headers:{"Content-type":"application/json"},

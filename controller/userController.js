@@ -2,7 +2,7 @@
 const mongoose=require("mongoose")
 const userModel=require("../models/User")
 const userController=async(req,res)=>{
-const isUser=await userModal.findOne({"email":req.body.email})
+// const isUser=await userModel.findOne({"email":req.body.email})
 const {name,email,avatar}=req.body
 // if(isUser){
 // console.log("user")

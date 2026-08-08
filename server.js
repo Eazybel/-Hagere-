@@ -2,6 +2,7 @@
 const express=require("express")
 const path=require("path")
 const mongoose=require("mongoose")
+const cors=require("cors")
 // CONTROLLER ROUTE
 const newUserRegister=require("./controller/userController")
 // Package initiation
@@ -13,6 +14,13 @@ app.use(express.urlencoded({extended:true}))
 require("dotenv").config()
 const port=process.env.PORT
 const connectionString=process.env.CONNECTION_STRING
+// CORS POLICY MIDDLWARE
+const corsConfig={
+    origin:"http://127.0.0.1/",
+    optionsSuccessStatus:200
+
+}
+app.use(cors(corsConfig))
 // Server listening port
 app.get("/admin",(req,res)=>{
     res.sendFile(path.join(__dirname,"/admin.html"))
