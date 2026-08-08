@@ -7,7 +7,7 @@ const userController=async(req,res)=>{
     if(req.headers.authorization){
        console.log(req.headers.authorization)
     }else if(req.headers.authorization){
-        console.log("no authorization")
+       res.status(403).send("Unauthorized Request")
     }
 // const isUser=await userModel.findOne({"email":req.body.email})
 // const {name,email,avatar}=req.body

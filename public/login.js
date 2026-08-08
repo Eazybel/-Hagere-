@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
- import { getAuth, signInWithRedirect, GoogleAuthProvider, getIdToken }  from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+ import { getAuth, signInWithPopup, GoogleAuthProvider, getIdToken }  from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
   const firebaseConfig = {
     apiKey: "AIzaSyAXviVipDAJZl-xyiQE4JfACkcl1xt_CqM",
     authDomain: "hagere-c6abc.firebaseapp.com",
@@ -18,18 +18,17 @@ const captchaVerifyDiv=document.getElementById("captchaVerifyDiv")
 const otpButton=document.getElementById("otpButton")
 const otpInput=document.getElementById("otp-code")
 logInButton.onclick=()=>{
-signInWithRedirect(auth, provider)
-  .then((result) => {
+signInWithPopup(auth, provider)
+  .then(async(result) => {
     const credential = GoogleAuthProvider.credentialFromResult(result);
     const token = credential.accessToken;
     const user = result.user;
-    const idToken=result._tokenResponce.idToken
-
+    const idToken=await user.getIdToken()
    //NEW USER REGISTERING SYSTEM OR CHECKING USER AVAILABLITY
 fetch("/newUserRegister",
       {
         method:"POST",
-        headers:{"Content-type":"application/json","Authorization":`Bearer`},
+        headers:{"Content-type":"application/json","Authorization":`Bearer ${idToken}`},
         body:JSON.stringify({"name":user.displayName,"email":user.email,"avatar":user.photoURL})
       }
     
