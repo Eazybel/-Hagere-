@@ -3,11 +3,16 @@ const express=require("express")
 const path=require("path")
 const mongoose=require("mongoose")
 const cors=require("cors")
+const rateLimiter=require("express-rate-limit")
 const admin=require("firebase-admin")
 var {cert,initializeApp} = require("firebase-admin/app");
 
 var serviceAccount = require("./serviceAccount.json");
-
+const limiter=rateLimiter({
+    windowMs:15*60*1000,
+    malimit:5,
+    message:"Too many Requests"
+})
 admin.initializeApp({
     credential:cert(serviceAccount)
 })
