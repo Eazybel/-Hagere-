@@ -16,10 +16,10 @@
   const cancelBtn=document.getElementById("cancelBtn")
   publishBtn.onclick=async()=>{
     publishModal.classList.remove("hidden")
-    document.querySelector("body").classList.add("hidden")
+    document.querySelector("main").classList.add("hidden")
   }
   cancelBtn.onclick=()=>{
-    document.querySelector("body").classList.add("remove")
+    document.querySelector("main").classList.remove("hidden")
     publishModal.classList.add("hidden")
   }
 
