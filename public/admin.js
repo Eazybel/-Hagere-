@@ -11,4 +11,16 @@
 
   const app = initializeApp(firebaseConfig);
   const auth=getAuth(app)
+  const publishModal=document.getElementById("publishModal")
+  const publishBtn=document.getElementById("publishBtn")
+  const cancelBtn=document.getElementById("cancelBtn")
+  publishBtn.onclick=async()=>{
+    publishModal.classList.remove("hidden")
+    document.querySelector("body").classList.add("hidden")
+  }
+  cancelBtn.onclick=()=>{
+    document.querySelector("body").classList.add("remove")
+    publishModal.classList.add("hidden")
+  }
+
 

@@ -26,7 +26,7 @@
         }
     </script>
 </head>
-<body class="bg-antique-bg text-antique-text font-serif antialiased min-h-screen flex flex-col">
+<body class="bg-antique-bg text-antique-text font-serif antialiased min-h-screen flex flex-col relative">
 
     <!-- Navigation Header -->
     <header class="border-b border-antique-border bg-antique-card sticky top-0 z-50">
@@ -60,7 +60,8 @@
                 </p>
             </div>
             <div class="flex items-center gap-3 font-sans text-xs">
-                <a href="submit-policy.html" class="px-4 py-2.5 bg-antique-accent text-white rounded font-medium hover:bg-antique-accentHover transition-colors shadow-sm">
+                <!-- Trigger link/button using target anchor ID -->
+                <a id="publishBtn" href="#publishModal" class="px-4 py-2.5 bg-antique-accent text-white rounded font-medium hover:bg-antique-accentHover transition-colors shadow-sm inline-block">
                     + Publish New Policy
                 </a>
             </div>
@@ -144,6 +145,51 @@
 
     </main>
 
+    <!-- Pure CSS Target Modal with PDF Upload Input -->
+    <div id="publishModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs items-center justify-center p-4 z-50 hidden target:flex">
+        <div class="bg-antique-card border border-antique-border rounded-lg max-w-lg w-full p-6 shadow-xl font-sans relative max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-antique-border">
+                <h2 class="text-lg font-bold text-antique-text font-serif">Publish New Policy Proposal</h2>
+            </div>
+
+            <form class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-medium text-antique-muted mb-1">Policy Title</label>
+                    <input type="text" required placeholder="e.g., National Digital Infrastructure Act" class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-medium text-antique-muted mb-1">Category / Sector</label>
+                    <select title="sector" class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none">
+                    <option value="economy">Economy & Finance</option>
+                    <option value="infrastructure">Infrastructure & Transport</option>
+                    <option value="health">Public Health & Welfare</option>
+                    <option value="education">Education & Culture</option>
+                    <option value="technology">Technology & Digital Services</option>
+                    <option value="agriculture">Agriculture & Environment</option>
+                    <option value="justice">Law & Governance</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-medium text-antique-muted mb-1">Proposal Summary / Description</label>
+                    <textarea rows="3" required placeholder="Outline the main objectives and civic impacts..." class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none resize-none"></textarea>
+                </div>
+                <div>
+                    <label for="file" class="block font-medium text-antique-muted mb-1">Upload Policy Document (PDF)</label>
+                    <input id="file" type="file" accept="application/pdf" required class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-antique-accent file:text-white hover:file:bg-antique-accentHover">
+                </div>
+
+                <div class="flex items-center justify-end space-x-3 pt-2">
+                    <a id="cancelBtn" href="#" class="px-4 py-2 bg-antique-bg border border-antique-border rounded text-antique-text font-medium hover:bg-antique-border transition-colors">
+                        Cancel
+                    </a>
+                    <button type="submit" class="px-4 py-2 bg-antique-accent text-white rounded font-medium hover:bg-antique-accentHover transition-colors shadow-sm">
+                        Publish Post
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Public Footer -->
     <footer class="border-t border-antique-border bg-antique-card mt-16 py-6 font-sans text-xs text-antique-muted">
         <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -155,6 +201,6 @@
             </div>
         </div>
     </footer>
-
+<script type="module" src="admin.js"></script>
 </body>
 </html>
