@@ -3,11 +3,12 @@ const express=require("express")
 const path=require("path")
 const mongoose=require("mongoose")
 const cors=require("cors")
+const admin=require("firebase-admin")
 var {cert,initializeApp} = require("firebase-admin/app");
 
 var serviceAccount = require("./serviceAccount.json");
 
-initializeApp({
+admin.initializeApp({
     credential:cert(serviceAccount)
 })
 // CONTROLLER ROUTE
