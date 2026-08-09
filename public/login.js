@@ -33,7 +33,7 @@ fetch("/newUserRegister",
       }
     
     ).then(res=>{return res.json()}).then(data=>{console.log(data)})
-    // window.location.href="./feed.html"
+    window.location.href="./feed.html"
   }).catch((error) => {
     const errorCode = error.code;
     const errorMessage = error.message;
