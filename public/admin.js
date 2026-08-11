@@ -32,7 +32,6 @@ submitBtn.onclick=(e)=>{
   e.preventDefault()
   const form=new FormData(publishForm)
   const objectedForm=Object.fromEntries(form.entries())
-  console.log(objectedForm)
   fetch("/policyUpdate",{
     method:"POST",
     body:form

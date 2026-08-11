@@ -40,7 +40,7 @@ app.get("/admin",(req,res)=>{
     res.sendFile(path.join(__dirname,"/admin.html"))
 })
 //ROUTE INITIALIZATION
-app.post("/policyUpdate",policyUpdate)
+app.post("/policyUpdate",upload.single("file"),policyUpdate)
 app.post("/newUserRegister",newUserRegister)
 app.listen(port,()=>{
     console.log("Server listening")
