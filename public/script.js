@@ -18,6 +18,7 @@ onAuthStateChanged(auth, (user) => {
     const uid = user.uid;
     // ...
   } else {
+        // POLICY POST UPDATER
 fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"policyDataFetch"})}).then(res=>{return res.json()}).then(data=>
 {
   const policySection=document.getElementById("policySection")
