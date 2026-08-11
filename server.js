@@ -9,11 +9,11 @@ var {cert,initializeApp} = require("firebase-admin/app");
 const {cloudinary, upload}=require("./utils/cloudinary")
 
 var serviceAccount = require("./serviceAccount.json");
-const limiter=rateLimiter({
-    windowMs:15*60*1000,
-    malimit:5,
-    message:"Too many Requests"
-})
+// const limiter=rateLimiter({
+//     windowMs:15*60*1000,
+//     malimit:5,
+//     message:"Too many Requests"
+// })
 admin.initializeApp({
     credential:cert(serviceAccount)
 })

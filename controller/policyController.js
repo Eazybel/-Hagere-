@@ -5,7 +5,7 @@ const policyUpdate=((req,res)=>{
     res.status(404).send("File upload not found")
     }
     try{
-const uploadStream=cloudinary.upload.upload_stream({
+const uploadStream=cloudinary.uploader.upload_stream({
     folder:"policyFiles",
     resource_type:"auto"
 
@@ -14,13 +14,11 @@ const uploadStream=cloudinary.upload.upload_stream({
         res.send(401).send(error)
     }
     res.status(200).json(result)
-}
-
-)
+})
 uploadStream.end(req.file.buffer)
     }catch(error){
-
+console.log(error)
     }
-res.json(req.file)
+// res.json(req.file)
 })
 module.exports=policyUpdate
