@@ -34,8 +34,10 @@ const policyFetch=async(req,res)=>{
     const reqData=JSON.parse(req.body)
    if(reqData.requestType=="policyNumberFetch"){
     res.status(200).send(allPolicies.length)
+   }else if(reqData.requestType=="policyDataFetch"){
+
+       res.status(200).json(allPolicies)
    }
 
-    res.status(200).json(allPolicies)
 }
 module.exports={policyUpdate, policyFetch}

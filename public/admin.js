@@ -39,9 +39,16 @@ submitBtn.onclick=(e)=>{
   }).then(res=>{return res.json()}).then(data=>{console.log(data)})
 }
 // POLICY NUMBER UPDATE
-fetch("/policyFetch",{method:"POST",body:JSON.stringify({requestType:"policyNumberFetch"})}).then(res=>{return res.json()}).then(data=>{
+const adminDataFetcher=async()=>{
+  fetch("/policyFetch",{method:"POST",body:JSON.stringify({requestType:"policyNumberFetch"})}).then(res=>{return res.json()}).then(data=>{
 document.querySelector(".activePolicy").innerText=data
 })
+fetch("/userFetch",{method:"POST",body:JSON.stringify({requestType:"userNumberFetch"})}).then(res=>{return res.json()}).then(data=>{
+document.querySelector(".activeCitizens").innerText=data
+
+})
+}
+adminDataFetcher()
     const uid = user.uid;
     // ...
   } else {

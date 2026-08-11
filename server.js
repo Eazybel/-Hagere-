@@ -18,7 +18,7 @@ admin.initializeApp({
     credential:cert(serviceAccount)
 })
 // CONTROLLER ROUTE
-const newUserRegister=require("./controller/userController")
+const {userController, userFetch}=require("./controller/userController")
 const {policyUpdate,policyFetch}=require("./controller/policyController")
 // Package initiation
 const app=express()
@@ -42,8 +42,9 @@ app.get("/admin",(req,res)=>{
 })
 //ROUTE INITIALIZATION
 app.post("/policyUpdate",upload.single("file"),policyUpdate)
-app.post("/newUserRegister",newUserRegister)
+app.post("/newUserRegister",userController)
 app.post("/policyFetch",policyFetch)
+app.post("/userFetch",userFetch)
 app.listen(port,()=>{
     console.log("Server listening")
 })
