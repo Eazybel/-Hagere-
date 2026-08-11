@@ -18,7 +18,7 @@ onAuthStateChanged(auth, (user) => {
     const uid = user.uid;
     // ...
   } else {
- console.log("User not Registered")
+fetch("/policyFetch").then(res=>{return res.text()}).then(data=>console.log(data))
  document.querySelector("body").classList.remove("hidden")
   }
 });

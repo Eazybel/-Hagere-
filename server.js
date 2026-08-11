@@ -19,7 +19,7 @@ admin.initializeApp({
 })
 // CONTROLLER ROUTE
 const newUserRegister=require("./controller/userController")
-const policyUpdate=require("./controller/policyController")
+const {policyUpdate,policyFetch}=require("./controller/policyController")
 // Package initiation
 const app=express()
 app.use(express.static(path.join(__dirname,"public")))
@@ -43,6 +43,7 @@ app.get("/admin",(req,res)=>{
 //ROUTE INITIALIZATION
 app.post("/policyUpdate",upload.single("file"),policyUpdate)
 app.post("/newUserRegister",newUserRegister)
+app.get("/policyFetch",policyFetch)
 app.listen(port,()=>{
     console.log("Server listening")
 })

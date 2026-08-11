@@ -30,4 +30,7 @@ console.log(error)
 
 // res.json(req.file)
 })
-module.exports=policyUpdate
+const policyFetch=async(req,res)=>{
+    res.send("sucess")
+}
+module.exports={policyUpdate,policyFetch}
