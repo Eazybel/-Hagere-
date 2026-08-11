@@ -6,6 +6,7 @@ const cors=require("cors")
 const rateLimiter=require("express-rate-limit")
 const admin=require("firebase-admin")
 var {cert,initializeApp} = require("firebase-admin/app");
+const {cloudinary, upload}=require("./utils/cloudinary")
 
 var serviceAccount = require("./serviceAccount.json");
 const limiter=rateLimiter({
