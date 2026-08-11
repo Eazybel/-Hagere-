@@ -18,6 +18,7 @@ onAuthStateChanged(auth, (user) => {
     const uid = user.uid;
     // ...
   } else {
+
         // POLICY POST UPDATER
 fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"policyDataFetch"})}).then(res=>{return res.json()}).then(data=>
 {
@@ -31,7 +32,7 @@ fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"policyDa
                         <span class="uppercase tracking-wider px-2 py-0.5 bg-antique-bg border border-antique-border rounded">${policy.category}</span>
                         <span>Published: ${new Date(policy.createdAt).toLocaleString()}</span>
                     </div>
-                    <h2 class="text-xl font-bold mb-2">
+                    <h2 class="text-xl font-bold mb-2 title">
                        ${policy.title}
                     </h2>
                     <p class="text-sm text-antique-muted font-sans mb-4">
@@ -83,7 +84,29 @@ fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"policyDa
 
 }
 
-)
+).then(()=>{
+        // FILTERING SECTION CODE BLOCK
+const titleFilter=document.getElementById("titleFilter")
+titleFilter.onkeyup=(e)=>{
+    const target=e.target.value.toLowerCase()
+    let titleText=document.querySelectorAll(".title")
+    titleText.forEach(titles=>{
+     const titleLower=titles.innerText.toLowerCase()
+    if(!titleLower.includes(target)){
+        titles.parentElement.parentElement.style.display="none"
+        
+    }else if(titleLower.includes(target)){
+    titles.parentElement.parentElement.style.display=""
+    }
+   
+    })
+     const policySection=document.getElementById("policySection")
+     console.log(policySection.innerHTML)
+    // if(policySection.children==""){
+    //     console.log("sucess")
+    // }
+}
+})
  document.querySelector("body").classList.remove("hidden")
   }
 });
