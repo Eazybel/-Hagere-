@@ -18,6 +18,7 @@ admin.initializeApp({
 })
 // CONTROLLER ROUTE
 const newUserRegister=require("./controller/userController")
+const policyUpdate=require("./controller/policyController")
 // Package initiation
 const app=express()
 app.use(express.static(path.join(__dirname,"public")))
@@ -38,6 +39,8 @@ app.use(cors(corsConfig))
 app.get("/admin",(req,res)=>{
     res.sendFile(path.join(__dirname,"/admin.html"))
 })
+//ROUTE INITIALIZATION
+app.post("/policyUpdate",policyUpdate)
 app.post("/newUserRegister",newUserRegister)
 app.listen(port,()=>{
     console.log("Server listening")

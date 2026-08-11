@@ -155,11 +155,11 @@
             <form id="publishForm" class="space-y-4 text-xs">
                 <div>
                     <label class="block font-medium text-antique-muted mb-1">Policy Title</label>
-                    <input type="text" required placeholder="e.g., National Digital Infrastructure Act" class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none">
+                    <input name="title" type="text" required placeholder="e.g., National Digital Infrastructure Act" class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none">
                 </div>
                 <div>
                     <label class="block font-medium text-antique-muted mb-1">Category / Sector</label>
-                    <select title="sector" class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none">
+                    <select name="sector" title="sector" class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none">
                     <option value="economy">Economy & Finance</option>
                     <option value="infrastructure">Infrastructure & Transport</option>
                     <option value="health">Public Health & Welfare</option>
@@ -171,18 +171,18 @@
                 </div>
                 <div>
                     <label class="block font-medium text-antique-muted mb-1">Proposal Summary / Description</label>
-                    <textarea rows="3" required placeholder="Outline the main objectives and civic impacts..." class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none resize-none"></textarea>
+                    <textarea name="description" rows="3" required placeholder="Outline the main objectives and civic impacts..." class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none resize-none"></textarea>
                 </div>
                 <div>
                     <label for="file" class="block font-medium text-antique-muted mb-1">Upload Policy Document (PDF)</label>
-                    <input id="file" type="file" accept="application/pdf" required class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-antique-accent file:text-white hover:file:bg-antique-accentHover">
+                    <input name="file" id="file" type="file" accept="application/pdf" required class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-antique-accent file:text-white hover:file:bg-antique-accentHover">
                 </div>
 
                 <div class="flex items-center justify-end space-x-3 pt-2">
                     <a id="cancelBtn" href="#" class="px-4 py-2 bg-antique-bg border border-antique-border rounded text-antique-text font-medium hover:bg-antique-border transition-colors">
                         Cancel
                     </a>
-                    <button id="submitBtn" type="submit" class="px-4 py-2 bg-antique-accent text-white rounded font-medium hover:bg-antique-accentHover transition-colors shadow-sm">
+                    <button id="submitBtn" type="button" class="px-4 py-2 bg-antique-accent text-white rounded font-medium hover:bg-antique-accentHover transition-colors shadow-sm">
                         Publish Post
                     </button>
                 </div>

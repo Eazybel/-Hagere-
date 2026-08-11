@@ -33,7 +33,10 @@ submitBtn.onclick=(e)=>{
   const form=new FormData(publishForm)
   const objectedForm=Object.fromEntries(form.entries())
   console.log(objectedForm)
-  
+  fetch("/policyUpdate",{
+    method:"POST",
+    body:form
+  }).then(res=>{return res.json()}).then(data=>{console.log(data)})
 }
     const uid = user.uid;
     // ...
