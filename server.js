@@ -43,7 +43,7 @@ app.listen(port,()=>{
     console.log("Server listening")
 })
 
-// Database Connection initialization
+// Database Connection initialization with mongo db
 mongoose.connect(connectionString)
 .then(()=>
     {console.log("Database Connection started")}
