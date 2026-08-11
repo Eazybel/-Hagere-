@@ -31,6 +31,7 @@ console.log(error)
 // res.json(req.file)
 })
 const policyFetch=async(req,res)=>{
-    res.send("sucess")
+    const allPolicies=await policyModel.find()
+    res.status(200).json(allPolicies)
 }
-module.exports={policyUpdate,policyFetch}
+module.exports={policyUpdate, policyFetch}

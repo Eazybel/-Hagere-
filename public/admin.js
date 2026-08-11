@@ -1,12 +1,12 @@
  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
  import { getAuth, signInWithPopup, GoogleAuthProvider , onAuthStateChanged, signOut }  from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
   const firebaseConfig = {
-    apiKey: "AIzaSyAXviVipDAJZl-xyiQE4JfACkcl1xt_CqM",
-    authDomain: "hagere-c6abc.firebaseapp.com",
-    projectId: "hagere-c6abc",
-    storageBucket: "hagere-c6abc.firebasestorage.app",
-    messagingSenderId: "272791886594",
-    appId: "1:272791886594:web:22290488e32074b8a3c01b"
+   apiKey: "AIzaSyBg9v5J4qdDYQhYCl79Q1U5Nm7hzrQ7yMw",
+  authDomain: "hagere-admin.firebaseapp.com",
+  projectId: "hagere-admin",
+  storageBucket: "hagere-admin.firebasestorage.app",
+  messagingSenderId: "907064312662",
+  appId: "1:907064312662:web:e716e0df19627c4a5dccf7"
   };
 //VARIABLE AND FIREBASE INITIATER
   const app = initializeApp(firebaseConfig);
@@ -25,7 +25,8 @@
   }
   cancelBtn.onclick=()=>{
     document.querySelector("main").classList.remove("hidden")
-    publishModal.classList.add("hidden")
+    window.location.href=("./admin.html")
+
   }
 // SUBMIT HANDLER
 submitBtn.onclick=(e)=>{
