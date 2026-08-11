@@ -38,6 +38,10 @@ submitBtn.onclick=(e)=>{
     body:form
   }).then(res=>{return res.json()}).then(data=>{console.log(data)})
 }
+// POLICY NUMBER UPDATE
+fetch("/policyFetch",{method:"POST",body:JSON.stringify({requestType:"policyNumberFetch"})}).then(res=>{return res.json()}).then(data=>{
+document.querySelector(".activePolicy").innerText=data
+})
     const uid = user.uid;
     // ...
   } else {

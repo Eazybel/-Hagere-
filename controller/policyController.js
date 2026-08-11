@@ -28,10 +28,14 @@ uploadStream.end(req.file.buffer)
 console.log(error)
     }
 
-// res.json(req.file)
 })
 const policyFetch=async(req,res)=>{
     const allPolicies=await policyModel.find()
+    const reqData=JSON.parse(req.body)
+   if(reqData.requestType=="policyNumberFetch"){
+    res.status(200).send(allPolicies.length)
+   }
+
     res.status(200).json(allPolicies)
 }
 module.exports={policyUpdate, policyFetch}

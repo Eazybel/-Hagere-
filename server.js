@@ -43,7 +43,7 @@ app.get("/admin",(req,res)=>{
 //ROUTE INITIALIZATION
 app.post("/policyUpdate",upload.single("file"),policyUpdate)
 app.post("/newUserRegister",newUserRegister)
-app.get("/policyFetch",policyFetch)
+app.post("/policyFetch",policyFetch)
 app.listen(port,()=>{
     console.log("Server listening")
 })
