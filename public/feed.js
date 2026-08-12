@@ -26,7 +26,7 @@ fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"policyDa
             <article class="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between text-xs font-sans text-antique-muted mb-2">
-                        <span class="uppercase tracking-wider px-2 py-0.5 bg-antique-bg border border-antique-border rounded">${policy.category}</span>
+                        <span class="uppercase tracking-wider px-2 py-0.5 bg-antique-bg border border-antique-border rounded category">${policy.category}</span>
                         <span>Published: ${new Date(policy.createdAt).toLocaleString()}</span>
                     </div>
                     <h2 class="text-xl font-bold mb-2 title">
@@ -98,6 +98,26 @@ titleFilter.onkeydown=(e)=>{
     })
     
 }
+const catagoryFilter=document.getElementById("policy-category")
+const categoryLabel=document.querySelectorAll(".category")
+catagoryFilter.addEventListener("change",(e)=>{
+  const targetValue=e.target.value
+categoryLabel.forEach(label=>{
+ const labelToLower=label.innerText.toLowerCase()
+ if(targetValue=="all"){
+label.parentElement.parentElement.parentElement.style.display=""
+
+ }else if(!labelToLower.includes(targetValue)){
+
+label.parentElement.parentElement.parentElement.style.display="none"
+}else if(labelToLower.includes(targetValue)){
+label.parentElement.parentElement.parentElement.style.display=""
+}else if(targetValue=="all"){
+   console.log(label.parentElement.parentElement.parentElement.style.display)
+
+ }
+})
+})
 })
   } else {
 window.location.href="./index.html"
