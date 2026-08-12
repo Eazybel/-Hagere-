@@ -82,8 +82,9 @@ fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"policyDa
 }
 
 ).then(()=>{
+  // TITLE FILTERING SECTION
   const titleFilter=document.getElementById("titleFilter")
-titleFilter.onkeyup=(e)=>{
+titleFilter.onkeydown=(e)=>{
     const target=e.target.value.toLowerCase()
     let titleText=document.querySelectorAll(".title")
     titleText.forEach(titles=>{
