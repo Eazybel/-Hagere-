@@ -37,6 +37,8 @@ const policyFetch=async(req,res)=>{
    }else if(reqData.requestType=="policyDataFetch"){
 
        res.status(200).json(allPolicies)
+   }else if(reqData.requestType=="singlePolicyFetch"){
+        res.status(200).json({"status":"sucess"})
    }
 
 }

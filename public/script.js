@@ -54,19 +54,20 @@ fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"policyDa
         <!-- Action Link to Vote, Read & Comment -->
         <div class="pt-3 border-t border-antique-border font-sans flex items-center justify-between">
             <span class="text-xs text-antique-muted">Explore full policy document & discussions</span>
-            <a  id="policyRedirectBtn" class="px-4 py-2 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors shadow-sm inline-block">
+            <button type="button" class="px-4 py-2 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors shadow-sm inline-block policyRedirectBtn">
                 Read, Vote & Comment &rarr;
-            </a>
+            </button>
+            <label class="hidden idLabel">${policy._id}</label>
         </div>
     </div>
 </article>
       `
     )
   })
-
+return data
 }
 
-).then(()=>{
+).then((data)=>{
         // FILTERING SECTION CODE BLOCK
   const titleFilter=document.getElementById("titleFilter")
 titleFilter.onkeydown=(e)=>{
@@ -104,6 +105,16 @@ label.parentElement.parentElement.parentElement.style.display=""
  }
 })
 })
+// POLICY REDIRECT SECTION
+const policyRedirectBtn=document.querySelectorAll(".policyRedirectBtn")
+policyRedirectBtn.forEach(redirect=>{
+    redirect.onclick=()=>{
+       const idLabel=redirect.parentElement.querySelector(".idLabel").innerText
+      localStorage.setItem("policyID",idLabel)
+      window.location.href="./policy.html"
+    }
+})
+
 })
  document.querySelector("body").classList.remove("hidden")
   }
