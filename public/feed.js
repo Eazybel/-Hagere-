@@ -30,10 +30,13 @@ policySection.insertAdjacentHTML("beforeend",`<div class="col-span-full py-12 te
   data.forEach(policy=>{
     policySection.insertAdjacentHTML("beforeend",
       `
-           <article class="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col justify-between">
+        <article class="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col justify-between">
     <div>
         <div class="flex items-center justify-between text-xs font-sans text-antique-muted mb-2">
-            <span class="uppercase tracking-wider px-2 py-0.5 bg-antique-bg border border-antique-border rounded category">${policy.category}</span>
+            <div class="flex items-center space-x-2">
+                <span class="uppercase tracking-wider px-2 py-0.5 bg-antique-bg border border-antique-border rounded category">${policy.category}</span>
+                <span class="uppercase tracking-wider px-2 py-0.5 bg-antique-bg border border-antique-border rounded status">${policy.status}</span>
+            </div>
             <span>Published: ${new Date(policy.createdAt).toLocaleString()}</span>
         </div>
         <h2 class="text-xl font-bold mb-2 title">
@@ -48,17 +51,17 @@ policySection.insertAdjacentHTML("beforeend",`<div class="col-span-full py-12 te
         <!-- Vote Counts Breakdown Analytics -->
         <div class="mb-4 pt-2 border-t border-antique-border font-sans text-xs flex flex-wrap items-center justify-between gap-2">
             <div class="flex items-center space-x-3 text-antique-muted">
-                <span>Agree: <strong class="text-antique-text">923</strong></span>
-                <span>Neutral: <strong class="text-antique-text">142</strong></span>
-                <span>Disagree: <strong class="text-antique-text">355</strong></span>
+                <span>Agree: <strong class="text-antique-text">22</strong></span>
+                <span>Neutral: <strong class="text-antique-text">$22</strong></span>
+                <span>Disagree: <strong class="text-antique-text">22</strong></span>
             </div>
-            <span class="text-antique-muted">Comments: <strong class="text-antique-text">48</strong></span>
+            <span class="text-antique-muted">Comments: <strong class="text-antique-text">22</strong></span>
         </div>
 
         <!-- Action Link to Vote, Read & Comment -->
         <div class="pt-3 border-t border-antique-border font-sans flex items-center justify-between">
             <span class="text-xs text-antique-muted">Explore full policy document & discussions</span>
-            <button id type="button" class="px-4 py-2 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors shadow-sm inline-block policyRedirectBtn">
+            <button type="button" class="px-4 py-2 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors shadow-sm inline-block policyRedirectBtn">
                 Read, Vote & Comment &rarr;
             </button>
             <label class="hidden idLabel">${policy._id}</label>

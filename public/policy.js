@@ -26,7 +26,7 @@ policyArticle.insertAdjacentHTML("beforeend",
             <!-- Metadata Header -->
             <div class="flex flex-wrap items-center justify-between text-xs font-sans text-antique-muted mb-4 pb-4 border-b border-antique-border gap-2">
                 <span class="uppercase tracking-wider px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-text">${data.category}</span>
-                <span id="publishDate">Published on ${new Date(data.createdAt).toLocaleString()} &bull; Status: Active Public Consultation</span>
+                <span id="publishDate">Published on ${new Date(data.createdAt).toLocaleString()} &bull; Status: ${data.status}</span>
             </div>
 
             <!-- Title & Full Description -->
@@ -97,7 +97,7 @@ policyArticle.insertAdjacentHTML("beforeend",
             <!-- Metadata Header -->
             <div class="flex flex-wrap items-center justify-between text-xs font-sans text-antique-muted mb-4 pb-4 border-b border-antique-border gap-2">
                 <span class="uppercase tracking-wider px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-text">${data.category}</span>
-                <span id="publishDate">Published on ${new Date(data.createdAt).toLocaleString()} &bull; Status: Active Public Consultation</span>
+                <span id="publishDate">Published on ${new Date(data.createdAt).toLocaleString()} &bull; Status: ${data.status}</span>
             </div>
 
             <!-- Title & Full Description -->
