@@ -60,7 +60,7 @@ policyArticle.insertAdjacentHTML("beforeend",
             </div>
 
             <!-- Voting Interaction Section -->
-            <form class="pt-6 border-t border-antique-border font-sans flex flex-col sm:flex-row items-center justify-between gap-4">
+            <form id="formData" class="pt-6 border-t border-antique-border font-sans flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div class="text-xs text-antique-muted font-medium uppercase tracking-wider">Cast or Update Your Stance:</div>
                 <div class="flex items-center space-x-6 text-sm">
                     <label class="flex items-center space-x-1.5 cursor-pointer">
@@ -76,14 +76,23 @@ policyArticle.insertAdjacentHTML("beforeend",
                         <span>Disagree</span>
                     </label>
                 </div>
-                <button type="submit" class="px-5 py-2 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors shadow-sm w-full sm:w-auto">
+                <button id="submitBtn" type="button" class="px-5 py-2 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors shadow-sm w-full sm:w-auto">
                     Submit Stance
                 </button>
             </form>
     </div>
     `
 )
+}).then(()=>{
+    // INTERACTION UPDATION CODE BLOCK
+const submitBtn=document.getElementById("submitBtn")
+submitBtn.onclick=()=>{
+  const selectedRadio=document.querySelector("input[name='policy-vote']:checked")?.value
+  console.log(selectedRadio)
+
+}
 })
+
 } else {
     // POLICY ARTICLE RENDERING SECTION
       const policyArticle=document.getElementById("policyArticle")
