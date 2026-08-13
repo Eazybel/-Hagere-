@@ -38,7 +38,8 @@ const policyFetch=async(req,res)=>{
 
        res.status(200).json(allPolicies)
    }else if(reqData.requestType=="singlePolicyFetch"){
-        res.status(200).json({"status":"sucess"})
+    const singlePolicy=await policyModel.findOne({"_id":reqData.policyID})
+        res.status(200).json(singlePolicy)
    }
 
 }

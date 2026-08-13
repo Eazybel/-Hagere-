@@ -17,9 +17,9 @@ console.log("user found")
     const uid = user.uid;
     // ...
   } else {
-fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"singlePolicyFetch"})}).then(res=>{return res.json()}).then(data=>
+fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"singlePolicyFetch","policyID":localStorage.getItem("policyID")})}).then(res=>{return res.json()}).then(data=>
 {
-coonsole.log(data)
+console.log(data)
 })
   }
 })
