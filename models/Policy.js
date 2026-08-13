@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -24,7 +25,65 @@ const PolicySchema = new Schema(
     status: {
       type: String,
       default: "",
-    }
+    },
+    interactions: {
+      votes: {
+        agree: {
+          count: {
+            type: Number,
+            default: 0,
+          },
+          voters: [
+            {
+              type: Schema.Types.ObjectId,
+              ref: "User",
+            },
+          ],
+        },
+        neutral: {
+          count: {
+            type: Number,
+            default: 0,
+          },
+          voters: [
+            {
+              type: Schema.Types.ObjectId,
+              ref: "User",
+            },
+          ],
+        },
+        disagree: {
+          count: {
+            type: Number,
+            default: 0,
+          },
+          voters: [
+            {
+              type: Schema.Types.ObjectId,
+              ref: "User",
+            },
+          ],
+        },
+      },
+      comments: [
+        {
+          user: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+          },
+          text: {
+            type: String,
+            required: true,
+            trim: true,
+          },
+          createdAt: {
+            type: Date,
+            default: Date.now,
+          },
+        },
+      ],
+    },
   },
   {
     timestamps: true,
