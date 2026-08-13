@@ -33,15 +33,8 @@
         <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
             <a href="index.html" class="text-2xl font-bold tracking-tight text-antique-accent">Hagere</a>
             <nav class="hidden md:flex items-center space-x-6 text-sm font-sans">
-                <a href="index.html" class="text-antique-muted hover:text-antique-accent">&larr; Back to Feed</a>
-                <a href="#" class="text-antique-muted hover:text-antique-accent">About</a>
-                <a href="contributing.md" class="text-antique-muted hover:text-antique-accent">Contribute</a>
+                <a href="index.html" class="text-antique-muted hover:text-antique-accent">&larr; Back to Main</a>
             </nav>
-            <div>
-                <a href="login.html" class="text-sm font-sans px-4 py-2 border border-antique-border rounded bg-antique-bg hover:bg-antique-border transition-colors">
-                    Sign In
-                </a>
-            </div>
         </div>
     </header>
 
@@ -59,7 +52,7 @@
             <h2 class="text-xl font-normal mb-6 pb-3 border-b border-antique-border">Citizen Discussions & Comments (48)</h2>
 
             <!-- New Comment Form -->
-            <form class="mb-8 font-sans space-y-3">
+            <form id="commentPostSection" class="mb-8 font-sans space-y-3">
                 <label for="new-comment" class="block text-xs font-medium text-antique-muted uppercase tracking-wider">Contribute to the Discussion</label>
                 <textarea id="new-comment" rows="3" placeholder="Share your constructive thoughts regarding this policy proposal..." required class="w-full px-3 py-2 text-sm bg-antique-bg border border-antique-border rounded focus:outline-none focus:border-antique-accent"></textarea>
                 <div class="flex justify-end">

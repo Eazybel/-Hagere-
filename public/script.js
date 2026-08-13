@@ -84,16 +84,14 @@ titleFilter.onkeydown=(e)=>{
     let titleText=document.querySelectorAll(".title")
     titleText.forEach(titles=>{
      const titleLower=titles.innerText.toLowerCase()
-    if(!titleLower.includes(target)){
-        titles.parentElement.parentElement.style.display="none"
+    if(titleLower.includes(target)){
+        titles.closest("article").style.display=""
         
-    }else if(titleLower.includes(target)){
-    titles.parentElement.parentElement.style.display=""
-    }else{
-policySection.insertAdjacentHTML("beforeend",`<div class="col-span-full py-12 text-center bg-antique-card border border-antique-border rounded-lg font-sans">
-    <p class="text-antique-muted text-sm">No Policies Posted Yet.</p>
-</div>`)
-}
+    }else if(!titleLower.includes(target)){
+    titles.closest("article").style.display="none"
+    }else {
+    titles.closest("article").style.display=""
+    }
     })
     
 }

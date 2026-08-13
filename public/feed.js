@@ -58,7 +58,7 @@ policySection.insertAdjacentHTML("beforeend",`<div class="col-span-full py-12 te
         <!-- Action Link to Vote, Read & Comment -->
         <div class="pt-3 border-t border-antique-border font-sans flex items-center justify-between">
             <span class="text-xs text-antique-muted">Explore full policy document & discussions</span>
-            <button type="button" class="px-4 py-2 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors shadow-sm inline-block policyRedirectBtn">
+            <button id type="button" class="px-4 py-2 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors shadow-sm inline-block policyRedirectBtn">
                 Read, Vote & Comment &rarr;
             </button>
             <label class="hidden idLabel">${policy._id}</label>
@@ -108,6 +108,15 @@ label.closest("article").style.display=""
 label.closest("article").style.display="none"
 }
 })
+})
+// POLICY REDIRECT SECTION
+const policyRedirectBtn=document.querySelectorAll(".policyRedirectBtn")
+policyRedirectBtn.forEach(redirect=>{
+    redirect.onclick=()=>{
+       const idLabel=redirect.parentElement.querySelector(".idLabel").innerText
+      localStorage.setItem("policyID",idLabel)
+      window.location.href="./policy.html"
+    }
 })
 })
   } else {
