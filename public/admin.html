@@ -142,58 +142,65 @@
 
     <!-- Pure CSS Target Modal with PDF Upload Input -->
     <div id="publishModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs items-center justify-center p-4 z-50 hidden target:flex">
-        <div class="bg-antique-card border border-antique-border rounded-lg max-w-lg w-full p-6 shadow-xl font-sans relative max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between mb-4 pb-2 border-b border-antique-border">
-                <h2 class="text-lg font-bold text-antique-text font-serif">Publish New Policy Proposal</h2>
+    <div class="bg-antique-card border border-antique-border rounded-lg max-w-lg w-full p-6 shadow-xl font-sans relative max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4 pb-2 border-b border-antique-border">
+            <h2 class="text-lg font-bold text-antique-text font-serif">Publish New Policy Proposal</h2>
+        </div>
+
+        <form id="publishForm" class="space-y-4 text-xs">
+            <div>
+                <label class="block font-medium text-antique-muted mb-1">Policy Title</label>
+                <input name="title" type="text" required placeholder="e.g., National Digital Infrastructure Act" class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none">
+            </div>
+            <div>
+                <label class="block font-medium text-antique-muted mb-1">Category / Sector</label>
+                <select id="policy-category" name="sector" class="w-full px-3 py-2 text-xs bg-antique-bg border border-antique-border rounded focus:outline-none focus:border-antique-accent">
+                    <option value="Economy & Finance">Economy & Finance</option>
+                    <option value="Infrastructure & Transport">Infrastructure & Transport</option>
+                    <option value="Public Health & Welfare">Public Health & Welfare</option>
+                    <option value="Education & Culture">Education & Culture</option>
+                    <option value="Technology & Digital Services">Technology & Digital Services</option>
+                    <option value="Agriculture & Environment">Agriculture & Environment</option>
+                    <option value="Law & Governance">Law & Governance</option>
+                    <option value="Foreign Affairs & Trade">Foreign Affairs & Trade</option>
+                    <option value="Energy & Natural Resources">Energy & Natural Resources</option>
+                    <option value="Labor & Employment">Labor & Employment</option>
+                    <option value="Housing & Urban Development">Housing & Urban Development</option>
+                    <option value="National Security & Defense">National Security & Defense</option>
+                    <option value="Tourism & Hospitality">Tourism & Hospitality</option>
+                    <option value="Science, Research & Innovation">Science, Research & Innovation</option>
+                    <option value="Social Protection & Inclusion">Social Protection & Inclusion</option>
+                    <option value="Youth & Sports Development">Youth & Sports Development</option>
+                </select>
+            </div>
+            <div>
+                <label class="block font-medium text-antique-muted mb-1">Initial Operational Status</label>
+                <select name="status" class="w-full px-3 py-2 text-xs bg-antique-bg border border-antique-border rounded focus:outline-none focus:border-antique-accent text-antique-text">
+                    <option value="active">Active (Open for Public Consultation)</option>
+                    <option value="closed">Closed (Voting Locked / Finalized)</option>
+                    <option value="archived">Archived (Historical Record)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block font-medium text-antique-muted mb-1">Proposal Summary / Description</label>
+                <textarea name="description" rows="3" required placeholder="Outline the main objectives and civic impacts..." class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none resize-none"></textarea>
+            </div>
+            <div>
+                <label for="file" class="block font-medium text-antique-muted mb-1">Upload Policy Document (PDF)</label>
+                <input name="file" id="file" type="file" accept="application/pdf" required class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-antique-accent file:text-white hover:file:bg-antique-accentHover">
             </div>
 
-            <form id="publishForm" class="space-y-4 text-xs">
-                <div>
-                    <label class="block font-medium text-antique-muted mb-1">Policy Title</label>
-                    <input name="title" type="text" required placeholder="e.g., National Digital Infrastructure Act" class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none">
-                </div>
-                <div>
-                    <label class="block font-medium text-antique-muted mb-1">Category / Sector</label>
-                  <select id="policy-category" name="sector" class="w-full px-3 py-2 text-xs bg-antique-bg border border-antique-border rounded focus:outline-none focus:border-antique-accent">
-    <option value="All Major Sectors">All Major Sectors</option>
-    <option value="Economy & Finance">Economy & Finance</option>
-    <option value="Infrastructure & Transport">Infrastructure & Transport</option>
-    <option value="Public Health & Welfare">Public Health & Welfare</option>
-    <option value="Education & Culture">Education & Culture</option>
-    <option value="Technology & Digital Services">Technology & Digital Services</option>
-    <option value="Agriculture & Environment">Agriculture & Environment</option>
-    <option value="Law & Governance">Law & Governance</option>
-    <option value="Foreign Affairs & Trade">Foreign Affairs & Trade</option>
-    <option value="Energy & Natural Resources">Energy & Natural Resources</option>
-    <option value="Labor & Employment">Labor & Employment</option>
-    <option value="Housing & Urban Development">Housing & Urban Development</option>
-    <option value="National Security & Defense">National Security & Defense</option>
-    <option value="Tourism & Hospitality">Tourism & Hospitality</option>
-    <option value="Science, Research & Innovation">Science, Research & Innovation</option>
-    <option value="Social Protection & Inclusion">Social Protection & Inclusion</option>
-    <option value="Youth & Sports Development">Youth & Sports Development</option>
-</select>
-                </div>
-                <div>
-                    <label class="block font-medium text-antique-muted mb-1">Proposal Summary / Description</label>
-                    <textarea name="description" rows="3" required placeholder="Outline the main objectives and civic impacts..." class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none resize-none"></textarea>
-                </div>
-                <div>
-                    <label for="file" class="block font-medium text-antique-muted mb-1">Upload Policy Document (PDF)</label>
-                    <input name="file" id="file" type="file" accept="application/pdf" required class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-antique-accent file:text-white hover:file:bg-antique-accentHover">
-                </div>
-
-                <div class="flex items-center justify-end space-x-3 pt-2">
-                    <a id="cancelBtn" href="#" class="px-4 py-2 bg-antique-bg border border-antique-border rounded text-antique-text font-medium hover:bg-antique-border transition-colors">
-                        Cancel
-                    </a>
-                    <button id="submitBtn" type="button" class="px-4 py-2 bg-antique-accent text-white rounded font-medium hover:bg-antique-accentHover transition-colors shadow-sm">
-                        Publish Post
-                    </button>
-                </div>
-            </form>
-        </div>
+            <div class="flex items-center justify-end space-x-3 pt-2">
+                <a id="cancelBtn" href="#" class="px-4 py-2 bg-antique-bg border border-antique-border rounded text-antique-text font-medium hover:bg-antique-border transition-colors">
+                    Cancel
+                </a>
+                <button id="submitBtn" type="button" class="px-4 py-2 bg-antique-accent text-white rounded font-medium hover:bg-antique-accentHover transition-colors shadow-sm">
+                    Publish Post
+                </button>
+            </div>
+        </form>
     </div>
+</div>
 
     <!-- Public Footer -->
     <footer class="border-t border-antique-border bg-antique-card mt-16 py-6 font-sans text-xs text-antique-muted">

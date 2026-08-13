@@ -18,7 +18,8 @@ const uploadStream=cloudinary.uploader.upload_stream({
     title:req.body.title,
     category:req.body.sector,
     summary:req.body.description,
-    pdfUrl:result.url
+    pdfUrl:result.url,
+    status:req.body.status
 })
 await newPolicy.save().then(()=>console.log("saved"))
     res.status(200).json(result)

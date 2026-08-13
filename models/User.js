@@ -27,13 +27,14 @@ const UserSchema = new mongoose.Schema(
         policyId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Policy",
-          required: true,
         },
         stance: {
           type: String,
-          enum: ["agree", "neutral", "disagree"],
-          required: true,
         },
+        comment: {
+          type: String,
+        }
+        ,
         votedAt: {
           type: Date,
           default: Date.now,

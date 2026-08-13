@@ -20,6 +20,10 @@ const PolicySchema = new Schema(
     pdfUrl: {
       type: String,
       default: "",
+    },
+    status: {
+      type: String,
+      default: "",
     }
   },
   {
