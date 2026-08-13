@@ -50,7 +50,7 @@ fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"policyDa
         <!-- Action Link to Vote, Read & Comment -->
         <div class="pt-3 border-t border-antique-border font-sans flex items-center justify-between">
             <span class="text-xs text-antique-muted">Explore full policy document & discussions</span>
-            <a href="./policy.html" class="px-4 py-2 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors shadow-sm inline-block">
+            <a  id="policyRedirectBtn" class="px-4 py-2 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors shadow-sm inline-block">
                 Read, Vote & Comment &rarr;
             </a>
         </div>
