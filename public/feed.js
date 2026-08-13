@@ -19,10 +19,18 @@ onAuthStateChanged(auth, (user) => {
     // POLICY POST UPDATER
 fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"policyDataFetch"})}).then(res=>{return res.json()}).then(data=>
 {
-  const policySection=document.getElementById("policySection")
+     const policySection=document.getElementById("policySection")
+    if(data.length<1){
+policySection.insertAdjacentHTML("beforeend",`<div class="col-span-full py-12 text-center bg-antique-card border border-antique-border rounded-lg font-sans">
+    <p class="text-antique-muted text-sm">No Policies Posted Yet.</p>
+</div>`)
+    }else if(data.length>1){
+
+          
   data.forEach(policy=>{
     policySection.insertAdjacentHTML("beforeend",
-      `<article class="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col justify-between">
+      `
+           <article class="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col justify-between">
     <div>
         <div class="flex items-center justify-between text-xs font-sans text-antique-muted mb-2">
             <span class="uppercase tracking-wider px-2 py-0.5 bg-antique-bg border border-antique-border rounded category">${policy.category}</span>
@@ -50,15 +58,18 @@ fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"policyDa
         <!-- Action Link to Vote, Read & Comment -->
         <div class="pt-3 border-t border-antique-border font-sans flex items-center justify-between">
             <span class="text-xs text-antique-muted">Explore full policy document & discussions</span>
-            <a  id="policyRedirectBtn" class="px-4 py-2 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors shadow-sm inline-block">
+            <button type="button" class="px-4 py-2 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors shadow-sm inline-block policyRedirectBtn">
                 Read, Vote & Comment &rarr;
-            </a>
+            </button>
+            <label class="hidden idLabel">${policy._id}</label>
         </div>
     </div>
 </article>
       `
     )
   })
+return data
+    }
 
 }
 
@@ -80,24 +91,22 @@ titleFilter.onkeydown=(e)=>{
     
 }
 // CATEGORY FILTER SECTION
+const policySection=document.getElementById("policySection")
 const catagoryFilter=document.getElementById("policy-category")
 const categoryLabel=document.querySelectorAll(".category")
 catagoryFilter.addEventListener("change",(e)=>{
-  const targetValue=e.target.value
+  const targetValue=e.target.value.toLowerCase()
 categoryLabel.forEach(label=>{
- const labelToLower=label.innerText.toLowerCase()
- if(targetValue=="all"){
-label.parentElement.parentElement.parentElement.style.display=""
+ const labelToLower=label.innerText.trim().toLowerCase()
+ if(targetValue=="all major sectors"){
+label.closest("article").style.display=""
 
- }else if(!labelToLower.includes(targetValue)){
+ }else if(labelToLower==targetValue){
 
-label.parentElement.parentElement.parentElement.style.display="none"
-}else if(labelToLower.includes(targetValue)){
-label.parentElement.parentElement.parentElement.style.display=""
-}else if(targetValue=="all"){
-   console.log(label.parentElement.parentElement.parentElement.style.display)
-
- }
+label.closest("article").style.display=""
+}else if(labelToLower!=targetValue){
+label.closest("article").style.display="none"
+}
 })
 })
 })

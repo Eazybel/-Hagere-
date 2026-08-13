@@ -22,7 +22,14 @@ onAuthStateChanged(auth, (user) => {
         // POLICY POST UPDATER
 fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"policyDataFetch"})}).then(res=>{return res.json()}).then(data=>
 {
-  const policySection=document.getElementById("policySection")
+    const policySection=document.getElementById("policySection")
+    if(data.length<1){
+policySection.insertAdjacentHTML("beforeend",`<div class="col-span-full py-12 text-center bg-antique-card border border-antique-border rounded-lg font-sans">
+    <p class="text-antique-muted text-sm">No Policies Posted Yet.</p>
+</div>`)
+    }else if(data.length>1){
+
+          
   data.forEach(policy=>{
     policySection.insertAdjacentHTML("beforeend",
       `
@@ -65,6 +72,8 @@ fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"policyDa
     )
   })
 return data
+    }
+
 }
 
 ).then((data)=>{
@@ -80,29 +89,31 @@ titleFilter.onkeydown=(e)=>{
         
     }else if(titleLower.includes(target)){
     titles.parentElement.parentElement.style.display=""
-    }
+    }else{
+policySection.insertAdjacentHTML("beforeend",`<div class="col-span-full py-12 text-center bg-antique-card border border-antique-border rounded-lg font-sans">
+    <p class="text-antique-muted text-sm">No Policies Posted Yet.</p>
+</div>`)
+}
     })
     
 }
 // CATEGORY FILTER SECTION
+const policySection=document.getElementById("policySection")
 const catagoryFilter=document.getElementById("policy-category")
 const categoryLabel=document.querySelectorAll(".category")
 catagoryFilter.addEventListener("change",(e)=>{
-  const targetValue=e.target.value
+  const targetValue=e.target.value.toLowerCase()
 categoryLabel.forEach(label=>{
- const labelToLower=label.innerText.toLowerCase()
- if(targetValue=="all"){
-label.parentElement.parentElement.parentElement.style.display=""
+ const labelToLower=label.innerText.trim().toLowerCase()
+ if(targetValue=="all major sectors"){
+label.closest("article").style.display=""
 
- }else if(!labelToLower.includes(targetValue)){
+ }else if(labelToLower==targetValue){
 
-label.parentElement.parentElement.parentElement.style.display="none"
-}else if(labelToLower.includes(targetValue)){
-label.parentElement.parentElement.parentElement.style.display=""
-}else if(targetValue=="all"){
-   console.log(label.parentElement.parentElement.parentElement.style.display)
-
- }
+label.closest("article").style.display=""
+}else if(labelToLower!=targetValue){
+label.closest("article").style.display="none"
+}
 })
 })
 // POLICY REDIRECT SECTION
