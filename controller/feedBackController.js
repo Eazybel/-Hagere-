@@ -8,12 +8,14 @@ const feedBack=async(req,res)=>{
     const policy=await policyModal.findOne({"_id":requestBody.policyId})
     const user=await userModel.findOne({"email":requestBody.userEmail})
     if(requestBody.requestType=="agree"){
-        // policy.interactions.votes.agree.count=policy.interactions.votes.agree.count+1
-        console.log(user.votesCast)
+        policy.interactions.votes.agree.count=policy.interactions.votes.agree.count+1
+        user.votesCast.unshift({policyId:requestBody.policyId,stance:"agree"})
+       policy.interactions.votes.agree.voters.unshift(requestBody.policyId)
        
  res.send(user)
     }
-//   await policy.save().then(()=>console.log("interaction saved"))
+  await policy.save().then(()=>console.log("interaction saved"))
+  await user.save().then(()=>console.log("usere Data saved"))
    
 }
 module.exports=feedBack
