@@ -52,7 +52,7 @@ policySection.insertAdjacentHTML("beforeend",`<div class="col-span-full py-12 te
         <div class="mb-4 pt-2 border-t border-antique-border font-sans text-xs flex flex-wrap items-center justify-between gap-2">
             <div class="flex items-center space-x-3 text-antique-muted">
                 <span>Agree: <strong class="text-antique-text">22</strong></span>
-                <span>Neutral: <strong class="text-antique-text">$22</strong></span>
+                <span>Neutral: <strong class="text-antique-text">22</strong></span>
                 <span>Disagree: <strong class="text-antique-text">22</strong></span>
             </div>
             <span class="text-antique-muted">Comments: <strong class="text-antique-text">22</strong></span>
