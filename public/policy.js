@@ -27,7 +27,7 @@ policyArticle.insertAdjacentHTML("beforeend",
             <span class="uppercase tracking-wider px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-text">${data.category}</span>
             <span id="publishDate">Published on ${new Date(data.createdAt).toLocaleString()} &bull; Status: ${data.status}</span>
         </div>
-
+        <label id="policyId" class="hidden">${data._id}</label>
         <!-- Title & Full Description -->
         <h1 class="text-2xl md:text-3xl font-normal mb-6 leading-snug">${data.title}</h1>
         
@@ -84,13 +84,19 @@ policyArticle.insertAdjacentHTML("beforeend",
         </form>
     </div>
     `
+    
 )
-}).then(()=>{
+return data._id
+}).then((policyId)=>{  
     // INTERACTION UPDATION CODE BLOCK
 const submitBtn=document.getElementById("submitBtn")
-submitBtn.onclick=()=>{
+submitBtn.onclick=(e)=>{
   const selectedRadio=document.querySelector("input[name='policy-vote']:checked")?.value
-  console.log(selectedRadio)
+  if(!selectedRadio){
+    alert("Please set your Vote")
+  }else if(selectedRadio){
+     fetch("/feedBack",{method:"POST",body:JSON.stringify({"policyId":policyId,"requestType":selectedRadio})}).then(res=>{return res.json()}).then(data=>{console.log(data)})
+  }
 
 }
 })

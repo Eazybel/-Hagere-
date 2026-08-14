@@ -1,1 +1,0 @@
-// Support/Oppose/Neutral vote processing
