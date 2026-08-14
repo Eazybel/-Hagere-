@@ -16,7 +16,7 @@ const signOutButton=document.getElementById("signOutButton")
 onAuthStateChanged(auth, (user) => {
   if (user) {
     const uid = user.uid;
-    // POLICY POST UPDATER
+localStorage.setItem("userEmail",user.email)
 fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"policyDataFetch"})}).then(res=>{return res.json()}).then(data=>
 {
      const policySection=document.getElementById("policySection")

@@ -15,6 +15,7 @@
   onAuthStateChanged(auth, (user) => {
   if (user) {
     const uid = user.uid;
+  
     // POLICY ARTICLE RENDERING SECTION
       const policyArticle=document.getElementById("policyArticle")
 fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"singlePolicyFetch","policyID":localStorage.getItem("policyID")})}).then(res=>{return res.json()}).then(data=>
@@ -95,7 +96,7 @@ submitBtn.onclick=(e)=>{
   if(!selectedRadio){
     alert("Please set your Vote")
   }else if(selectedRadio){
-     fetch("/feedBack",{method:"POST",body:JSON.stringify({"policyId":policyId,"requestType":selectedRadio})}).then(res=>{return res.json()}).then(data=>{console.log(data)})
+     fetch("/feedBack",{method:"POST",body:JSON.stringify({"policyId":policyId,"requestType":selectedRadio,"userEmail":localStorage.getItem("userEmail")})}).then(res=>{return res.json()}).then(data=>{console.log(data)})
   }
 
 }
