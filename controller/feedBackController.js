@@ -12,10 +12,18 @@ const feedBack=async(req,res)=>{
         user.votesCast.unshift({policyId:requestBody.policyId,stance:"agree"})
        policy.interactions.votes.agree.voters.unshift(requestBody.policyId)
        
- res.send(user)
+    }else if(requestBody.requestType=="neutral"){
+         policy.interactions.votes.neutral.count=policy.interactions.votes.neutral.count+1
+        user.votesCast.unshift({policyId:requestBody.policyId,stance:"neutral"})
+       policy.interactions.votes.neutral.voters.unshift(requestBody.policyId)
+    }else if(requestBody.requestType=="disagree"){
+         policy.interactions.votes.disagree.count=policy.interactions.votes.disagree.count+1
+        user.votesCast.unshift({policyId:requestBody.policyId,stance:"disagree"})
+       policy.interactions.votes.disagree.voters.unshift(requestBody.policyId)
     }
-  await policy.save().then(()=>console.log("interaction saved"))
-  await user.save().then(()=>console.log("usere Data saved"))
+    await policy.save().then(()=>console.log("interaction saved"))
+    await user.save().then(()=>console.log("usere Data saved"))
+    res.status(200).send(user)
    
 }
 module.exports=feedBack
