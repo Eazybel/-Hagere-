@@ -25,23 +25,23 @@ policyArticle.insertAdjacentHTML("beforeend",
   <div>
         <!-- Metadata Header -->
         <div class="flex flex-wrap items-center justify-between text-xs font-sans text-antique-muted mb-4 pb-4 border-b border-antique-border gap-2">
-            <span class="uppercase tracking-wider px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-text">${data.category}</span>
-            <span id="publishDate">Published on ${new Date(data.createdAt).toLocaleString()} &bull; Status: ${data.status}</span>
+            <span class="uppercase tracking-wider px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-text">${data.singlePolicy.category}</span>
+            <span id="publishDate">Published on ${new Date(data.singlePolicy.createdAt).toLocaleString()} &bull; Status: ${data.singlePolicy.status}</span>
         </div>
-        <label id="policyId" class="hidden">${data._id}</label>
+        <label id="policyId" class="hidden">${data.singlePolicy._id}</label>
         <!-- Title & Full Description -->
-        <h1 class="text-2xl md:text-3xl font-normal mb-6 leading-snug">${data.title}</h1>
+        <h1 class="text-2xl md:text-3xl font-normal mb-6 leading-snug">${data.singlePolicy.title}</h1>
         
         <div class="space-y-4 text-sm text-antique-text font-sans leading-relaxed mb-6">
             <p>
-                 ${data.summary}
+                 ${data.singlePolicy.summary}
             </p>
 
         </div>
 
         <!-- View Full Policy Document Link -->
         <div class="mb-8 font-sans">
-            <a href=" ${data.pdfUrl}" target="_blank" class="inline-flex items-center space-x-2 px-4 py-2.5 bg-antique-bg border border-antique-border rounded-lg text-xs font-medium text-antique-accent hover:bg-antique-border transition-colors shadow-sm">
+            <a href=" ${data.singlePolicy.pdfUrl}" target="_blank" class="inline-flex items-center space-x-2 px-4 py-2.5 bg-antique-bg border border-antique-border rounded-lg text-xs font-medium text-antique-accent hover:bg-antique-border transition-colors shadow-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
@@ -53,9 +53,9 @@ policyArticle.insertAdjacentHTML("beforeend",
         <div class="mb-6 p-4 bg-antique-bg border border-antique-border rounded-lg font-sans text-xs">
             <span class="block text-antique-muted uppercase tracking-wider mb-2 font-semibold">Aggregate Public Stance</span>
             <div class="flex flex-wrap items-center gap-6 text-sm">
-                <span>Agree: <strong class="text-antique-text">${data.interactions?.votes?.agree?.count || 0}</strong></span>
-                <span>Neutral: <strong class="text-antique-text">${data.interactions?.votes?.neutral?.count || 0}</strong></span>
-                <span>Disagree: <strong class="text-antique-text">${data.interactions?.votes?.disagree?.count || 0}</strong></span>
+                <span>Agree: <strong class="text-antique-text">${data.singlePolicy.interactions?.votes?.agree?.count || 0}</strong></span>
+                <span>Neutral: <strong class="text-antique-text">${data.singlePolicy.interactions?.votes?.neutral?.count || 0}</strong></span>
+                <span>Disagree: <strong class="text-antique-text">${data.singlePolicy.interactions?.votes?.disagree?.count || 0}</strong></span>
             </div>
         </div>
 
@@ -87,7 +87,7 @@ policyArticle.insertAdjacentHTML("beforeend",
     `
     
 )
-return data._id
+return data.singlePolicy._id
 }).then((policyId)=>{  
     // INTERACTION UPDATION CODE BLOCK
 const submitBtn=document.getElementById("submitBtn")
@@ -103,7 +103,7 @@ submitBtn.onclick=(e)=>{
 })
 
 } else {
-    // POLICY ARTICLE RENDERING SECTION
+    // POLICY ARTICLE RENDERING SECTION FOR NON USERS
       const policyArticle=document.getElementById("policyArticle")
       commentPostSection.style.display="none"
 fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"singlePolicyFetch","policyID":localStorage.getItem("policyID")})}).then(res=>{return res.json()}).then(data=>

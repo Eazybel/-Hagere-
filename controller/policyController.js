@@ -44,13 +44,14 @@ const policyFetch=async(req,res)=>{
     const singlePolicy=await policyModel.findOne({"_id":reqData.policyID})
     const user=await userModel.findOne({"email":requestBody.userEmail})
     const agreeVoters=singlePolicy.interactions.votes.agree.voters
-    const neutral=singlePolicy.interactions.votes.neutral.voters
-    const disagree=singlePolicy.interactions.votes.disagree.voters
-    if(agreeVoters.includes(user.id)){
-console.log("User voted agree")
+    const neutralVoters=singlePolicy.interactions.votes.neutral.voters
+    const disagreeVoters=singlePolicy.interactions.votes.disagree.voters
+    let userVote=false
+    if(agreeVoters.includes(user.id)||neutralVoters.includes(user.id)||disagreeVoters.includes(user.id)){
+            userVote=true
     }
 
-        res.status(200).json(singlePolicy)
+        res.status(200).json({"singlePolicy":singlePolicy,"userVoted":userVote})
    }
 
 }
