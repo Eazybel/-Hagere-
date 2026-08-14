@@ -46,9 +46,10 @@ const policyFetch=async(req,res)=>{
     const agreeVoters=singlePolicy.interactions.votes.agree.voters
     const neutral=singlePolicy.interactions.votes.neutral.voters
     const disagree=singlePolicy.interactions.votes.disagree.voters
-    if(singlePolicy.includes(user._id)){
+    if(agreeVoters.includes(user.id)){
 console.log("User voted agree")
     }
+
         res.status(200).json(singlePolicy)
    }
 
