@@ -1,6 +1,7 @@
 // Policy CRUD, search, and filtering logic
 const {cloudinary, upload}=require("../utils/cloudinary")
 const policyModel=require("../models/Policy")
+const userModel=require("../models/User")
 const policyUpdate=(async(req,res)=>{
     if(!req.file){
     res.status(404).send("File upload not found")
@@ -39,7 +40,15 @@ const policyFetch=async(req,res)=>{
 
        res.status(200).json(allPolicies)
    }else if(reqData.requestType=="singlePolicyFetch"){
+    const requestBody=JSON.parse(req.body)
     const singlePolicy=await policyModel.findOne({"_id":reqData.policyID})
+    const user=await userModel.findOne({"email":requestBody.userEmail})
+    const agreeVoters=singlePolicy.interactions.votes.agree.voters
+    const neutral=singlePolicy.interactions.votes.neutral.voters
+    const disagree=singlePolicy.interactions.votes.disagree.voters
+    if(singlePolicy.includes(user._id)){
+console.log("User voted agree")
+    }
         res.status(200).json(singlePolicy)
    }
 

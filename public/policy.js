@@ -18,7 +18,7 @@
   
     // POLICY ARTICLE RENDERING SECTION
       const policyArticle=document.getElementById("policyArticle")
-fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"singlePolicyFetch","policyID":localStorage.getItem("policyID")})}).then(res=>{return res.json()}).then(data=>
+fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"singlePolicyFetch","policyID":localStorage.getItem("policyID"),"userEmail":localStorage.getItem("userEmail")})}).then(res=>{return res.json()}).then(data=>
 {
 policyArticle.insertAdjacentHTML("beforeend",
     `
