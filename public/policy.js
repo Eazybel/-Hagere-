@@ -137,6 +137,8 @@ policyArticle.insertAdjacentHTML("beforeend",
 return data
 }).then((data)=>{  
     // INTERACTION UPDATION CODE BLOCK
+    // continue from updating the voted users ui for the policy card and go go {#821,1}
+    
 if(!data.userVoted){
     const submitBtn=document.getElementById("submitBtn")
 submitBtn.onclick=(e)=>{
