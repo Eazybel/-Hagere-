@@ -26,6 +26,10 @@ const PolicySchema = new Schema(
       type: String,
       default: "",
     },
+    totalVotes: {
+      type: Number,
+      default: 0,
+    },
     createdAt: {
        type: Date,
         default: Date.now,

@@ -7,6 +7,7 @@ const feedBack=async(req,res)=>{
     const requestBody=JSON.parse(req.body)
     const policy=await policyModal.findOne({"_id":requestBody.policyId})
     const user=await userModel.findOne({"email":requestBody.userEmail})
+    policy.totalVotes=policy.totalVotes+1
     if(requestBody.requestType=="agree"){
         policy.interactions.votes.agree.count=policy.interactions.votes.agree.count+1
         user.votesCast.unshift({policyId:requestBody.policyId,stance:"agree"})
@@ -22,7 +23,7 @@ const feedBack=async(req,res)=>{
        policy.interactions.votes.disagree.voters.unshift(user.id)
     }
     await policy.save().then(()=>console.log("interaction saved"))
-    await user.save().then(()=>console.log("usere Data saved"))
+    await user.save().then(()=>console.log("user Data Updated"))
     res.status(200).send(user)
    
 }
