@@ -29,7 +29,7 @@ policyArticle.insertAdjacentHTML("beforeend",
         <div class="flex flex-wrap items-center justify-between text-xs font-sans text-antique-muted mb-4 pb-4 border-b border-antique-border gap-2">
             <div class="flex items-center space-x-2">
                 <span class="uppercase tracking-wider px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-text">${data.singlePolicy.category}</span>
-                <span class="uppercase tracking-wider px-2 py-0.5 bg-antique-bg border border-antique-border rounded text-[10px] font-semibold text-antique-accent bg-antique-accent/10">You Voted: Agree</span>
+                <span class="uppercase tracking-wider px-2 py-0.5 bg-antique-bg border border-antique-border rounded text-[10px] font-semibold text-antique-accent bg-antique-accent/10">You Voted: ${data.userVoted[1]}</span>
             </div>
             <span id="publishDate">Published on ${new Date(data.singlePolicy.createdAt).toLocaleString()} &bull; Status: ${data.singlePolicy.status}</span>
         </div>
@@ -149,7 +149,7 @@ submitBtn.onclick=(e)=>{
   if(!selectedRadio){
     alert("Please set your Vote")
   }else if(selectedRadio){
-     fetch("/feedBack",{method:"POST",body:JSON.stringify({"policyId":policyId,"requestType":selectedRadio,"userEmail":localStorage.getItem("userEmail")})}).then(res=>{return res.json()}).then(data=>{console.log(data)})
+     fetch("/feedBack",{method:"POST",body:JSON.stringify({"policyId":localStorage.getItem("policyID"),"requestType":selectedRadio,"userEmail":localStorage.getItem("userEmail")})}).then(res=>{return res.json()}).then(data=>{console.log(data)})
   }
 
 }
