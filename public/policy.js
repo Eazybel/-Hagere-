@@ -20,14 +20,17 @@
       const policyArticle=document.getElementById("policyArticle")
 fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"singlePolicyFetch","policyID":localStorage.getItem("policyID"),"userEmail":localStorage.getItem("userEmail")})}).then(res=>{return res.json()}).then(data=>
 {
-
-if(data.userVoted){
+console.log(data)
+if(data.userVoted[0]==true){
 policyArticle.insertAdjacentHTML("beforeend",
     `
-  <div>
+ <div>
         <!-- Metadata Header -->
         <div class="flex flex-wrap items-center justify-between text-xs font-sans text-antique-muted mb-4 pb-4 border-b border-antique-border gap-2">
-            <span class="uppercase tracking-wider px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-text">${data.singlePolicy.category}</span>
+            <div class="flex items-center space-x-2">
+                <span class="uppercase tracking-wider px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-text">${data.singlePolicy.category}</span>
+                <span class="uppercase tracking-wider px-2 py-0.5 bg-antique-bg border border-antique-border rounded text-[10px] font-semibold text-antique-accent bg-antique-accent/10">You Voted: Agree</span>
+            </div>
             <span id="publishDate">Published on ${new Date(data.singlePolicy.createdAt).toLocaleString()} &bull; Status: ${data.singlePolicy.status}</span>
         </div>
         <label id="policyId" class="hidden">${data.singlePolicy._id}</label>
@@ -65,7 +68,7 @@ policyArticle.insertAdjacentHTML("beforeend",
     `
     
 )
-}else if(!data.userVoted){
+}else if(data.userVoted[0]==false){
     policyArticle.insertAdjacentHTML("beforeend",
     `
   <div>
@@ -137,9 +140,9 @@ policyArticle.insertAdjacentHTML("beforeend",
 return data
 }).then((data)=>{  
     // INTERACTION UPDATION CODE BLOCK
-    // continue from updating the voted users ui for the policy card and go go {#821,1}
+
     
-if(!data.userVoted){
+if(data.userVoted[0]==false){
     const submitBtn=document.getElementById("submitBtn")
 submitBtn.onclick=(e)=>{
   const selectedRadio=document.querySelector("input[name='policy-vote']:checked")?.value
@@ -157,7 +160,7 @@ submitBtn.onclick=(e)=>{
     // POLICY ARTICLE RENDERING SECTION FOR NON USERS
       const policyArticle=document.getElementById("policyArticle")
       commentPostSection.style.display="none"
-fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"singlePolicyFetch","policyID":localStorage.getItem("policyID")})}).then(res=>{return res.json()}).then(data=>
+fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"singlePolicyFetchNon","policyID":localStorage.getItem("policyID")})}).then(res=>{return res.json()}).then(data=>
 {
 policyArticle.insertAdjacentHTML("beforeend",
     `
@@ -166,22 +169,22 @@ policyArticle.insertAdjacentHTML("beforeend",
             <!-- Metadata Header -->
             <div class="flex flex-wrap items-center justify-between text-xs font-sans text-antique-muted mb-4 pb-4 border-b border-antique-border gap-2">
                 <span class="uppercase tracking-wider px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-text">${data.category}</span>
-                <span id="publishDate">Published on ${new Date(data.singlePolicy.createdAt).toLocaleString()} &bull; Status: ${data.status}</span>
+                <span id="publishDate">Published on ${new Date(data.createdAt).toLocaleString()} &bull; Status: ${data.status}</span>
             </div>
 
             <!-- Title & Full Description -->
-            <h1 class="text-2xl md:text-3xl font-normal mb-6 leading-snug">${data.singlePolicy.title}</h1>
+            <h1 class="text-2xl md:text-3xl font-normal mb-6 leading-snug">${data.title}</h1>
             
             <div class="space-y-4 text-sm text-antique-text font-sans leading-relaxed mb-6">
                 <p>
-                     ${data.singlePolicy.summary}
+                     ${data.summary}
                 </p>
 
             </div>
 
             <!-- View Full Policy Document Link -->
             <div class="mb-8 font-sans">
-                <a href=" ${data.singlePolicy.data.pdfUrl}" target="_blank" class="inline-flex items-center space-x-2 px-4 py-2.5 bg-antique-bg border border-antique-border rounded-lg text-xs font-medium text-antique-accent hover:bg-antique-border transition-colors shadow-sm">
+                <a href=" ${data.pdfUrl}" target="_blank" class="inline-flex items-center space-x-2 px-4 py-2.5 bg-antique-bg border border-antique-border rounded-lg text-xs font-medium text-antique-accent hover:bg-antique-border transition-colors shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
