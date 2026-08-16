@@ -14,6 +14,7 @@ const signOutButton=document.getElementById("signOutButton")
   const app = initializeApp(firebaseConfig);
   const auth=getAuth(app)
 onAuthStateChanged(auth, (user) => {
+  // continue from this dashboard page {#ca7,7}
   if (user) {
 document.querySelector("body").classList.remove("hidden")
     const uid = user.uid;
