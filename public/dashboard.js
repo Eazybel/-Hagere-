@@ -15,7 +15,7 @@ const signOutButton=document.getElementById("signOutButton")
   const auth=getAuth(app)
 onAuthStateChanged(auth, (user) => {
   if (user) {
-console.log(user)
+document.querySelector("body").classList.remove("hidden")
     const uid = user.uid;
     // ...
   } else {
