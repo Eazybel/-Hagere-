@@ -10,15 +10,44 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/fireba
   };
 // VARIABLE INITIATION FOR DOM AND OTHER
 const signOutButton=document.getElementById("signOutButton")
+const userInfoSection=document.getElementById("userInfoSection")
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const auth=getAuth(app)
 onAuthStateChanged(auth, (user) => {
-  // continue from this dashboard page {#ca7,7}
   if (user) {
 document.querySelector("body").classList.remove("hidden")
     const uid = user.uid;
     // ...
+   if(user.phoneNumber){
+    userInfoSection.insertAdjacentHTML("beforeend",
+      `
+      <div>
+                <div class="flex items-center space-x-3 mb-1">
+                    <h1 class="text-2xl font-normal">Citizen Profile & Activity</h1>
+                    <span class="px-2 py-0.5 bg-antique-bg border border-antique-border rounded text-xs font-sans text-emerald-700 font-medium">Verified Resident</span>
+                </div>
+                <p class="text-sm text-antique-muted font-sans">
+                    Phone Number: +251 9••••••44 &bull; Member Since: May 2026
+                </p>
+            </div>
+      `
+    )
+   }else{
+    userInfoSection.insertAdjacentHTML("beforeend",
+      `
+      <div>
+                <div class="flex items-center space-x-3 mb-1">
+                    <h1 class="text-2xl font-normal">Citizen Profile & Activity</h1>
+                    <span class="px-2 py-0.5 bg-antique-bg border border-antique-border rounded text-xs font-sans text-red-700 font-medium">Verified Resident</span>
+                </div>
+                <p class="text-sm text-antique-muted font-sans">
+                    Phone Number: +251 9••••••44 &bull; Member Since: May 2026
+                </p>
+            </div>
+      `
+    )
+   }
   } else {
 window.location.href="./login.html"
   }
