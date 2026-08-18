@@ -8,7 +8,9 @@ const admin=require("firebase-admin")
 var {cert,initializeApp} = require("firebase-admin/app");
 const {cloudinary, upload}=require("./utils/cloudinary")
 
-var serviceAccount = require("./serviceAccount.json");
+// var serviceAccount = require("./serviceAccount.json");
+var serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
+serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
 // const limiter=rateLimiter({
 //     windowMs:15*60*1000,
 //     malimit:5,
