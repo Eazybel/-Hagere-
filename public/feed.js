@@ -51,11 +51,11 @@ policySection.insertAdjacentHTML("beforeend",`<div class="col-span-full py-12 te
         <!-- Vote Counts Breakdown Analytics -->
         <div class="mb-4 pt-2 border-t border-antique-border font-sans text-xs flex flex-wrap items-center justify-between gap-2">
             <div class="flex items-center space-x-3 text-antique-muted">
-                <span>Agree: <strong class="text-antique-text">22</strong></span>
-                <span>Neutral: <strong class="text-antique-text">22</strong></span>
-                <span>Disagree: <strong class="text-antique-text">22</strong></span>
+                                <span>Agree: <strong class="text-antique-text">${Math.floor(Math.random() * 181) + 40}</strong></span>
+                                <span>Neutral: <strong class="text-antique-text">${Math.floor(Math.random() * 73) + 8}</strong></span>
+                                <span>Disagree: <strong class="text-antique-text">${Math.floor(Math.random() * 61) + 5}</strong></span>
             </div>
-            <span class="text-antique-muted">Comments: <strong class="text-antique-text">22</strong></span>
+                            <span class="text-antique-muted">Comments: <strong class="text-antique-text">${Math.floor(Math.random() * 43) + 3}</strong></span>
         </div>
 
         <!-- Action Link to Vote, Read & Comment -->

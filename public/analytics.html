@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Policy & Civic Analytics Dashboard</title>
+    <title>Hagere (ሀገሬ)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -39,6 +39,18 @@
             </div>
             
             <div class="flex items-center gap-3">
+                <details class="relative">
+                    <summary class="flex cursor-pointer list-none items-center gap-2 rounded border border-antique-border bg-antique-bg px-3 py-2.5 text-xs font-medium font-sans hover:bg-antique-border">
+                        <span>Translate</span>
+                        <span aria-hidden="true" class="text-xs">&#9662;</span>
+                    </summary>
+                    <div class="absolute right-0 mt-2 w-40 rounded border border-antique-border bg-antique-card p-1 shadow-lg z-10">
+                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs font-sans hover:bg-antique-bg">Amharic</button>
+                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs font-sans hover:bg-antique-bg">Oromiffa</button>
+                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs font-sans hover:bg-antique-bg">Tigirigna</button>
+                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs font-sans hover:bg-antique-bg">English</button>
+                    </div>
+                </details>
                 <button type="button" class="px-5 py-2.5 bg-antique-accent text-white rounded-lg text-xs font-medium font-sans hover:bg-antique-accentHover transition-colors shadow-sm inline-flex items-center space-x-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
