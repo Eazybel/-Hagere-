@@ -33,27 +33,27 @@
         <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
             <a href="index.html" class="text-2xl font-bold tracking-tight text-antique-accent">ሀገሬ (Hagere)</a>
             <nav class="hidden md:flex items-center space-x-6 text-sm font-sans">
-                <a href="index.html" class="text-antique-text font-medium hover:text-antique-accent">Policies Feed</a>
+                <a href="index.html" data-i18n="policiesFeed" class="text-antique-text font-medium hover:text-antique-accent">Policies Feed</a>
             </nav>
             <div class="flex items-center space-x-4 font-sans text-sm">
                 <details class="relative">
                     <summary class="flex cursor-pointer list-none items-center gap-2 rounded border border-antique-border bg-antique-bg px-3 py-1.5 font-medium hover:bg-antique-border">
-                        <span>Translate</span>
+                        <span data-i18n="translate">Translate</span>
                         <span aria-hidden="true" class="text-xs">&#9662;</span>
                     </summary>
                     <div class="absolute right-0 mt-2 w-40 rounded border border-antique-border bg-antique-card p-1 shadow-lg">
-                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Amharic</button>
-                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Oromiffa</button>
-                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Tigirigna</button>
-                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">English</button>
+                        <button type="button" data-language="am" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Amharic</button>
+                        <button type="button" data-language="om" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Oromiffa</button>
+                        <button type="button" data-language="ti" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Tigirigna</button>
+                        <button type="button" data-language="en" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">English</button>
                     </div>
                 </details>
                 <a href="dashboard.html" class="px-3 py-1.5 bg-antique-bg border border-antique-border rounded hover:bg-antique-border transition-colors flex items-center space-x-2">
                     <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
-                    <span class="font-medium">My Dashboard</span>
+                    <span data-i18n="myDashboard" class="font-medium">My Dashboard</span>
                 </a>
                 <button id="signOutButton" class="text-xs text-antique-muted hover:text-antique-accent">
-                    Sign Out
+                    <span data-i18n="signOut">Sign Out</span>
                 </button>
             </div>
         </div>
@@ -64,8 +64,8 @@
 
         <!-- 2. Hero & Citizen Greeting Section -->
         <section class="mb-10 text-center max-w-2xl mx-auto">
-            <h1 class="text-3xl md:text-4xl font-normal mb-3">Welcome back, Citizen</h1>
-            <p class="text-antique-muted text-base font-sans">
+            <h1 data-i18n="welcome" class="text-3xl md:text-4xl font-normal mb-3">Welcome back, Citizen</h1>
+            <p data-i18n="welcomeDescription" class="text-antique-muted text-base font-sans">
                 Your voice matters. Cast your official stance on current legislative proposals or review your voting record in your profile.
             </p>
         </section>
@@ -73,12 +73,12 @@
         <!-- 3. Search & Filter Bar -->
         <section class="mb-8 flex flex-col md:flex-row gap-4 items-center justify-between bg-antique-card p-4 border border-antique-border rounded-lg">
             <div class="w-full md:w-3/5">
-                <input id="titleFilter" type="text" placeholder="Search policies by keyword or title..." class="w-full px-3 py-2 text-sm font-sans bg-antique-bg border border-antique-border rounded focus:outline-none focus:border-antique-accent">
+                <input id="titleFilter" data-i18n-placeholder="searchPolicies" type="text" placeholder="Search policies by keyword or title..." class="w-full px-3 py-2 text-sm font-sans bg-antique-bg border border-antique-border rounded focus:outline-none focus:border-antique-accent">
             </div>
             <div class="w-full md:w-2/5 flex flex-col sm:flex-row items-center gap-2 font-sans text-sm">
-                <label for="policy-category" class="text-antique-muted text-xs whitespace-nowrap">Filter by Sector:</label>
+                <label for="policy-category" data-i18n="filterSector" class="text-antique-muted text-xs whitespace-nowrap">Filter by Sector:</label>
               <select id="policy-category" class="w-full px-3 py-2 text-xs bg-antique-bg border border-antique-border rounded focus:outline-none focus:border-antique-accent">
-    <option value="All Major Sectors">All Major Sectors</option>
+    <option value="All Major Sectors" data-i18n="allSectors">All Major Sectors</option>
     <option value="Economy & Finance">Economy & Finance</option>
     <option value="Infrastructure & Transport">Infrastructure & Transport</option>
     <option value="Public Health & Welfare">Public Health & Welfare</option>
@@ -115,12 +115,12 @@
     <!-- 6. Public Footer -->
     <footer class="border-t border-antique-border bg-antique-card mt-16 py-6 font-sans text-xs text-antique-muted">
         <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p>&copy; 2026 Hagere Civic Platform. Open Source Initiative.</p>
+            <p data-i18n="footerCopyright">&copy; 2026 Hagere Civic Platform. Open Source Initiative.</p>
             <div class="flex items-center space-x-6">
-                <a href="#" class="hover:text-antique-accent">About</a>
-                <a href="#" class="hover:text-antique-accent">Privacy Policy</a>
-                <a href="contributing.md" class="hover:text-antique-accent">Contribute</a>
-                <a href="./adminAuth.html" class="text-antique-accent hover:underline font-medium">Admin Portal</a>
+                <a href="#" data-i18n="about" class="hover:text-antique-accent">About</a>
+                <a href="#" data-i18n="privacy" class="hover:text-antique-accent">Privacy Policy</a>
+                <a href="contributing.md" data-i18n="contribute" class="hover:text-antique-accent">Contribute</a>
+                <a href="./adminAuth.html" data-i18n="adminPortal" class="text-antique-accent hover:underline font-medium">Admin Portal</a>
             </div>
         </div>
     </footer>
@@ -129,25 +129,25 @@
     <details class="fixed bottom-6 right-6 z-40 w-[calc(100%-2rem)] max-w-sm font-sans">
         <summary class="ml-auto flex w-fit cursor-pointer list-none items-center gap-2 rounded-full bg-antique-accent px-5 py-3 text-sm font-medium text-white shadow-lg hover:bg-antique-accentHover">
             <span aria-hidden="true" class="text-base">&#10024;</span>
-            <span>Ask Hagere AI</span>
+            <span data-i18n="askAi">Ask Hagere AI</span>
         </summary>
         <div class="mb-3 overflow-hidden rounded-lg border border-antique-border bg-antique-card shadow-xl">
             <div class="flex items-center justify-between border-b border-antique-border bg-antique-bg px-4 py-3">
                 <div>
-                    <p class="text-sm font-semibold">Hagere Assistant</p>
-                    <p class="text-xs text-antique-muted">Here to help you explore policies</p>
+                    <p data-i18n="assistant" class="text-sm font-semibold">Hagere Assistant</p>
+                    <p data-i18n="assistantDescription" class="text-xs text-antique-muted">Here to help you explore policies</p>
                 </div>
                 <span class="h-2 w-2 rounded-full bg-emerald-600" aria-label="Online"></span>
             </div>
             <div class="min-h-40 space-y-3 bg-antique-card p-4 text-sm">
                 <div class="max-w-[85%] rounded-lg rounded-tl-none bg-antique-bg px-3 py-2 text-antique-muted">
-                    Hello. How can I help you understand a policy today?
+                    <span data-i18n="assistantGreeting">Hello. How can I help you understand a policy today?</span>
                 </div>
             </div>
             <div class="border-t border-antique-border p-3">
                 <div class="flex items-center gap-2">
-                    <input type="text" placeholder="Ask about a policy..." aria-label="Ask Hagere Assistant" class="min-w-0 flex-1 rounded border border-antique-border bg-antique-bg px-3 py-2 text-xs focus:outline-none focus:border-antique-accent">
-                    <button type="button" class="rounded bg-antique-accent px-3 py-2 text-xs font-medium text-white hover:bg-antique-accentHover">Send</button>
+                    <input data-i18n-placeholder="askPolicy" type="text" placeholder="Ask about a policy..." aria-label="Ask Hagere Assistant" class="min-w-0 flex-1 rounded border border-antique-border bg-antique-bg px-3 py-2 text-xs focus:outline-none focus:border-antique-accent">
+                    <button type="button" data-i18n="send" class="rounded bg-antique-accent px-3 py-2 text-xs font-medium text-white hover:bg-antique-accentHover">Send</button>
                 </div>
             </div>
         </div>
