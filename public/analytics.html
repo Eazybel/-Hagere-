@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy & Civic Analytics Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        antique: {
+                            bg: '#fdfbf7',
+                            card: '#f4ece1',
+                            border: '#e2d4c0',
+                            text: '#2c2522',
+                            muted: '#7a6e65',
+                            accent: '#8b5a2b',
+                            accentHover: '#6e4721'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-antique-bg text-antique-text font-serif min-h-screen p-6 md:p-10">
+
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- Header & Control Bar -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-antique-border pb-6">
+            <div>
+                <span class="uppercase tracking-wider text-xs px-2.5 py-1 bg-antique-card border border-antique-border rounded font-sans text-antique-muted">Executive Oversight</span>
+                <h1 class="text-3xl md:text-4xl font-normal mt-2">Civic Engagement Analytics</h1>
+                <p class="text-sm text-antique-muted font-sans mt-1">Real-time sentiment tracking, public policy response metrics, and verification audits.</p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button type="button" class="px-5 py-2.5 bg-antique-accent text-white rounded-lg text-xs font-medium font-sans hover:bg-antique-accentHover transition-colors shadow-sm inline-flex items-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <span>Analyze Live Data Stream</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Core Numbers / Metric Grid -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-sans">
+            <div class="p-5 bg-antique-card border border-antique-border rounded-lg shadow-sm">
+                <span class="text-xs uppercase tracking-wider text-antique-muted font-semibold">Total Policies Tracked</span>
+                <div class="flex items-baseline justify-between mt-2">
+                    <strong class="text-3xl font-bold text-antique-text">142</strong>
+                    <span class="text-xs text-emerald-700 font-medium bg-emerald-100 px-2 py-0.5 rounded">+12 this month</span>
+                </div>
+            </div>
+
+            <div class="p-5 bg-antique-card border border-antique-border rounded-lg shadow-sm">
+                <span class="text-xs uppercase tracking-wider text-antique-muted font-semibold">Aggregate Votes Cast</span>
+                <div class="flex items-baseline justify-between mt-2">
+                    <strong class="text-3xl font-bold text-antique-text">48,290</strong>
+                    <span class="text-xs text-emerald-700 font-medium bg-emerald-100 px-2 py-0.5 rounded">+18.4% surge</span>
+                </div>
+            </div>
+
+            <div class="p-5 bg-antique-card border border-antique-border rounded-lg shadow-sm">
+                <span class="text-xs uppercase tracking-wider text-antique-muted font-semibold">Citizen Comments</span>
+                <div class="flex items-baseline justify-between mt-2">
+                    <strong class="text-3xl font-bold text-antique-text">12,450</strong>
+                    <span class="text-xs text-antique-muted">99.2% moderated</span>
+                </div>
+            </div>
+
+            <div class="p-5 bg-antique-card border border-antique-border rounded-lg shadow-sm">
+                <span class="text-xs uppercase tracking-wider text-antique-muted font-semibold">Verified Residents</span>
+                <div class="flex items-baseline justify-between mt-2">
+                    <strong class="text-3xl font-bold text-antique-text">31,800</strong>
+                    <span class="text-xs text-emerald-700 font-medium bg-emerald-100 px-2 py-0.5 rounded">Active ID Bound</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Graph & Visual Analytics Area -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 font-sans">
+            
+            <!-- Primary Stance Breakdown Chart (Mock Visual Representation) -->
+            <div class="lg:col-span-2 p-6 bg-antique-card border border-antique-border rounded-lg shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-bold font-serif">Public Stance Distribution Trend</h2>
+                        <span class="text-xs text-antique-muted">Last 30 Days</span>
+                    </div>
+                    <p class="text-xs text-antique-muted mb-6">Aggregated ratio breakdown across active national infrastructure and digital service bills.</p>
+                </div>
+
+                <!-- Mock Bar Graph Visualization -->
+                <div class="space-y-4 my-4">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="font-medium text-antique-text">Agree (64%)</span>
+                            <span class="text-antique-muted">30,900 Votes</span>
+                        </div>
+                        <div class="w-full bg-antique-bg border border-antique-border h-3 rounded-full overflow-hidden">
+                            <div class="bg-antique-accent h-full rounded-full" style="width: 64%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="font-medium text-antique-text">Neutral (21%)</span>
+                            <span class="text-antique-muted">10,140 Votes</span>
+                        </div>
+                        <div class="w-full bg-antique-bg border border-antique-border h-3 rounded-full overflow-hidden">
+                            <div class="bg-stone-500 h-full rounded-full" style="width: 21%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="font-medium text-antique-text">Disagree (15%)</span>
+                            <span class="text-antique-muted">7,250 Votes</span>
+                        </div>
+                        <div class="w-full bg-antique-bg border border-antique-border h-3 rounded-full overflow-hidden">
+                            <div class="bg-stone-700 h-full rounded-full" style="width: 15%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-antique-border flex items-center justify-between text-xs text-antique-muted">
+                    <span>Sample Size: 48,290 records</span>
+                    <span class="text-emerald-700 font-medium">Confidence Rating: 99.4%</span>
+                </div>
+            </div>
+
+            <!-- Additional Feature 1: Regional Engagement Heatmap Breakdown -->
+            <div class="p-6 bg-antique-card border border-antique-border rounded-lg shadow-sm flex flex-col justify-between">
+                <div>
+                    <h2 class="text-lg font-bold font-serif mb-2">Regional Engagement</h2>
+                    <p class="text-xs text-antique-muted mb-4">Top participating municipal sectors.</p>
+                    
+                    <div class="space-y-3 text-xs">
+                        <div class="flex items-center justify-between p-2.5 bg-antique-bg border border-antique-border rounded">
+                            <span class="font-medium">Addis Ababa Central</span>
+                            <span class="font-bold text-antique-accent">18,420 votes</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2.5 bg-antique-bg border border-antique-border rounded">
+                            <span class="font-medium">Hawassa Metropolitan</span>
+                            <span class="font-bold text-antique-accent">9,150 votes</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2.5 bg-antique-bg border border-antique-border rounded">
+                            <span class="font-medium">Dire Dawa Administrative</span>
+                            <span class="font-bold text-antique-accent">6,800 votes</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2.5 bg-antique-bg border border-antique-border rounded">
+                            <span class="font-medium">Bahir Dar District</span>
+                            <span class="font-bold text-antique-accent">5,920 votes</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-antique-border text-center">
+                    <span class="text-[11px] text-antique-muted italic">Updated every 6 hours automatically</span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Additional Feature 2 & 3: AI Sentiment Breakdown & Export Hub -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6 font-sans">
+            
+            <!-- Additional Feature 2: AI Sentiment Clustering Summary -->
+            <div class="p-6 bg-antique-card border border-antique-border rounded-lg shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold font-serif">AI Sentiment Clustering</h2>
+                    <span class="px-2 py-0.5 bg-antique-bg border border-antique-border rounded text-[10px] text-antique-accent font-semibold">Live Engine</span>
+                </div>
+                <p class="text-xs text-antique-muted mb-4">Automated thematic categorization of public commentary inputs.</p>
+                
+                <div class="space-y-3 text-xs">
+                    <div class="p-3 bg-antique-bg border border-antique-border rounded-lg flex items-center justify-between">
+                        <div>
+                            <strong class="block text-antique-text font-medium">Implementation Timeline Concerns</strong>
+                            <span class="text-antique-muted">42% of neutral/disagree comments</span>
+                        </div>
+                        <span class="text-amber-700 font-semibold bg-amber-100 px-2 py-1 rounded">High Priority</span>
+                    </div>
+
+                    <div class="p-3 bg-antique-bg border border-antique-border rounded-lg flex items-center justify-between">
+                        <div>
+                            <strong class="block text-antique-text font-medium">Budget & Fiscal Transparency</strong>
+                            <span class="text-antique-muted">35% of positive engagement feedback</span>
+                        </div>
+                        <span class="text-emerald-700 font-semibold bg-emerald-100 px-2 py-1 rounded">Favorable</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Feature 3: One-Click Institutional Export Hub -->
+            <div class="p-6 bg-antique-card border border-antique-border rounded-lg shadow-sm flex flex-col justify-between">
+                <div>
+                    <h2 class="text-lg font-bold font-serif mb-2">Institutional Export Hub</h2>
+                    <p class="text-xs text-antique-muted mb-4">Compile validated citizen data packets directly for parliamentary review sessions.</p>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <button type="button" class="p-3 bg-antique-bg border border-antique-border rounded-lg text-left hover:bg-antique-border transition-colors">
+                            <span class="block font-bold text-antique-text">PDF Report</span>
+                            <span class="text-[10px] text-antique-muted">Executive summary packet</span>
+                        </button>
+                        <button type="button" class="p-3 bg-antique-bg border border-antique-border rounded-lg text-left hover:bg-antique-border transition-colors">
+                            <span class="block font-bold text-antique-text">CSV Data Feed</span>
+                            <span class="text-[10px] text-antique-muted">Raw verified vote metrics</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-antique-border flex items-center justify-between text-xs text-antique-muted">
+                    <span>Secure Cryptographic Checksum Active</span>
+                    <span class="font-medium text-antique-text">SHA-256 Verified</span>
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+
+</body>
+</html>

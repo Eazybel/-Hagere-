@@ -36,6 +36,18 @@
                 <a href="index.html" class="text-antique-text font-medium hover:text-antique-accent">Policies Feed</a>
             </nav>
             <div class="flex items-center space-x-4 font-sans text-sm">
+                <details class="relative">
+                    <summary class="flex cursor-pointer list-none items-center gap-2 rounded border border-antique-border bg-antique-bg px-3 py-1.5 font-medium hover:bg-antique-border">
+                        <span>Translate</span>
+                        <span aria-hidden="true" class="text-xs">&#9662;</span>
+                    </summary>
+                    <div class="absolute right-0 mt-2 w-40 rounded border border-antique-border bg-antique-card p-1 shadow-lg">
+                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Amharic</button>
+                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Oromiffa</button>
+                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Tigirigna</button>
+                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">English</button>
+                    </div>
+                </details>
                 <a href="dashboard.html" class="px-3 py-1.5 bg-antique-bg border border-antique-border rounded hover:bg-antique-border transition-colors flex items-center space-x-2">
                     <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
                     <span class="font-medium">My Dashboard</span>
@@ -112,6 +124,34 @@
             </div>
         </div>
     </footer>
+
+    <!-- AI chat layout (UI only; native details disclosure replaces JavaScript) -->
+    <details class="fixed bottom-6 right-6 z-40 w-[calc(100%-2rem)] max-w-sm font-sans">
+        <summary class="ml-auto flex w-fit cursor-pointer list-none items-center gap-2 rounded-full bg-antique-accent px-5 py-3 text-sm font-medium text-white shadow-lg hover:bg-antique-accentHover">
+            <span aria-hidden="true" class="text-base">&#10024;</span>
+            <span>Ask Hagere AI</span>
+        </summary>
+        <div class="mb-3 overflow-hidden rounded-lg border border-antique-border bg-antique-card shadow-xl">
+            <div class="flex items-center justify-between border-b border-antique-border bg-antique-bg px-4 py-3">
+                <div>
+                    <p class="text-sm font-semibold">Hagere Assistant</p>
+                    <p class="text-xs text-antique-muted">Here to help you explore policies</p>
+                </div>
+                <span class="h-2 w-2 rounded-full bg-emerald-600" aria-label="Online"></span>
+            </div>
+            <div class="min-h-40 space-y-3 bg-antique-card p-4 text-sm">
+                <div class="max-w-[85%] rounded-lg rounded-tl-none bg-antique-bg px-3 py-2 text-antique-muted">
+                    Hello. How can I help you understand a policy today?
+                </div>
+            </div>
+            <div class="border-t border-antique-border p-3">
+                <div class="flex items-center gap-2">
+                    <input type="text" placeholder="Ask about a policy..." aria-label="Ask Hagere Assistant" class="min-w-0 flex-1 rounded border border-antique-border bg-antique-bg px-3 py-2 text-xs focus:outline-none focus:border-antique-accent">
+                    <button type="button" class="rounded bg-antique-accent px-3 py-2 text-xs font-medium text-white hover:bg-antique-accentHover">Send</button>
+                </div>
+            </div>
+        </div>
+    </details>
 <script type="module" src="./feed.js"></script>
 </body>
 </html>
