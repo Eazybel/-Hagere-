@@ -17,6 +17,9 @@ const logInButton=document.getElementById("logInButton")
 const captchaVerifyDiv=document.getElementById("captchaVerifyDiv")
 const otpButton=document.getElementById("otpButton")
 const otpInput=document.getElementById("otp-code")
+provider.setCustomParameters({
+  prompt: 'select_account'
+});
 logInButton.onclick=()=>{
 signInWithPopup(auth, provider)
   .then(async(result) => {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hagere - Public Policy & Civic Engagement</title>
+    <title>Hagere (ሀገሬ)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -35,7 +35,19 @@
             <nav class="hidden md:flex items-center space-x-6 text-sm font-sans">
                 <a href="index.html" class="text-antique-text font-medium hover:text-antique-accent">Policies</a>
             </nav>
-            <div>
+            <div class="flex items-center gap-4">
+                <details class="relative">
+                    <summary class="flex cursor-pointer list-none items-center gap-2 rounded border border-antique-border bg-antique-bg px-3 py-1.5 text-sm font-sans font-medium hover:bg-antique-border">
+                        <span>Translate</span>
+                        <span aria-hidden="true" class="text-xs">&#9662;</span>
+                    </summary>
+                    <div class="absolute right-0 mt-2 w-40 rounded border border-antique-border bg-antique-card p-1 shadow-lg">
+                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs font-sans hover:bg-antique-bg">Amharic</button>
+                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs font-sans hover:bg-antique-bg">Oromiffa</button>
+                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs font-sans hover:bg-antique-bg">Tigirigna</button>
+                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs font-sans hover:bg-antique-bg">English</button>
+                    </div>
+                </details>
                 <a href="./login.html" class="text-sm font-sans px-4 py-2 border border-antique-border rounded bg-antique-bg hover:bg-antique-border transition-colors">
                     Sign In / Register
                 </a>
@@ -62,15 +74,24 @@
             <div class="w-full md:w-2/5 flex flex-col sm:flex-row items-center gap-2 font-sans text-sm">
                 <label for="policy-category" class="text-antique-muted text-xs whitespace-nowrap">Filter by Sector:</label>
                 <select id="policy-category" class="w-full px-3 py-2 text-xs bg-antique-bg border border-antique-border rounded focus:outline-none focus:border-antique-accent">
-                    <option value="all">All Major Sectors</option>
-                    <option value="economy">Economy & Finance</option>
-                    <option value="infrastructure">Infrastructure & Transport</option>
-                    <option value="health">Public Health & Welfare</option>
-                    <option value="education">Education & Culture</option>
-                    <option value="technology">Technology & Digital Services</option>
-                    <option value="agriculture">Agriculture & Environment</option>
-                    <option value="justice">Law & Governance</option>
-                </select>
+    <option value="All Major Sectors">All Major Sectors</option>
+    <option value="Economy & Finance">Economy & Finance</option>
+    <option value="Infrastructure & Transport">Infrastructure & Transport</option>
+    <option value="Public Health & Welfare">Public Health & Welfare</option>
+    <option value="Education & Culture">Education & Culture</option>
+    <option value="Technology & Digital Services">Technology & Digital Services</option>
+    <option value="Agriculture & Environment">Agriculture & Environment</option>
+    <option value="Law & Governance">Law & Governance</option>
+    <option value="Foreign Affairs & Trade">Foreign Affairs & Trade</option>
+    <option value="Energy & Natural Resources">Energy & Natural Resources</option>
+    <option value="Labor & Employment">Labor & Employment</option>
+    <option value="Housing & Urban Development">Housing & Urban Development</option>
+    <option value="National Security & Defense">National Security & Defense</option>
+    <option value="Tourism & Hospitality">Tourism & Hospitality</option>
+    <option value="Science, Research & Innovation">Science, Research & Innovation</option>
+    <option value="Social Protection & Inclusion">Social Protection & Inclusion</option>
+    <option value="Youth & Sports Development">Youth & Sports Development</option>
+</select>
             </div>
         </section>
 

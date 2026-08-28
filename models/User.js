@@ -25,15 +25,15 @@ const UserSchema = new mongoose.Schema(
     votesCast: [
       {
         policyId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Policy",
-          required: true,
+          type: String,
         },
         stance: {
           type: String,
-          enum: ["agree", "neutral", "disagree"],
-          required: true,
         },
+        comment: {
+          type: String,
+        }
+        ,
         votedAt: {
           type: Date,
           default: Date.now,

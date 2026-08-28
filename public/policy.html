@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hagere - Policy Detail & Discussion</title>
+    <title>Hagere (ሀገሬ)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -32,16 +32,21 @@
     <header class="border-b border-antique-border bg-antique-card sticky top-0 z-50">
         <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
             <a href="index.html" class="text-2xl font-bold tracking-tight text-antique-accent">Hagere</a>
-            <nav class="hidden md:flex items-center space-x-6 text-sm font-sans">
-                <a href="index.html" class="text-antique-muted hover:text-antique-accent">&larr; Back to Feed</a>
-                <a href="#" class="text-antique-muted hover:text-antique-accent">About</a>
-                <a href="contributing.md" class="text-antique-muted hover:text-antique-accent">Contribute</a>
+            <nav class="flex items-center gap-4 text-sm font-sans">
+                <details class="relative">
+                    <summary class="flex cursor-pointer list-none items-center gap-2 rounded border border-antique-border bg-antique-bg px-3 py-1.5 font-medium hover:bg-antique-border">
+                        <span>Translate</span>
+                        <span aria-hidden="true" class="text-xs">&#9662;</span>
+                    </summary>
+                    <div class="absolute right-0 mt-2 w-40 rounded border border-antique-border bg-antique-card p-1 shadow-lg">
+                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Amharic</button>
+                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Oromiffa</button>
+                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Tigirigna</button>
+                        <button type="button" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">English</button>
+                    </div>
+                </details>
+                <a href="index.html" class="text-antique-muted hover:text-antique-accent">&larr; Back to Main</a>
             </nav>
-            <div>
-                <a href="login.html" class="text-sm font-sans px-4 py-2 border border-antique-border rounded bg-antique-bg hover:bg-antique-border transition-colors">
-                    Sign In
-                </a>
-            </div>
         </div>
     </header>
 
@@ -49,60 +54,8 @@
     <main class="flex-grow max-w-4xl mx-auto px-4 py-8 w-full">
 
         <!-- Policy Detail Article -->
-        <article class="bg-antique-card border border-antique-border rounded-lg p-8 mb-8 shadow-sm">
-            
-            <!-- Metadata Header -->
-            <div class="flex flex-wrap items-center justify-between text-xs font-sans text-antique-muted mb-4 pb-4 border-b border-antique-border gap-2">
-                <span class="uppercase tracking-wider px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-text">Infrastructure & Transport</span>
-                <span>Published on May 14, 2026 &bull; Status: Active Public Consultation</span>
-            </div>
-
-            <!-- Title & Full Description -->
-            <h1 class="text-2xl md:text-3xl font-normal mb-6 leading-snug">National Urban Transit Expansion Proclamation</h1>
-            
-            <div class="space-y-4 text-sm text-antique-text font-sans leading-relaxed mb-8">
-                <p>
-                    This legislative proclamation establishes a comprehensive framework for scaling municipal mass transit systems across major urban centers. It mandates the construction of dedicated light rail corridors, streamlines right-of-way acquisitions, and secures sustainable long-term municipal financing for regional station upgrades.
-                </p>
-                <p>
-                    Key provisions include the integration of electric feeder bus networks, universal accessibility compliance standards for all new transit hubs, and structured public-private partnerships to accelerate construction timelines without inflating public debt metrics.
-                </p>
-                <p>
-                    Citizens and stakeholders are invited to examine the proposal, review current aggregate public sentiment, and register their formal stance below.
-                </p>
-            </div>
-
-            <!-- Aggregate Stance Distribution (No Coloring) -->
-            <div class="mb-6 p-4 bg-antique-bg border border-antique-border rounded-lg font-sans text-xs">
-                <span class="block text-antique-muted uppercase tracking-wider mb-2 font-semibold">Aggregate Public Stance (1,420 Total Votes)</span>
-                <div class="flex flex-wrap items-center gap-6 text-sm">
-                    <span>Agree: <strong class="text-antique-text">923</strong></span>
-                    <span>Neutral: <strong class="text-antique-text">142</strong></span>
-                    <span>Disagree: <strong class="text-antique-text">355</strong></span>
-                </div>
-            </div>
-
-            <!-- Voting Interaction Section -->
-            <form class="pt-6 border-t border-antique-border font-sans flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="text-xs text-antique-muted font-medium uppercase tracking-wider">Cast or Update Your Stance:</div>
-                <div class="flex items-center space-x-6 text-sm">
-                    <label class="flex items-center space-x-1.5 cursor-pointer">
-                        <input type="radio" name="policy-vote" value="agree" class="accent-antique-accent">
-                        <span>Agree</span>
-                    </label>
-                    <label class="flex items-center space-x-1.5 cursor-pointer">
-                        <input type="radio" name="policy-vote" value="neutral" class="accent-antique-accent">
-                        <span>Neutral</span>
-                    </label>
-                    <label class="flex items-center space-x-1.5 cursor-pointer">
-                        <input type="radio" name="policy-vote" value="disagree" class="accent-antique-accent">
-                        <span>Disagree</span>
-                    </label>
-                </div>
-                <button type="submit" class="px-5 py-2 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors shadow-sm w-full sm:w-auto">
-                    Submit Stance
-                </button>
-            </form>
+        <article id="policyArticle" class="bg-antique-card border border-antique-border rounded-lg p-8 mb-8 shadow-sm">
+     
 
         </article>
 
@@ -111,7 +64,7 @@
             <h2 class="text-xl font-normal mb-6 pb-3 border-b border-antique-border">Citizen Discussions & Comments (48)</h2>
 
             <!-- New Comment Form -->
-            <form class="mb-8 font-sans space-y-3">
+            <form id="commentPostSection" class="mb-8 font-sans space-y-3">
                 <label for="new-comment" class="block text-xs font-medium text-antique-muted uppercase tracking-wider">Contribute to the Discussion</label>
                 <textarea id="new-comment" rows="3" placeholder="Share your constructive thoughts regarding this policy proposal..." required class="w-full px-3 py-2 text-sm bg-antique-bg border border-antique-border rounded focus:outline-none focus:border-antique-accent"></textarea>
                 <div class="flex justify-end">
@@ -168,8 +121,8 @@
                 <a href="#" class="hover:text-antique-accent">Privacy Policy</a>
                 <a href="contributing.md" class="hover:text-antique-accent">Contribute</a>
             </div>
-        </div>
+        </div>s
     </footer>
-
+<script type="module" src="./policy.js"></script>p
 </body>
 </html>
