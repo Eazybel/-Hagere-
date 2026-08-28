@@ -26,6 +26,10 @@ const PolicySchema = new Schema(
       type: String,
       default: "",
     },
+    totalVotes: {
+      type: Number,
+      default: 0,
+    },
     createdAt: {
        type: Date,
         default: Date.now,
@@ -39,8 +43,7 @@ const PolicySchema = new Schema(
           },
           voters: [
             {
-              type: Schema.Types.ObjectId,
-              ref: "User",
+              type: String,
             },
           ],
         },
@@ -51,8 +54,8 @@ const PolicySchema = new Schema(
           },
           voters: [
             {
-              type: Schema.Types.ObjectId,
-              ref: "User",
+              type: String,
+
             },
           ],
         },
@@ -63,8 +66,7 @@ const PolicySchema = new Schema(
           },
           voters: [
             {
-              type: Schema.Types.ObjectId,
-              ref: "User",
+              type:String,
             },
           ],
         },
@@ -72,8 +74,8 @@ const PolicySchema = new Schema(
       comments: [
         {
           user: {
-            type: Schema.Types.ObjectId,
-            ref: "User",
+            type: String,
+
             required: true,
           },
           text: {

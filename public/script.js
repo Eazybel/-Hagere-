@@ -75,9 +75,7 @@ policySection.insertAdjacentHTML("beforeend",`<div class="col-span-full py-12 te
   })
 return data
     }
-
 }
-
 ).then((data)=>{
         // FILTERING SECTION CODE BLOCK
   const titleFilter=document.getElementById("titleFilter")

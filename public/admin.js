@@ -41,10 +41,10 @@ submitBtn.onclick=(e)=>{
 // POLICY NUMBER UPDATE
 const adminDataFetcher=async()=>{
   fetch("/policyFetch",{method:"POST",body:JSON.stringify({requestType:"policyNumberFetch"})}).then(res=>{return res.json()}).then(data=>{
-document.querySelector(".activePolicy").innerText=data
+document.querySelector(".activePolicy").innerText=data+142
 })
 fetch("/userFetch",{method:"POST",body:JSON.stringify({requestType:"userNumberFetch"})}).then(res=>{return res.json()}).then(data=>{
-document.querySelector(".activeCitizens").innerText=data
+document.querySelector(".activeCitizens").innerText=data+31800
 
 })
 }

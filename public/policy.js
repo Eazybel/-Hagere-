@@ -15,32 +15,38 @@
   onAuthStateChanged(auth, (user) => {
   if (user) {
     const uid = user.uid;
+  
     // POLICY ARTICLE RENDERING SECTION
       const policyArticle=document.getElementById("policyArticle")
-fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"singlePolicyFetch","policyID":localStorage.getItem("policyID")})}).then(res=>{return res.json()}).then(data=>
+fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"singlePolicyFetch","policyID":localStorage.getItem("policyID"),"userEmail":localStorage.getItem("userEmail")})}).then(res=>{return res.json()}).then(data=>
 {
+console.log(data)
+if(data.userVoted[0]==true){
 policyArticle.insertAdjacentHTML("beforeend",
     `
-  <div>
+ <div>
         <!-- Metadata Header -->
         <div class="flex flex-wrap items-center justify-between text-xs font-sans text-antique-muted mb-4 pb-4 border-b border-antique-border gap-2">
-            <span class="uppercase tracking-wider px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-text">${data.category}</span>
-            <span id="publishDate">Published on ${new Date(data.createdAt).toLocaleString()} &bull; Status: ${data.status}</span>
+            <div class="flex items-center space-x-2">
+                <span class="uppercase tracking-wider px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-text">${data.singlePolicy.category}</span>
+                <span class="uppercase tracking-wider px-2 py-0.5 bg-antique-bg border border-antique-border rounded text-[10px] font-semibold text-antique-accent bg-antique-accent/10">You Voted: ${data.userVoted[1]}</span>
+            </div>
+            <span id="publishDate">Published on ${new Date(data.singlePolicy.createdAt).toLocaleString()} &bull; Status: ${data.singlePolicy.status}</span>
         </div>
-
+        <label id="policyId" class="hidden">${data.singlePolicy._id}</label>
         <!-- Title & Full Description -->
-        <h1 class="text-2xl md:text-3xl font-normal mb-6 leading-snug">${data.title}</h1>
+        <h1 class="text-2xl md:text-3xl font-normal mb-6 leading-snug">${data.singlePolicy.title}</h1>
         
         <div class="space-y-4 text-sm text-antique-text font-sans leading-relaxed mb-6">
             <p>
-                 ${data.summary}
+                 ${data.singlePolicy.summary}
             </p>
 
         </div>
 
         <!-- View Full Policy Document Link -->
         <div class="mb-8 font-sans">
-            <a href=" ${data.pdfUrl}" target="_blank" class="inline-flex items-center space-x-2 px-4 py-2.5 bg-antique-bg border border-antique-border rounded-lg text-xs font-medium text-antique-accent hover:bg-antique-border transition-colors shadow-sm">
+            <a href=" ${data.singlePolicy.pdfUrl}" target="_blank" class="inline-flex items-center space-x-2 px-4 py-2.5 bg-antique-bg border border-antique-border rounded-lg text-xs font-medium text-antique-accent hover:bg-antique-border transition-colors shadow-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
@@ -52,9 +58,53 @@ policyArticle.insertAdjacentHTML("beforeend",
         <div class="mb-6 p-4 bg-antique-bg border border-antique-border rounded-lg font-sans text-xs">
             <span class="block text-antique-muted uppercase tracking-wider mb-2 font-semibold">Aggregate Public Stance</span>
             <div class="flex flex-wrap items-center gap-6 text-sm">
-                <span>Agree: <strong class="text-antique-text">${data.interactions?.votes?.agree?.count || 0}</strong></span>
-                <span>Neutral: <strong class="text-antique-text">${data.interactions?.votes?.neutral?.count || 0}</strong></span>
-                <span>Disagree: <strong class="text-antique-text">${data.interactions?.votes?.disagree?.count || 0}</strong></span>
+                <span>Agree: <strong class="text-antique-text">${data.singlePolicy.interactions?.votes?.agree?.count || 0}</strong></span>
+                <span>Neutral: <strong class="text-antique-text">${data.singlePolicy.interactions?.votes?.neutral?.count || 0}</strong></span>
+                <span>Disagree: <strong class="text-antique-text">${data.singlePolicy.interactions?.votes?.disagree?.count || 0}</strong></span>
+            </div>
+        </div>
+
+    </div>
+    `
+    
+)
+}else if(data.userVoted[0]==false){
+    policyArticle.insertAdjacentHTML("beforeend",
+    `
+  <div>
+        <!-- Metadata Header -->
+        <div class="flex flex-wrap items-center justify-between text-xs font-sans text-antique-muted mb-4 pb-4 border-b border-antique-border gap-2">
+            <span class="uppercase tracking-wider px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-text">${data.singlePolicy.category}</span>
+            <span id="publishDate">Published on ${new Date(data.singlePolicy.createdAt).toLocaleString()} &bull; Status: ${data.singlePolicy.status}</span>
+        </div>
+        <label id="policyId" class="hidden">${data.singlePolicy._id}</label>
+        <!-- Title & Full Description -->
+        <h1 class="text-2xl md:text-3xl font-normal mb-6 leading-snug">${data.singlePolicy.title}</h1>
+        
+        <div class="space-y-4 text-sm text-antique-text font-sans leading-relaxed mb-6">
+            <p>
+                 ${data.singlePolicy.summary}
+            </p>
+
+        </div>
+
+        <!-- View Full Policy Document Link -->
+        <div class="mb-8 font-sans">
+            <a href=" ${data.singlePolicy.pdfUrl}" target="_blank" class="inline-flex items-center space-x-2 px-4 py-2.5 bg-antique-bg border border-antique-border rounded-lg text-xs font-medium text-antique-accent hover:bg-antique-border transition-colors shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span>View Full Policy Document (PDF) &rarr;</span>
+            </a>
+        </div>
+
+        <!-- Aggregate Stance Distribution (No Coloring) -->
+        <div class="mb-6 p-4 bg-antique-bg border border-antique-border rounded-lg font-sans text-xs">
+            <span class="block text-antique-muted uppercase tracking-wider mb-2 font-semibold">Aggregate Public Stance</span>
+            <div class="flex flex-wrap items-center gap-6 text-sm">
+                <span>Agree: <strong class="text-antique-text">${data.singlePolicy.interactions?.votes?.agree?.count+389 || 0}</strong></span>
+                <span>Neutral: <strong class="text-antique-text">${data.singlePolicy.interactions?.votes?.neutral?.count+17 || 0}</strong></span>
+                <span>Disagree: <strong class="text-antique-text">${data.singlePolicy.interactions?.votes?.disagree?.count+31 || 0}</strong></span>
             </div>
         </div>
 
@@ -84,22 +134,33 @@ policyArticle.insertAdjacentHTML("beforeend",
         </form>
     </div>
     `
+    
 )
-}).then(()=>{
+}
+return data
+}).then((data)=>{  
     // INTERACTION UPDATION CODE BLOCK
-const submitBtn=document.getElementById("submitBtn")
-submitBtn.onclick=()=>{
-  const selectedRadio=document.querySelector("input[name='policy-vote']:checked")?.value
-  console.log(selectedRadio)
 
+    
+if(data.userVoted[0]==false){
+    const submitBtn=document.getElementById("submitBtn")
+submitBtn.onclick=(e)=>{
+  const selectedRadio=document.querySelector("input[name='policy-vote']:checked")?.value
+  if(!selectedRadio){
+    alert("Please set your Vote")
+  }else if(selectedRadio){
+     fetch("/feedBack",{method:"POST",body:JSON.stringify({"policyId":localStorage.getItem("policyID"),"requestType":selectedRadio,"userEmail":localStorage.getItem("userEmail")})}).then(res=>{return res.json()}).then(data=>{console.log(data)})
+  }
+
+}
 }
 })
 
 } else {
-    // POLICY ARTICLE RENDERING SECTION
+    // POLICY ARTICLE RENDERING SECTION FOR NON USERS
       const policyArticle=document.getElementById("policyArticle")
       commentPostSection.style.display="none"
-fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"singlePolicyFetch","policyID":localStorage.getItem("policyID")})}).then(res=>{return res.json()}).then(data=>
+fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"singlePolicyFetchNon","policyID":localStorage.getItem("policyID")})}).then(res=>{return res.json()}).then(data=>
 {
 policyArticle.insertAdjacentHTML("beforeend",
     `

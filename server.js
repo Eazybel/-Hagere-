@@ -8,7 +8,9 @@ const admin=require("firebase-admin")
 var {cert,initializeApp} = require("firebase-admin/app");
 const {cloudinary, upload}=require("./utils/cloudinary")
 
-var serviceAccount = require("./serviceAccount.json");
+// var serviceAccount = require("./serviceAccount.json");
+var serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
+serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
 // const limiter=rateLimiter({
 //     windowMs:15*60*1000,
 //     malimit:5,
@@ -20,6 +22,7 @@ admin.initializeApp({
 // CONTROLLER ROUTE
 const {userController, userFetch}=require("./controller/userController")
 const {policyUpdate,policyFetch}=require("./controller/policyController")
+const feedBack=require("./controller/feedBackController")
 // Package initiation
 const app=express()
 app.use(express.static(path.join(__dirname,"public")))
@@ -45,6 +48,7 @@ app.post("/policyUpdate",upload.single("file"),policyUpdate)
 app.post("/newUserRegister",userController)
 app.post("/policyFetch",policyFetch)
 app.post("/userFetch",userFetch)
+app.post("/feedBack",feedBack)
 app.listen(port,()=>{
     console.log("Server listening")
 })

@@ -25,8 +25,7 @@ const UserSchema = new mongoose.Schema(
     votesCast: [
       {
         policyId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Policy",
+          type: String,
         },
         stance: {
           type: String,
