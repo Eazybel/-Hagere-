@@ -60,7 +60,7 @@ async function translateDynamicText(text, language) {
 
   const cacheKey = `${language}:${text}`;
   if (dynamicTranslationCache.has(cacheKey)) return dynamicTranslationCache.get(cacheKey);
-
+//TEMPORARY PUSH TO OTHER BRANCH FOR CHECKOUT
   try {
     const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${languageCode}`);
     if (!response.ok) return text;
