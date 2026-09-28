@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hagere (ሀገሬ) — Under Maintenance</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white relative overflow-x-hidden">
+
+    <!-- Background glowing visual effect -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+
+    <!-- Header / Nav -->
+    <header class="w-full py-6 px-6 sm:px-12 flex justify-between items-center max-w-7xl mx-auto z-10">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-900/20 text-white font-bold text-xl">
+                ሀ
+            </div>
+            <div>
+                <span class="text-xl font-bold tracking-tight text-white">Hagere</span>
+                <span class="text-xs block text-emerald-400 font-medium tracking-widest uppercase">ሀገሬ Platform</span>
+            </div>
+        </div>
+        <div>
+            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                System Upgrade in Progress
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center px-6 py-12 z-10">
+        <div class="max-w-2xl w-full text-center">
+            
+            <!-- Icon badge -->
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-slate-900 border border-slate-800 text-emerald-400 mb-8 shadow-2xl shadow-emerald-500/5">
+                <i class="fa-solid fa-screwdriver-wrench text-3xl animate-bounce"></i>
+            </div>
+
+            <!-- Heading -->
+            <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-white mb-4">
+                We're Building Something <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200">Better</span>
+            </h1>
+            <p class="text-slate-400 text-base sm:text-lg mb-10 leading-relaxed max-w-xl mx-auto">
+                <strong>Hagere (ሀገሬ)</strong> is currently undergoing scheduled system maintenance and performance upgrades to deliver a smoother civic engagement and policy discussion experience.
+            </p>
+
+            <!-- Status Card / Details Box -->
+            <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl p-6 text-left mb-10 shadow-xl backdrop-blur-md">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-emerald-400"></i> What's happening?
+                </h3>
+                <ul class="space-y-3 text-sm text-slate-300">
+                    <li class="flex items-start gap-3">
+                        <i class="fa-solid fa-check text-emerald-400 mt-1"></i>
+                        <span>Upgrading database infrastructure and backend architecture for faster response times.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fa-solid fa-check text-emerald-400 mt-1"></i>
+                        <span>Deploying enhanced security protocols and user authorization updates.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fa-solid fa-check text-emerald-400 mt-1"></i>
+                        <span>Normal platform operations will resume shortly. Thank you for your patience!</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="https://syntax.pro.et" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-emerald-600/30 hover:scale-[1.02] active:scale-[0.98]">
+                    <span>Visit Syntax Tech</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                </a>
+                <button onclick="window.location.reload();" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white font-semibold px-6 py-3.5 rounded-xl border border-slate-800 transition-all">
+                    <i class="fa-solid fa-rotate-right text-xs"></i>
+                    <span>Check Status Again</span>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-500 mt-6">
+                Need immediate assistance or extra technical info? Reach out via <a href="https://syntax.pro.et" target="_blank" class="text-emerald-400 underline hover:text-emerald-300">syntax.pro.et</a>.
+            </p>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full py-6 px-6 text-center text-xs text-slate-600 border-t border-slate-900 z-10 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p>&copy; 2026 Hagere (ሀገሬ). All rights reserved.</p>
+        <p class="flex items-center gap-1">
+            Engineered with <i class="fa-solid fa-heart text-emerald-500 text-[10px]"></i> via 
+            <a href="https://syntax.pro.et" target="_blank" class="text-slate-400 hover:text-emerald-400 font-medium transition-colors">Syntax Tech Solutions</a>
+        </p>
+    </footer>
+
+</body>
+</html>
