@@ -12,12 +12,14 @@
   },
   "license": "ISC",
   "author": "Syntax-Designs (Ezedin Yassin)",
-  "type": "commonjs",
+  "type": "module",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "build": "npm run your-existing-build-command",
+  "prepare": "npm i --ignore-scripts=false"
   },
   "dependencies": {
     "cloudinary": "^2.10.0",
