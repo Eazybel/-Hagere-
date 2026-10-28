@@ -1,3 +1,5 @@
+import { applyOptimisticVote } from "./voteState.mjs"
+
  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
  import { getAuth, signInWithPopup, GoogleAuthProvider , onAuthStateChanged, signOut }  from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
  const firebaseConfig = {
@@ -171,8 +173,7 @@ if(data.userVoted[0]==false){
             return
         }
 
-        const previousCounts={...counts}
-        counts[selectedRadio]+=1
+        const rollbackVote=applyOptimisticVote(counts,selectedRadio)
         renderCounts()
         voteStatus.textContent="Submitting your stance…"
         voteStatus.className="text-xs text-antique-muted text-center sm:text-left"
@@ -201,7 +202,7 @@ if(data.userVoted[0]==false){
             voteStatus.className="text-xs text-emerald-700 text-center sm:text-left"
             submitBtn.textContent="Vote recorded"
         } catch(error) {
-            Object.assign(counts,previousCounts)
+            rollbackVote()
             renderCounts()
             submitBtn.disabled=false
             voteInputs.forEach(input=>{input.disabled=false})
