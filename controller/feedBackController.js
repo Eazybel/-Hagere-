@@ -1,30 +1,44 @@
 // Support/Oppose/Neutral vote processing
-const mongoose=require("mongoose")
-const express=require("express")
 const userModel=require("../models/User")
 const policyModal=require("../models/Policy")
 const feedBack=async(req,res)=>{
-    const requestBody=JSON.parse(req.body)
-    const policy=await policyModal.findOne({"_id":requestBody.policyId})
-    const user=await userModel.findOne({"email":requestBody.userEmail})
-    policy.totalVotes=policy.totalVotes+1
-    if(requestBody.requestType=="agree"){
-        policy.interactions.votes.agree.count=policy.interactions.votes.agree.count+1
-        user.votesCast.unshift({policyId:requestBody.policyId,stance:"agree"})
-       policy.interactions.votes.agree.voters.unshift(user.id)
-       
-    }else if(requestBody.requestType=="neutral"){
-         policy.interactions.votes.neutral.count=policy.interactions.votes.neutral.count+1
-        user.votesCast.unshift({policyId:requestBody.policyId,stance:"neutral"})
-       policy.interactions.votes.neutral.voters.unshift(user.id)
-    }else if(requestBody.requestType=="disagree"){
-         policy.interactions.votes.disagree.count=policy.interactions.votes.disagree.count+1
-        user.votesCast.unshift({policyId:requestBody.policyId,stance:"disagree"})
-       policy.interactions.votes.disagree.voters.unshift(user.id)
+    let requestBody=req.body
+    if(typeof requestBody==="string") requestBody=JSON.parse(requestBody)
+    if(!["agree","neutral","disagree"].includes(requestBody.requestType)){
+        return res.status(400).json({error:"A valid voting stance is required"})
     }
-    await policy.save().then(()=>console.log("interaction saved"))
-    await user.save().then(()=>console.log("user Data Updated"))
-    res.status(200).send(user)
-   
+    if(!req.auth?.email){
+        return res.status(403).json({error:"Verified account email required"})
+    }
+
+    const user=await userModel.findOne({email:req.auth.email})
+    if(!user) return res.status(404).json({error:"Registered citizen not found"})
+
+    const stance=requestBody.requestType
+    const votePath=`interactions.votes.${stance}`
+    const voterId=user.id
+    const policy=await policyModal.findOneAndUpdate({
+        _id:requestBody.policyId,
+        $and:[
+            {"interactions.votes.agree.voters":{$ne:voterId}},
+            {"interactions.votes.neutral.voters":{$ne:voterId}},
+            {"interactions.votes.disagree.voters":{$ne:voterId}}
+        ]
+    },{
+        $inc:{totalVotes:1,[`${votePath}.count`]:1},
+        $addToSet:{[`${votePath}.voters`]:voterId}
+    },{new:true})
+    if(!policy){
+        const exists=await policyModal.exists({_id:requestBody.policyId})
+        return exists
+            ? res.status(409).json({error:"A vote has already been recorded for this policy"})
+            : res.status(404).json({error:"Policy not found"})
+    }
+
+    await userModel.updateOne(
+        {_id:user._id},
+        {$push:{votesCast:{policyId:String(policy._id),stance}}}
+    )
+    return res.status(200).json({success:true,totalVotes:policy.totalVotes})
 }
 module.exports=feedBack

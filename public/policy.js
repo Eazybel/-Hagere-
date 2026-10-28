@@ -12,13 +12,13 @@
   const app = initializeApp(firebaseConfig);
   const auth=getAuth(app)
   const commentPostSection=document.getElementById("commentPostSection")
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
   if (user) {
     const uid = user.uid;
-  
+    const idToken = await user.getIdToken()
     // POLICY ARTICLE RENDERING SECTION
       const policyArticle=document.getElementById("policyArticle")
-fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"singlePolicyFetch","policyID":localStorage.getItem("policyID"),"userEmail":localStorage.getItem("userEmail")})}).then(res=>{return res.json()}).then(data=>
+fetch("/policyFetch",{method:"POST",headers:{"Authorization":`Bearer ${idToken}`},body:JSON.stringify({"requestType":"singlePolicyFetch","policyID":localStorage.getItem("policyID")})}).then(res=>{return res.json()}).then(data=>
 {
 console.log(data)
 if(data.userVoted[0]==true){
@@ -149,7 +149,7 @@ submitBtn.onclick=(e)=>{
   if(!selectedRadio){
     alert("Please set your Vote")
   }else if(selectedRadio){
-     fetch("/feedBack",{method:"POST",body:JSON.stringify({"policyId":localStorage.getItem("policyID"),"requestType":selectedRadio,"userEmail":localStorage.getItem("userEmail")})}).then(res=>{return res.json()}).then(data=>{console.log(data)})
+     fetch("/feedBack",{method:"POST",headers:{"Authorization":`Bearer ${idToken}`},body:JSON.stringify({"policyId":localStorage.getItem("policyID"),"requestType":selectedRadio})}).then(res=>{return res.json()}).then(data=>{console.log(data)})
   }
 
 }
@@ -209,5 +209,4 @@ policyArticle.insertAdjacentHTML("beforeend",
   }
 })
  
-
 

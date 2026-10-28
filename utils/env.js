@@ -21,7 +21,12 @@ const envSchema = z.object({
     CLOUDINARY_KEY: z.string().min(1),
     CLOUDINARY_SECRET: z.string().min(1),
     FIREBASE_API: z.string().min(1),
-    SERVICE_ACCOUNT: z.string().min(1)
+    SERVICE_ACCOUNT: z.string().min(1),
+    ADMIN_FIREBASE_PROJECT_ID: z.string().min(1),
+    ADMIN_SERVICE_ACCOUNT: z.string().min(1),
+    ADMIN_UIDS: z.string().min(1).transform(value => [...new Set(
+        value.split(",").map(uid => uid.trim()).filter(Boolean)
+    )]).refine(uids => uids.length > 0, "must contain at least one UID")
 })
 
 const result = envSchema.safeParse(process.env)
@@ -34,29 +39,48 @@ if (!result.success) {
     process.exit(1)
 }
 
-let serviceAccountJson
-try {
-    serviceAccountJson = JSON.parse(result.data.SERVICE_ACCOUNT)
-} catch {
+function parseServiceAccount(value, variableName) {
+    let serviceAccountJson
+    try {
+        serviceAccountJson = JSON.parse(value)
+    } catch {
+        console.error("Invalid environment configuration:")
+        console.error(`- ${variableName}: must contain valid JSON`)
+        process.exit(1)
+    }
+
+    const serviceAccountResult = serviceAccountSchema.safeParse(serviceAccountJson)
+    if (!serviceAccountResult.success) {
+        console.error("Invalid environment configuration:")
+        for (const issue of serviceAccountResult.error.issues) {
+            console.error(`- ${variableName}.${issue.path.join(".")}: ${issue.message}`)
+        }
+        process.exit(1)
+    }
+
+    return {
+        ...serviceAccountResult.data,
+        private_key: serviceAccountResult.data.private_key.replace(/\\n/g, "\n")
+    }
+}
+
+const serviceAccount = parseServiceAccount(result.data.SERVICE_ACCOUNT, "SERVICE_ACCOUNT")
+const adminServiceAccount = parseServiceAccount(result.data.ADMIN_SERVICE_ACCOUNT, "ADMIN_SERVICE_ACCOUNT")
+
+if (adminServiceAccount.project_id !== result.data.ADMIN_FIREBASE_PROJECT_ID) {
     console.error("Invalid environment configuration:")
-    console.error("- SERVICE_ACCOUNT: must contain valid JSON")
+    console.error("- ADMIN_FIREBASE_PROJECT_ID: must match ADMIN_SERVICE_ACCOUNT.project_id")
     process.exit(1)
 }
 
-const serviceAccountResult = serviceAccountSchema.safeParse(serviceAccountJson)
-
-if (!serviceAccountResult.success) {
+if (adminServiceAccount.project_id === serviceAccount.project_id) {
     console.error("Invalid environment configuration:")
-    for (const issue of serviceAccountResult.error.issues) {
-        console.error(`- SERVICE_ACCOUNT.${issue.path.join(".")}: ${issue.message}`)
-    }
+    console.error("- ADMIN_SERVICE_ACCOUNT: must belong to a separate Firebase project")
     process.exit(1)
 }
 
 module.exports = {
     ...result.data,
-    SERVICE_ACCOUNT: {
-        ...serviceAccountResult.data,
-        private_key: serviceAccountResult.data.private_key.replace(/\\n/g, "\n")
-    }
+    SERVICE_ACCOUNT: serviceAccount,
+    ADMIN_SERVICE_ACCOUNT: adminServiceAccount
 }

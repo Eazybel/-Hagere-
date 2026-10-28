@@ -2,9 +2,38 @@
 const {cloudinary, upload}=require("../utils/cloudinary")
 const policyModel=require("../models/Policy")
 const userModel=require("../models/User")
+
+const requestData=(req)=>{
+    if(req.body && typeof req.body==="object") return req.body
+    if(typeof req.body==="string") return JSON.parse(req.body)
+    return {}
+}
+
+const toPublicPolicy=(policy)=>{
+    const data=policy.toObject ? policy.toObject() : policy
+    return {
+        _id:data._id,
+        title:data.title,
+        category:data.category,
+        summary:data.summary,
+        pdfUrl:data.pdfUrl,
+        status:data.status,
+        totalVotes:data.totalVotes,
+        createdAt:data.createdAt,
+        interactions:{
+            votes:{
+                agree:{count:data.interactions?.votes?.agree?.count || 0},
+                neutral:{count:data.interactions?.votes?.neutral?.count || 0},
+                disagree:{count:data.interactions?.votes?.disagree?.count || 0}
+            },
+            comments:data.interactions?.comments || []
+        }
+    }
+}
+
 const policyUpdate=(async(req,res)=>{
     if(!req.file){
-    res.status(404).send("File upload not found")
+        return res.status(400).send("File upload not found")
     }
     try{
 const uploadStream=cloudinary.uploader.upload_stream({
@@ -13,8 +42,9 @@ const uploadStream=cloudinary.uploader.upload_stream({
 
 },async(error,result)=>{
     if(error){
-        res.send(401).send(error)
+        return res.status(502).json({error:"Policy document upload failed"})
     }
+    if(!result) return res.status(502).json({error:"Policy document upload returned no result"})
     const newPolicy=new policyModel({
     title:req.body.title,
     category:req.body.sector,
@@ -23,51 +53,44 @@ const uploadStream=cloudinary.uploader.upload_stream({
     status:req.body.status
 })
 await newPolicy.save().then(()=>console.log("saved"))
-    res.status(200).json(result)
+res.status(201).json({policyId:newPolicy.id,pdfUrl:result.secure_url || result.url})
 })
 uploadStream.end(req.file.buffer)
-    }catch(error){
-console.log(error)
-    }
+}catch(error){
+    return res.status(500).json({error:"Policy could not be published"})
+}
 
 })
 const policyFetch=async(req,res)=>{
+const reqData=requestData(req)
+if(reqData.requestType==="policyDataFetch"){
     const allPolicies=await policyModel.find()
-    const reqData=JSON.parse(req.body)
-   if(reqData.requestType=="policyNumberFetch"){
-    res.status(200).send(allPolicies.length)
-   }else if(reqData.requestType=="policyDataFetch"){
+    return res.status(200).json(allPolicies.map(toPublicPolicy))
+}
+if(reqData.requestType==="singlePolicyFetch" || reqData.requestType==="singlePolicyFetchNon"){
+    const singlePolicy=await policyModel.findById(reqData.policyID)
+    if(!singlePolicy) return res.status(404).json({error:"Policy not found"})
 
-       res.status(200).json(allPolicies)
-   }else if(reqData.requestType=="singlePolicyFetch"){
-    const requestBody=JSON.parse(req.body)
-    const singlePolicy=await policyModel.findOne({"_id":reqData.policyID})
-    const user=await userModel.findOne({"email":requestBody.userEmail})
-    const agreeVoters=singlePolicy.interactions.votes.agree.voters
-    const neutralVoters=singlePolicy.interactions.votes.neutral.voters
-    const disagreeVoters=singlePolicy.interactions.votes.disagree.voters
-    let userVote=[false]
-    if(agreeVoters.includes(user.id)){
-            userVote[0]=true
-            userVote[1]="agree"
-    }else if(neutralVoters.includes(user.id)){
-            userVote[0]=true
-            userVote[1]="neutral"
-    }else if(disagreeVoters.includes(user.id)){
-        userVote[0]=true
-        userVote[1]="disagree"
+    if(reqData.requestType==="singlePolicyFetch"){
+        if(!req.auth?.email) return res.status(403).json({error:"Verified account email required"})
+        const user=await userModel.findOne({email:req.auth.email})
+        const userId=user?.id
+        const votes=singlePolicy.interactions.votes
+        const userVote=votes.agree.voters.includes(userId) ? [true,"agree"]
+            : votes.neutral.voters.includes(userId) ? [true,"neutral"]
+            : votes.disagree.voters.includes(userId) ? [true,"disagree"]
+            : [false]
+        return res.status(200).json({singlePolicy:toPublicPolicy(singlePolicy),userVoted:userVote})
     }
 
-        res.status(200).json({"singlePolicy":singlePolicy,"userVoted":userVote})
-   }else if(reqData.requestType=="singlePolicyFetchNon"){
-    const requestBody=JSON.parse(req.body)
-    const singlePolicy=await policyModel.findOne({"_id":reqData.policyID})
-    const agreeVoters=singlePolicy.interactions.votes.agree.voters
-    const neutralVoters=singlePolicy.interactions.votes.neutral.voters
-    const disagreeVoters=singlePolicy.interactions.votes.disagree.voters
-
-        res.status(200).json(singlePolicy)
-   }
-
+    return res.status(200).json(toPublicPolicy(singlePolicy))
 }
-module.exports={policyUpdate, policyFetch}
+return res.status(400).json({error:"Unsupported policy request"})
+}
+
+const policyCount=async(req,res)=>{
+const count=await policyModel.countDocuments()
+return res.status(200).json({count})
+}
+
+module.exports={policyUpdate, policyFetch, policyCount}

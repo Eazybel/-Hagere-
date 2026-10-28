@@ -34,14 +34,7 @@ const newUser=new userModel({
 }
 // USER FETCHER ROUTE
 const userFetch=(async(req,res)=>{
-const userData=JSON.parse(req.body)
-const userNumber=await userModel.find()
-try{
-if(userData.requestType=="userNumberFetch"){
-res.status(200).send(userNumber.length)
-}
-}catch(error){
-    res.send(error)
-}
+const userNumber=await userModel.countDocuments()
+return res.status(200).json({count:userNumber})
 })
 module.exports={userController, userFetch}

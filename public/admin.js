@@ -29,26 +29,33 @@
 
   }
 // SUBMIT HANDLER
-submitBtn.onclick=(e)=>{
+submitBtn.onclick=async(e)=>{
   e.preventDefault()
   const form=new FormData(publishForm)
-  const objectedForm=Object.fromEntries(form.entries())
+  const token=await auth.currentUser.getIdToken()
   fetch("/policyUpdate",{
     method:"POST",
+    headers:{"Authorization":`Bearer ${token}`},
     body:form
-  }).then(res=>{return res.json()}).then(data=>{console.log(data)})
+  }).then(async res=>{
+    if(!res.ok) throw new Error("Policy publishing failed")
+    return res.json()
+  }).then(data=>{console.log(data)}).catch(error=>console.error(error))
 }
 // POLICY NUMBER UPDATE
 const adminDataFetcher=async()=>{
-  fetch("/policyFetch",{method:"POST",body:JSON.stringify({requestType:"policyNumberFetch"})}).then(res=>{return res.json()}).then(data=>{
-document.querySelector(".activePolicy").innerText=data+142
-})
-fetch("/userFetch",{method:"POST",body:JSON.stringify({requestType:"userNumberFetch"})}).then(res=>{return res.json()}).then(data=>{
-document.querySelector(".activeCitizens").innerText=data+31800
-
-})
+  const token=await user.getIdToken()
+  const headers={"Authorization":`Bearer ${token}`}
+  const [policyResponse,userResponse]=await Promise.all([
+    fetch("/admin/policyCount",{headers}),
+    fetch("/userFetch",{method:"POST",headers,body:JSON.stringify({requestType:"userNumberFetch"})})
+  ])
+  if(!policyResponse.ok || !userResponse.ok) throw new Error("Unable to load admin metrics")
+  const [policyData,userData]=await Promise.all([policyResponse.json(),userResponse.json()])
+  document.querySelector(".activePolicy").innerText=policyData.count
+  document.querySelector(".activeCitizens").innerText=userData.count
 }
-adminDataFetcher()
+adminDataFetcher().catch(error=>console.error(error))
     const uid = user.uid;
     // ...
   } else {
@@ -56,5 +63,4 @@ console.log("user is not signed up")
   }
 })
  
-
 

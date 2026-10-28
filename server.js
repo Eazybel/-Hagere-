@@ -19,10 +19,15 @@ var serviceAccount = env.SERVICE_ACCOUNT;
 admin.initializeApp({
     credential:cert(serviceAccount)
 })
+initializeApp({
+    credential:cert(env.ADMIN_SERVICE_ACCOUNT),
+    projectId:env.ADMIN_FIREBASE_PROJECT_ID
+},"admin-auth")
 // CONTROLLER ROUTE
 const {userController, userFetch}=require("./controller/userController")
-const {policyUpdate,policyFetch}=require("./controller/policyController")
+const {policyUpdate,policyFetch,policyCount}=require("./controller/policyController")
 const feedBack=require("./controller/feedBackController")
+const {authorizeRoles}=require("./middleware/auth")
 // Package initiation
 const app=express()
 app.use(express.static(path.join(__dirname,"public")))
@@ -43,11 +48,25 @@ app.get("/admin",(req,res)=>{
     res.sendFile(path.join(__dirname,"/admin.html"))
 })
 //ROUTE INITIALIZATION
-app.post("/policyUpdate",upload.single("file"),policyUpdate)
+app.post("/policyUpdate",authorizeRoles("admin"),upload.single("file"),policyUpdate)
 app.post("/newUserRegister",userController)
-app.post("/policyFetch",policyFetch)
-app.post("/userFetch",userFetch)
-app.post("/feedBack",feedBack)
+app.post("/policyFetch",(req,res,next)=>{
+    let requestType=req.body?.requestType
+    if(typeof req.body==="string"){
+        try {
+            requestType=JSON.parse(req.body).requestType
+        } catch {
+            return next()
+        }
+    }
+    if(requestType==="singlePolicyFetch"){
+        return authorizeRoles("citizen","admin")(req,res,next)
+    }
+    return next()
+},policyFetch)
+app.get("/admin/policyCount",authorizeRoles("admin"),policyCount)
+app.post("/userFetch",authorizeRoles("admin"),userFetch)
+app.post("/feedBack",authorizeRoles("citizen"),feedBack)
 app.listen(port,()=>{
     console.log("Server listening")
 })
