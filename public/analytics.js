@@ -13,6 +13,12 @@ const firebaseConfig = {
 const auth = getAuth(initializeApp(firebaseConfig))
 const numberFormatter = new Intl.NumberFormat()
 const refreshButton = document.getElementById("refreshAnalytics")
+const retryButton = document.getElementById("retryAnalytics")
+const loadingState = document.getElementById("analyticsLoading")
+const errorState = document.getElementById("analyticsError")
+const errorMessage = document.getElementById("analyticsErrorMessage")
+const analyticsContent = document.getElementById("analyticsContent")
+let hasLoaded = false
 
 function setNumber(elementId, value) {
     document.getElementById(elementId).textContent = numberFormatter.format(value)
@@ -74,19 +80,43 @@ function renderAnalytics(data) {
 
 async function loadAnalytics(user) {
     refreshButton.disabled = true
-    const token = await user.getIdToken()
-    const response = await fetch("/admin/analytics", {
-        headers: { Authorization: `Bearer ${token}` }
-    })
-    if (!response.ok) {
-        if (response.status === 401) {
-            window.location.replace("./adminAuth.html")
-            return
-        }
-        throw new Error(`Analytics request failed (${response.status})`)
+    retryButton.disabled = true
+    errorState.classList.add("hidden")
+    if (!hasLoaded) {
+        loadingState.classList.remove("hidden")
+        analyticsContent.classList.add("hidden")
+        analyticsContent.setAttribute("aria-busy","true")
     }
-    renderAnalytics(await response.json())
-    refreshButton.disabled = false
+
+    try {
+        const token = await user.getIdToken()
+        const response = await fetch("/admin/analytics", {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        if (!response.ok) {
+            if (response.status === 401) {
+                window.location.replace("./adminAuth.html")
+                return
+            }
+            if (response.status === 403) {
+                throw new Error("This account is not authorized to view administrative analytics.")
+            }
+            throw new Error(`Analytics request failed (${response.status}). Please retry.`)
+        }
+        renderAnalytics(await response.json())
+        hasLoaded = true
+        loadingState.classList.add("hidden")
+        analyticsContent.classList.remove("hidden")
+        analyticsContent.setAttribute("aria-busy","false")
+    } catch (error) {
+        errorMessage.textContent = error.message || "Check your connection and try again."
+        errorState.classList.remove("hidden")
+        if (!hasLoaded) loadingState.classList.add("hidden")
+        throw error
+    } finally {
+        refreshButton.disabled = false
+        retryButton.disabled = false
+    }
 }
 
 onAuthStateChanged(auth, user => {
@@ -95,21 +125,23 @@ onAuthStateChanged(auth, user => {
         return
     }
 
-    loadAnalytics(user).catch(error => {
-        document.getElementById("analyticsUpdatedAt").textContent = "Unable to load analytics"
-        document.getElementById("topPolicies").textContent = error.message
-        refreshButton.disabled = false
-        console.error(error)
-    })
+    loadAnalytics(user).catch(error => console.error(error))
+}, error => {
+    loadingState.classList.add("hidden")
+    errorMessage.textContent = "We couldn't verify your session. Refresh the page or sign in again."
+    errorState.classList.remove("hidden")
+    console.error(error)
 })
 
-refreshButton.addEventListener("click", () => {
+async function refreshAnalytics() {
     if (auth.currentUser) {
-        loadAnalytics(auth.currentUser).catch(error => {
-            document.getElementById("analyticsUpdatedAt").textContent = "Unable to load analytics"
-            document.getElementById("topPolicies").textContent = error.message
-            refreshButton.disabled = false
+        try {
+            await loadAnalytics(auth.currentUser)
+        } catch (error) {
             console.error(error)
-        })
+        }
     }
-})
+}
+
+refreshButton.addEventListener("click", refreshAnalytics)
+retryButton.addEventListener("click", refreshAnalytics)

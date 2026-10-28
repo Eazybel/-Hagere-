@@ -24,7 +24,7 @@ initializeApp({
     projectId:env.ADMIN_FIREBASE_PROJECT_ID
 },"admin-auth")
 // CONTROLLER ROUTE
-const {userController, userFetch}=require("./controller/userController")
+const {userController, userFetch, profileActivity}=require("./controller/userController")
 const {policyUpdate,policyFetch,policyCount}=require("./controller/policyController")
 const feedBack=require("./controller/feedBackController")
 const {createAnalyticsController}=require("./controller/analyticsController")
@@ -71,6 +71,7 @@ app.get("/admin/analytics",authorizeRoles("admin"),createAnalyticsController({
     User:require("./models/User")
 }))
 app.post("/userFetch",authorizeRoles("admin"),userFetch)
+app.get("/profile/activity",authorizeRoles("citizen"),profileActivity)
 app.post("/feedBack",authorizeRoles("citizen"),feedBack)
 app.listen(port,()=>{
     console.log("Server listening")
