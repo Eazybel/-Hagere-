@@ -1,4 +1,5 @@
 //  Varible initiation
+const env = require("./utils/env")
 const express=require("express")
 const path=require("path")
 const mongoose=require("mongoose")
@@ -9,8 +10,7 @@ var {cert,initializeApp} = require("firebase-admin/app");
 const {cloudinary, upload}=require("./utils/cloudinary")
 
 // var serviceAccount = require("./serviceAccount.json");
-var serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
-serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+var serviceAccount = env.SERVICE_ACCOUNT;
 // const limiter=rateLimiter({
 //     windowMs:15*60*1000,
 //     malimit:5,
@@ -29,9 +29,8 @@ app.use(express.static(path.join(__dirname,"public")))
 app.use(express.json())
 app.use(express.text())
 app.use(express.urlencoded({extended:true}))
-require("dotenv").config()
-const port=process.env.PORT
-const connectionString=process.env.CONNECTION_STRING
+const port=env.PORT
+const connectionString=env.CONNECTION_STRING
 // CORS POLICY MIDDLWARE
 const corsConfig={
     origin:"http://127.0.0.1/",
