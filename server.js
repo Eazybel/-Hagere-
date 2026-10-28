@@ -27,6 +27,7 @@ initializeApp({
 const {userController, userFetch}=require("./controller/userController")
 const {policyUpdate,policyFetch,policyCount}=require("./controller/policyController")
 const feedBack=require("./controller/feedBackController")
+const {createAnalyticsController}=require("./controller/analyticsController")
 const {authorizeRoles}=require("./middleware/auth")
 // Package initiation
 const app=express()
@@ -65,6 +66,10 @@ app.post("/policyFetch",(req,res,next)=>{
     return next()
 },policyFetch)
 app.get("/admin/policyCount",authorizeRoles("admin"),policyCount)
+app.get("/admin/analytics",authorizeRoles("admin"),createAnalyticsController({
+    Policy:require("./models/Policy"),
+    User:require("./models/User")
+}))
 app.post("/userFetch",authorizeRoles("admin"),userFetch)
 app.post("/feedBack",authorizeRoles("citizen"),feedBack)
 app.listen(port,()=>{
