@@ -22,6 +22,7 @@ initializeApp({
 // CONTROLLER ROUTE
 const {userController, userFetch, profileActivity}=require("./controller/userController")
 const {policyUpdate,policyFetch,policyCount}=require("./controller/policyController")
+const policyComment=require("./controller/commentController")
 const feedBack=require("./controller/feedBackController")
 const {createAnalyticsController}=require("./controller/analyticsController")
 const {authorizeRoles}=require("./middleware/auth")
@@ -69,6 +70,7 @@ app.get("/admin/analytics",authorizeRoles("admin"),createAnalyticsController({
 app.post("/userFetch",authorizeRoles("admin"),userFetch)
 app.get("/profile/activity",authorizeRoles("citizen"),profileActivity)
 app.post("/feedBack",voteRateLimit,authorizeRoles("citizen"),feedBack)
+app.post("/policyComment",voteRateLimit,authorizeRoles("citizen"),policyComment)
 app.use(notFoundHandler)
 app.use(errorHandler)
 app.listen(port,()=>{

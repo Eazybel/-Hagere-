@@ -144,11 +144,11 @@ policySection.insertAdjacentHTML("beforeend",`<div class="col-span-full py-12 te
         <!-- Vote Counts Breakdown Analytics -->
         <div class="mb-4 pt-2 border-t border-antique-border font-sans text-xs flex flex-wrap items-center justify-between gap-2">
             <div class="flex items-center space-x-3 text-antique-muted">
-                                <span><span data-i18n="agree">Agree</span>: <strong class="text-antique-text">${Math.floor(Math.random() * 181) + 389}</strong></span>
-                                <span><span data-i18n="neutral">Neutral</span>: <strong class="text-antique-text">${Math.floor(Math.random() * 73) + 17}</strong></span>
-                                <span><span data-i18n="disagree">Disagree</span>: <strong class="text-antique-text">${Math.floor(Math.random() * 61) + 31}</strong></span>
+                <span><span data-i18n="agree">Agree</span>: <strong class="text-antique-text">${policy.interactions?.votes?.agree?.count ?? 0}</strong></span>
+                <span><span data-i18n="neutral">Neutral</span>: <strong class="text-antique-text">${policy.interactions?.votes?.neutral?.count ?? 0}</strong></span>
+                <span><span data-i18n="disagree">Disagree</span>: <strong class="text-antique-text">${policy.interactions?.votes?.disagree?.count ?? 0}</strong></span>
             </div>
-                            <span class="text-antique-muted"><span data-i18n="comments">Comments</span>: <strong class="text-antique-text">${Math.floor(Math.random() * 43) + 3}</strong></span>
+            <span class="text-antique-muted"><span data-i18n="comments">Comments</span>: <strong class="text-antique-text">${policy.interactions?.comments?.length ?? 0}</strong></span>
         </div>
 
         <!-- Action Link to Vote, Read & Comment -->

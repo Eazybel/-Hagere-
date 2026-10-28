@@ -27,7 +27,7 @@ fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"policyDa
 policySection.insertAdjacentHTML("beforeend",`<div class="col-span-full py-12 text-center bg-antique-card border border-antique-border rounded-lg font-sans">
     <p class="text-antique-muted text-sm">No Policies Posted Yet.</p>
 </div>`)
-    }else if(data.length>1){
+    }else{
 
           
   data.forEach(policy=>{
@@ -53,11 +53,11 @@ policySection.insertAdjacentHTML("beforeend",`<div class="col-span-full py-12 te
         <!-- Vote Counts Breakdown Analytics -->
         <div class="mb-4 pt-2 border-t border-antique-border font-sans text-xs flex flex-wrap items-center justify-between gap-2">
             <div class="flex items-center space-x-3 text-antique-muted">
-                <span>Agree: <strong class="text-antique-text">44</strong></span>
-                <span>Neutral: <strong class="text-antique-text">44</strong></span>
-                <span>Disagree: <strong class="text-antique-text">44</strong></span>
+                <span>Agree: <strong class="text-antique-text">${policy.interactions?.votes?.agree?.count ?? 0}</strong></span>
+                <span>Neutral: <strong class="text-antique-text">${policy.interactions?.votes?.neutral?.count ?? 0}</strong></span>
+                <span>Disagree: <strong class="text-antique-text">${policy.interactions?.votes?.disagree?.count ?? 0}</strong></span>
             </div>
-            <span class="text-antique-muted">Comments: <strong class="text-antique-text">44</strong></span>
+            <span class="text-antique-muted">Comments: <strong class="text-antique-text">${policy.interactions?.comments?.length ?? 0}</strong></span>
         </div>
 
         <!-- Action Link to Vote, Read & Comment -->

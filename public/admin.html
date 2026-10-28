@@ -63,7 +63,7 @@
             <div>
                 <h1 class="text-2xl font-normal mb-1">System Oversight & Moderation</h1>
                 <p class="text-sm text-antique-muted font-sans">
-                    Manage active policies, review flagged citizen discussions, and monitor platform activity metrics.
+                    Publish policies and monitor platform activity metrics.
                 </p>
             </div>
             <div class="flex items-center gap-3 font-sans text-xs">
@@ -78,102 +78,20 @@
         </section>
 
         <!-- Quick Platform Metrics -->
-        <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 font-sans">
+        <section class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 font-sans">
             <div class="bg-antique-card border border-antique-border rounded-lg p-4">
-                <span class="block text-xs uppercase tracking-wider text-antique-muted mb-1">Active Policies</span>
-                <strong  class="text-2xl font-bold text-antique-text activePolicy">152</strong>
+                <span class="block text-xs uppercase tracking-wider text-antique-muted mb-1">Policies</span>
+                <strong class="text-2xl font-bold text-antique-text activePolicy">—</strong>
             </div>
             <div class="bg-antique-card border border-antique-border rounded-lg p-4">
                 <span class="block text-xs uppercase tracking-wider text-antique-muted mb-1">Registered Citizens</span>
-                <strong class="text-2xl font-bold text-antique-text activeCitizens">31,802</strong>
-            </div>
-            <div class="bg-antique-card border border-antique-border rounded-lg p-4">
-                <span class="block text-xs uppercase tracking-wider text-antique-muted mb-1">Flagged Comments</span>
-                <strong class="text-2xl font-bold text-rose-700">25</strong>
+                <strong class="text-2xl font-bold text-antique-text activeCitizens">—</strong>
             </div>
         </section>
 
-        <!-- Section Tabs / Filter -->
-        <div class="mb-6 flex space-x-6 border-b border-antique-border pb-3 font-sans text-sm">
-            <button class="font-medium text-antique-accent border-b-2 border-antique-accent pb-3 -mb-3">Flagged Discussions</button>
-            <button class="text-antique-muted hover:text-antique-text pb-3 -mb-3">Manage Policies</button>
-            <button class="text-antique-muted hover:text-antique-text pb-3 -mb-3">User Directory</button>
-        </div>
-
-        <!-- Moderation List Grid -->
-        <section class="space-y-4">
-
-            <!-- Moderation Card 1 -->
-            <article class="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div class="space-y-1">
-                    <div class="flex items-center space-x-2 text-xs font-sans text-antique-muted">
-                        <span class="px-2 py-0.5 bg-antique-bg border border-antique-border rounded text-rose-700 font-medium">Flagged by 4 Users</span>
-                        <span>&bull; Policy: National Urban Transit Expansion</span>
-                        <span>&bull; Reported: May 15, 2026</span>
-                    </div>
-                    <p class="text-sm text-antique-text font-sans bg-antique-bg p-3 border border-antique-border rounded">
-                        "This proposal completely ignores outer district budgeting constraints and misrepresents municipal zoning laws entirely."
-                    </p>
-                    <span class="block text-xs text-antique-muted font-sans">Author: +251 9••••••89</span>
-                </div>
-
-                <div class="flex items-center gap-2 font-sans text-xs shrink-0 w-full md:w-auto justify-end">
-                    <button class="px-3 py-2 bg-antique-bg border border-antique-border rounded hover:bg-antique-border transition-colors text-antique-text font-medium">
-                        Dismiss Report
-                    </button>
-                    <button class="px-3 py-2 bg-rose-700 text-white rounded hover:bg-rose-800 transition-colors font-medium">
-                        Remove Comment
-                    </button>
-                </div>
-            </article>
-
-            <!-- Moderation Card 2 -->
-            <article class="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div class="space-y-1">
-                    <div class="flex items-center space-x-2 text-xs font-sans text-antique-muted">
-                        <span class="px-2 py-0.5 bg-antique-bg border border-antique-border rounded text-rose-700 font-medium">Flagged by 2 Users</span>
-                        <span>&bull; Policy: Digital Commerce Tax Modernization Act</span>
-                        <span>&bull; Reported: May 10, 2026</span>
-                    </div>
-                    <p class="text-sm text-antique-text font-sans bg-antique-bg p-3 border border-antique-border rounded">
-                        "Spam link posted: check out external commercial software services at cheap rates..."
-                    </p>
-                    <span class="block text-xs text-antique-muted font-sans">Author: +251 9••••••12</span>
-                </div>
-
-                <div class="flex items-center gap-2 font-sans text-xs shrink-0 w-full md:w-auto justify-end">
-                    <button class="px-3 py-2 bg-antique-bg border border-antique-border rounded hover:bg-antique-border transition-colors text-antique-text font-medium">
-                        Dismiss Report
-                    </button>
-                    <button class="px-3 py-2 bg-rose-700 text-white rounded hover:bg-rose-800 transition-colors font-medium">
-                        Remove Comment
-                    </button>
-                </div>
-            </article>
-            <!-- Moderation Card 2 -->
-            <article class="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div class="space-y-1">
-                    <div class="flex items-center space-x-2 text-xs font-sans text-antique-muted">
-                        <span class="px-2 py-0.5 bg-antique-bg border border-antique-border rounded text-rose-700 font-medium">Flagged by 2 Users</span>
-                        <span>&bull; Policy: Digital Commerce Tax Modernization Act</span>
-                        <span>&bull; Reported: May 10, 2026</span>
-                    </div>
-                    <p class="text-sm text-antique-text font-sans bg-antique-bg p-3 border border-antique-border rounded">
-                        "Spam link posted: check out external commercial software services at cheap rates..."
-                    </p>
-                    <span class="block text-xs text-antique-muted font-sans">Author: +251 9••••••12</span>
-                </div>
-
-                <div class="flex items-center gap-2 font-sans text-xs shrink-0 w-full md:w-auto justify-end">
-                    <button class="px-3 py-2 bg-antique-bg border border-antique-border rounded hover:bg-antique-border transition-colors text-antique-text font-medium">
-                        Dismiss Report
-                    </button>
-                    <button class="px-3 py-2 bg-rose-700 text-white rounded hover:bg-rose-800 transition-colors font-medium">
-                        Remove Comment
-                    </button>
-                </div>
-            </article>
-
+        <section class="rounded-lg border border-antique-border bg-antique-card p-6 font-sans">
+            <h2 class="text-lg font-semibold">Discussion moderation</h2>
+            <p class="mt-2 text-sm text-antique-muted">Discussion reporting and moderation are not connected to stored data yet.</p>
         </section>
 
     </main>

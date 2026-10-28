@@ -14,6 +14,88 @@ import { applyOptimisticVote } from "./voteState.mjs"
   const app = initializeApp(firebaseConfig);
   const auth=getAuth(app)
   const commentPostSection=document.getElementById("commentPostSection")
+  const commentThread=document.getElementById("commentThread")
+  const commentCount=document.getElementById("commentCount")
+  const commentStatus=document.getElementById("commentStatus")
+  let renderedComments=[]
+
+  function renderComments(policy) {
+    renderedComments=Array.isArray(policy.interactions?.comments)
+      ? policy.interactions.comments
+      : []
+    commentCount.textContent=String(renderedComments.length)
+    commentThread.replaceChildren()
+
+    if(!renderedComments.length){
+      const emptyState=document.createElement("p")
+      emptyState.className="text-sm text-antique-muted"
+      emptyState.textContent="No comments yet."
+      commentThread.append(emptyState)
+      return
+    }
+
+    renderedComments.forEach(comment=>{
+      const card=document.createElement("article")
+      card.className="rounded-lg border border-antique-border bg-antique-bg p-4"
+      const header=document.createElement("div")
+      header.className="mb-2 flex items-center justify-between gap-4 text-xs text-antique-muted"
+      const author=document.createElement("span")
+      author.className="font-medium text-antique-text"
+      author.textContent="Verified citizen"
+      const date=document.createElement("time")
+      const createdAt=new Date(comment.createdAt)
+      date.textContent=Number.isNaN(createdAt.getTime()) ? "" : createdAt.toLocaleString()
+      header.append(author,date)
+      const text=document.createElement("p")
+      text.className="text-sm leading-relaxed text-antique-text"
+      text.textContent=comment.text
+      card.append(header,text)
+      commentThread.append(card)
+    })
+  }
+
+  function enableCommentSubmission(user, policyId) {
+    commentPostSection.addEventListener("submit",async event=>{
+      event.preventDefault()
+      const input=document.getElementById("new-comment")
+      const text=input.value.trim()
+      if(!text || text.length>2000){
+        commentStatus.textContent="Comments must be between 1 and 2000 characters."
+        commentStatus.className="text-xs text-rose-700"
+        return
+      }
+
+      const submitButton=commentPostSection.querySelector("button[type='submit']")
+      submitButton.disabled=true
+      commentStatus.textContent="Posting comment…"
+      commentStatus.className="text-xs text-antique-muted"
+      try{
+        const token=await user.getIdToken()
+        const response=await fetch("/policyComment",{
+          method:"POST",
+          headers:{
+            "Authorization":`Bearer ${token}`,
+            "Content-Type":"application/json"
+          },
+          body:JSON.stringify({policyId,text})
+        })
+        const result=await response.json()
+        if(!response.ok){
+          throw new Error(result.message || result.error || `Comment request failed (${response.status})`)
+        }
+        renderComments({interactions:{comments:[...renderedComments,result.comment]}})
+        commentPostSection.reset()
+        commentStatus.textContent="Your comment was posted."
+        commentStatus.className="text-xs text-emerald-700"
+      }catch(error){
+        commentStatus.textContent=error.message || "Your comment could not be posted. Please try again."
+        commentStatus.className="text-xs text-rose-700"
+      }finally{
+        submitButton.disabled=false
+      }
+    })
+  }
+
   onAuthStateChanged(auth, async (user) => {
   if (user) {
     const uid = user.uid;
@@ -23,6 +105,8 @@ import { applyOptimisticVote } from "./voteState.mjs"
 fetch("/policyFetch",{method:"POST",headers:{"Authorization":`Bearer ${idToken}`},body:JSON.stringify({"requestType":"singlePolicyFetch","policyID":localStorage.getItem("policyID")})}).then(res=>{return res.json()}).then(data=>
 {
 console.log(data)
+renderComments(data.singlePolicy)
+enableCommentSubmission(user,data.singlePolicy._id)
 if(data.userVoted[0]==true){
 policyArticle.insertAdjacentHTML("beforeend",
     `
@@ -253,17 +337,18 @@ policyArticle.insertAdjacentHTML("beforeend",
 
             <!-- Aggregate Stance Distribution (No Coloring) -->
             <div class="mb-6 p-4 bg-antique-bg border border-antique-border rounded-lg font-sans text-xs">
-                <span class="block text-antique-muted uppercase tracking-wider mb-2 font-semibold">Aggregate Public Stance (1,420 Total Votes)</span>
+                <span class="block text-antique-muted uppercase tracking-wider mb-2 font-semibold">Aggregate Public Stance</span>
                 <div class="flex flex-wrap items-center gap-6 text-sm">
-                    <span>Agree: <strong class="text-antique-text">923</strong></span>
-                    <span>Neutral: <strong class="text-antique-text">142</strong></span>
-                    <span>Disagree: <strong class="text-antique-text">355</strong></span>
+                    <span>Agree: <strong class="text-antique-text">${data.interactions?.votes?.agree?.count ?? 0}</strong></span>
+                    <span>Neutral: <strong class="text-antique-text">${data.interactions?.votes?.neutral?.count ?? 0}</strong></span>
+                    <span>Disagree: <strong class="text-antique-text">${data.interactions?.votes?.disagree?.count ?? 0}</strong></span>
                 </div>
             </div>
 
     </div>
     `
 )
+renderComments(data)
 })
   }
 })

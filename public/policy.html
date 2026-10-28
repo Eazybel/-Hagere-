@@ -61,7 +61,7 @@
 
         <!-- Comments Section Anchor -->
         <section id="comments" class="bg-antique-card border border-antique-border rounded-lg p-8">
-            <h2 class="text-xl font-normal mb-6 pb-3 border-b border-antique-border">Citizen Discussions & Comments (48)</h2>
+            <h2 class="text-xl font-normal mb-6 pb-3 border-b border-antique-border">Citizen Discussions & Comments (<span id="commentCount">—</span>)</h2>
 
             <!-- New Comment Form -->
             <form id="commentPostSection" class="mb-8 font-sans space-y-3">
@@ -72,41 +72,12 @@
                         Post Comment
                     </button>
                 </div>
+                <p id="commentStatus" class="text-xs text-antique-muted" role="status" aria-live="polite"></p>
             </form>
 
             <!-- Comments Thread Feed -->
-            <div class="space-y-6 font-sans">
-
-                <!-- Comment Item 1 -->
-                <div class="p-4 bg-antique-bg border border-antique-border rounded-lg space-y-2">
-                    <div class="flex items-center justify-between text-xs text-antique-muted">
-                        <span class="font-medium text-antique-text">+251 9••••••55</span>
-                        <span>May 15, 2026 at 14:20</span>
-                    </div>
-                    <p class="text-sm text-antique-text leading-relaxed">
-                        The integration of electric feeder buses is long overdue. However, planners need to ensure that outer suburban districts aren't deprioritized in the first phase of rollouts.
-                    </p>
-                    <div class="flex items-center justify-end space-x-4 text-xs pt-2">
-                        <button class="text-antique-muted hover:text-antique-accent">Upvote (12)</button>
-                        <button class="text-antique-muted hover:text-antique-accent">Reply</button>
-                    </div>
-                </div>
-
-                <!-- Comment Item 2 -->
-                <div class="p-4 bg-antique-bg border border-antique-border rounded-lg space-y-2">
-                    <div class="flex items-center justify-between text-xs text-antique-muted">
-                        <span class="font-medium text-antique-text">+251 9••••••81</span>
-                        <span>May 15, 2026 at 16:05</span>
-                    </div>
-                    <p class="text-sm text-antique-text leading-relaxed">
-                        Public-private partnerships are the smartest way to finance this without overburdening the national budget. Strongly support the provisions outlined here.
-                    </p>
-                    <div class="flex items-center justify-end space-x-4 text-xs pt-2">
-                        <button class="text-antique-muted hover:text-antique-accent">Upvote (8)</button>
-                        <button class="text-antique-muted hover:text-antique-accent">Reply</button>
-                    </div>
-                </div>
-
+            <div id="commentThread" class="space-y-6 font-sans" aria-live="polite">
+                <p class="text-sm text-antique-muted">Loading comments…</p>
             </div>
         </section>
 

@@ -26,7 +26,10 @@ const toPublicPolicy=(policy)=>{
                 neutral:{count:data.interactions?.votes?.neutral?.count || 0},
                 disagree:{count:data.interactions?.votes?.disagree?.count || 0}
             },
-            comments:data.interactions?.comments || []
+            comments:(data.interactions?.comments || []).map(comment=>({
+                text:comment.text,
+                createdAt:comment.createdAt
+            }))
         }
     }
 }
