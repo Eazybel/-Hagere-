@@ -4,18 +4,14 @@ const express=require("express")
 const path=require("path")
 const mongoose=require("mongoose")
 const cors=require("cors")
-const rateLimiter=require("express-rate-limit")
 const admin=require("firebase-admin")
 var {cert,initializeApp} = require("firebase-admin/app");
 const {cloudinary, upload}=require("./utils/cloudinary")
+const {authRateLimit, voteRateLimit, policyWriteRateLimit}=require("./controller/rateLimitController")
+const {notFoundHandler, errorHandler}=require("./middleware/errorHandler")
 
 // var serviceAccount = require("./serviceAccount.json");
 var serviceAccount = env.SERVICE_ACCOUNT;
-// const limiter=rateLimiter({
-//     windowMs:15*60*1000,
-//     malimit:5,
-//     message:"Too many Requests"
-// })
 admin.initializeApp({
     credential:cert(serviceAccount)
 })
@@ -49,8 +45,8 @@ app.get("/admin",(req,res)=>{
     res.sendFile(path.join(__dirname,"/admin.html"))
 })
 //ROUTE INITIALIZATION
-app.post("/policyUpdate",authorizeRoles("admin"),upload.single("file"),policyUpdate)
-app.post("/newUserRegister",userController)
+app.post("/policyUpdate",policyWriteRateLimit,authorizeRoles("admin"),upload.single("file"),policyUpdate)
+app.post("/newUserRegister",authRateLimit,userController)
 app.post("/policyFetch",(req,res,next)=>{
     let requestType=req.body?.requestType
     if(typeof req.body==="string"){
@@ -72,7 +68,9 @@ app.get("/admin/analytics",authorizeRoles("admin"),createAnalyticsController({
 }))
 app.post("/userFetch",authorizeRoles("admin"),userFetch)
 app.get("/profile/activity",authorizeRoles("citizen"),profileActivity)
-app.post("/feedBack",authorizeRoles("citizen"),feedBack)
+app.post("/feedBack",voteRateLimit,authorizeRoles("citizen"),feedBack)
+app.use(notFoundHandler)
+app.use(errorHandler)
 app.listen(port,()=>{
     console.log("Server listening")
 })
