@@ -58,9 +58,9 @@ policyArticle.insertAdjacentHTML("beforeend",
         <div class="mb-6 p-4 bg-antique-bg border border-antique-border rounded-lg font-sans text-xs">
             <span class="block text-antique-muted uppercase tracking-wider mb-2 font-semibold">Aggregate Public Stance</span>
             <div class="flex flex-wrap items-center gap-6 text-sm">
-                <span>Agree: <strong class="text-antique-text">${data.singlePolicy.interactions?.votes?.agree?.count || 0}</strong></span>
-                <span>Neutral: <strong class="text-antique-text">${data.singlePolicy.interactions?.votes?.neutral?.count || 0}</strong></span>
-                <span>Disagree: <strong class="text-antique-text">${data.singlePolicy.interactions?.votes?.disagree?.count || 0}</strong></span>
+                <span>Agree: <strong id="agreeVoteCount" class="text-antique-text">${data.singlePolicy.interactions?.votes?.agree?.count || 0}</strong></span>
+                <span>Neutral: <strong id="neutralVoteCount" class="text-antique-text">${data.singlePolicy.interactions?.votes?.neutral?.count || 0}</strong></span>
+                <span>Disagree: <strong id="disagreeVoteCount" class="text-antique-text">${data.singlePolicy.interactions?.votes?.disagree?.count || 0}</strong></span>
             </div>
         </div>
 
@@ -102,9 +102,9 @@ policyArticle.insertAdjacentHTML("beforeend",
         <div class="mb-6 p-4 bg-antique-bg border border-antique-border rounded-lg font-sans text-xs">
             <span class="block text-antique-muted uppercase tracking-wider mb-2 font-semibold">Aggregate Public Stance</span>
             <div class="flex flex-wrap items-center gap-6 text-sm">
-                <span>Agree: <strong class="text-antique-text">${data.singlePolicy.interactions?.votes?.agree?.count+389 || 0}</strong></span>
-                <span>Neutral: <strong class="text-antique-text">${data.singlePolicy.interactions?.votes?.neutral?.count+17 || 0}</strong></span>
-                <span>Disagree: <strong class="text-antique-text">${data.singlePolicy.interactions?.votes?.disagree?.count+31 || 0}</strong></span>
+                <span>Agree: <strong id="agreeVoteCount" class="text-antique-text">${data.singlePolicy.interactions?.votes?.agree?.count || 0}</strong></span>
+                <span>Neutral: <strong id="neutralVoteCount" class="text-antique-text">${data.singlePolicy.interactions?.votes?.neutral?.count || 0}</strong></span>
+                <span>Disagree: <strong id="disagreeVoteCount" class="text-antique-text">${data.singlePolicy.interactions?.votes?.disagree?.count || 0}</strong></span>
             </div>
         </div>
 
@@ -131,6 +131,7 @@ policyArticle.insertAdjacentHTML("beforeend",
                 </button>
             </div>
             <p class="text-[11px] text-antique-muted italic text-center sm:text-left">Note: Once your vote or comment is submitted, it cannot be changed.</p>
+            <p id="voteStatus" class="text-xs text-antique-muted text-center sm:text-left" role="status" aria-live="polite"></p>
         </form>
     </div>
     `
@@ -144,15 +145,72 @@ return data
     
 if(data.userVoted[0]==false){
     const submitBtn=document.getElementById("submitBtn")
-submitBtn.onclick=(e)=>{
-  const selectedRadio=document.querySelector("input[name='policy-vote']:checked")?.value
-  if(!selectedRadio){
-    alert("Please set your Vote")
-  }else if(selectedRadio){
-     fetch("/feedBack",{method:"POST",headers:{"Authorization":`Bearer ${idToken}`},body:JSON.stringify({"policyId":localStorage.getItem("policyID"),"requestType":selectedRadio})}).then(res=>{return res.json()}).then(data=>{console.log(data)})
-  }
+    const voteForm=document.getElementById("formData")
+    const voteStatus=document.getElementById("voteStatus")
+    const voteInputs=[...voteForm.querySelectorAll("input[name='policy-vote']")]
+    const counts={
+        agree:Number(document.getElementById("agreeVoteCount").textContent),
+        neutral:Number(document.getElementById("neutralVoteCount").textContent),
+        disagree:Number(document.getElementById("disagreeVoteCount").textContent)
+    }
 
-}
+    const renderCounts=()=>{
+        document.getElementById("agreeVoteCount").textContent=counts.agree
+        document.getElementById("neutralVoteCount").textContent=counts.neutral
+        document.getElementById("disagreeVoteCount").textContent=counts.disagree
+    }
+
+    submitBtn.onclick=async(event)=>{
+        event.preventDefault()
+        if(submitBtn.disabled) return
+
+        const selectedRadio=voteForm.querySelector("input[name='policy-vote']:checked")?.value
+        if(!["agree","neutral","disagree"].includes(selectedRadio)){
+            voteStatus.textContent="Please select a stance before submitting."
+            voteStatus.className="text-xs text-rose-700 text-center sm:text-left"
+            return
+        }
+
+        const previousCounts={...counts}
+        counts[selectedRadio]+=1
+        renderCounts()
+        voteStatus.textContent="Submitting your stance…"
+        voteStatus.className="text-xs text-antique-muted text-center sm:text-left"
+        submitBtn.disabled=true
+        voteInputs.forEach(input=>{input.disabled=true})
+        submitBtn.textContent="Submitting…"
+
+        try {
+            const response=await fetch("/feedBack",{
+                method:"POST",
+                headers:{
+                    "Authorization":`Bearer ${idToken}`,
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    policyId:localStorage.getItem("policyID"),
+                    requestType:selectedRadio
+                })
+            })
+            const responseData=await response.json().catch(()=>({}))
+            if(!response.ok){
+                throw new Error(responseData.error || `Vote request failed (${response.status})`)
+            }
+
+            voteStatus.textContent="Your stance was recorded."
+            voteStatus.className="text-xs text-emerald-700 text-center sm:text-left"
+            submitBtn.textContent="Vote recorded"
+        } catch(error) {
+            Object.assign(counts,previousCounts)
+            renderCounts()
+            submitBtn.disabled=false
+            voteInputs.forEach(input=>{input.disabled=false})
+            submitBtn.textContent="Submit Stance"
+            voteStatus.textContent=`Your vote could not be saved. ${error.message || "Please try again."}`
+            voteStatus.className="text-xs text-rose-700 text-center sm:text-left"
+            console.error("Vote submission failed:",error)
+        }
+    }
 }
 })
 
@@ -209,4 +267,3 @@ policyArticle.insertAdjacentHTML("beforeend",
   }
 })
  
-
