@@ -110,13 +110,28 @@ onAuthStateChanged(auth, (user) => {
   if (user) {
     const uid = user.uid;
 localStorage.setItem("userEmail",user.email)
-fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"policyDataFetch"})}).then(res=>{return res.json()}).then(data=>
+fetch("/policyFetch",{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({"requestType":"policyDataFetch"})
+}).then(async response=>{
+  const data=await response.json()
+  if(!response.ok){
+    throw new Error(data.message || data.error || `Policy request failed (${response.status})`)
+  }
+  if(!Array.isArray(data)){
+    throw new Error("Policy response was not a list")
+  }
+  return data
+}).then(data=>
 {
      const policySection=document.getElementById("policySection")
-    if(data.length<1){
-policySection.insertAdjacentHTML("beforeend",`<div class="col-span-full py-12 text-center bg-antique-card border border-antique-border rounded-lg font-sans">
-    <p class="text-antique-muted text-sm">No Policies Posted Yet.</p>
-</div>`)
+    policySection.replaceChildren()
+    if(data.length===0){
+      const emptyState=document.createElement("p")
+      emptyState.className="col-span-full py-12 text-center text-antique-muted text-sm bg-antique-card border border-antique-border rounded-lg font-sans"
+      emptyState.textContent="No policies published yet."
+      policySection.append(emptyState)
     }else{
 
           
@@ -216,6 +231,14 @@ policyRedirectBtn.forEach(redirect=>{
       window.location.href="./policy.html"
     }
 })
+})
+ .catch(error=>{
+  const policySection=document.getElementById("policySection")
+  const errorState=document.createElement("p")
+  errorState.className="col-span-full py-12 text-center text-rose-700 text-sm bg-antique-card border border-antique-border rounded-lg font-sans"
+  errorState.textContent="Unable to load policies. Please try again later."
+  policySection.replaceChildren(errorState)
+  console.error("Policy feed request failed:",error)
 })
   } else {
 window.location.href="./index.html"
