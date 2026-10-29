@@ -60,7 +60,9 @@ function createAuthorizeRoles({
                 if (projectId === adminProjectId) {
                     decodedToken = await verifyAdminToken(token)
                     if (!adminUids.includes(decodedToken.uid)) {
-                        return res.status(403).json({ error: "Administrator access required" })
+                        return res.status(403).json({
+                            error: "This account is not authorized as an administrator. Add its Firebase UID to ADMIN_UIDS and restart the server."
+                        })
                     }
                     role = "admin"
                 } else if (projectId === citizenProjectId) {

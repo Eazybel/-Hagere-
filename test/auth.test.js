@@ -106,6 +106,7 @@ test("an admin-project account outside the UID allowlist is rejected", async () 
     await authorizeRoles("admin")(req, res, () => { continued = true })
 
     assert.equal(res.statusCode, 403)
+    assert.match(res.body.error, /Firebase UID to ADMIN_UIDS/)
     assert.equal(continued, false)
 })
 
