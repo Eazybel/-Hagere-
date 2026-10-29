@@ -34,6 +34,12 @@ import { applyOptimisticVote } from "./voteState.mjs"
     const status=document.getElementById("policyChatStatus")
     const reply=document.getElementById("policyChatReply")
 
+    async function readChatResponse(response) {
+      const result=await response.json().catch(()=>null)
+      if(result && typeof result==="object") return result
+      throw new Error(`The policy chat server returned a non-JSON response (HTTP ${response.status}). Check the server or proxy logs.`)
+    }
+
     form.addEventListener("submit",async event=>{
       event.preventDefault()
       if(submitButton.disabled) return
@@ -48,7 +54,7 @@ import { applyOptimisticVote } from "./voteState.mjs"
           headers:{"Content-Type":"application/json"},
           body:JSON.stringify({message:input.value.trim()})
         })
-        const result=await response.json().catch(()=>({}))
+        const result=await readChatResponse(response)
         if(!response.ok || result.success!==true){
           throw new Error(result.error || `Policy assistant request failed (${response.status})`)
         }
@@ -61,7 +67,7 @@ import { applyOptimisticVote } from "./voteState.mjs"
               `/api/policies/${encodeURIComponent(policyId)}/chat/${encodeURIComponent(result.interactionId)}`,
               {cache:"no-store"}
             )
-            interaction=await pollResponse.json().catch(()=>({}))
+            interaction=await readChatResponse(pollResponse)
             if(!pollResponse.ok || interaction.success!==true){
               throw new Error(interaction.error || `Policy assistant request failed (${pollResponse.status})`)
             }

@@ -66,6 +66,37 @@ async function parseGeminiResponse(response, operation) {
     return result
 }
 
+function getGeminiFailure(error, operation) {
+    if (error.status === 429) {
+        return {
+            status: 503,
+            error: `Gemini is rate-limiting ${operation}. Check the API project's quota and try again.`
+        }
+    }
+    if (error.status === 401 || error.status === 403) {
+        return {
+            status: 503,
+            error: `Gemini rejected the server credentials or access during ${operation} (HTTP ${error.status}): ${error.message}`
+        }
+    }
+    if (error.name === "TimeoutError" || error.name === "AbortError") {
+        return {
+            status: 504,
+            error: `Gemini timed out during ${operation}. Please try again.`
+        }
+    }
+    if (Number.isInteger(error.status)) {
+        return {
+            status: 502,
+            error: `Request failed during ${operation} (HTTP ${error.status}): ${error.message}`
+        }
+    }
+    return {
+        status: 502,
+        error: `Could not complete ${operation}: ${error.message || "Unknown network error"}`
+    }
+}
+
 function getInteractionReply(interaction) {
     if (typeof interaction.output_text === "string" && interaction.output_text.trim()) {
         return interaction.output_text.trim()
@@ -225,9 +256,11 @@ function createPolicyChatController({
             file = await uploadPolicyPdf(policy.pdfUrl, req.params.id)
         } catch (error) {
             console.error("Policy document preparation failed:", error)
-            const status = error.status
-                || (error instanceof RangeError ? 413 : error.name === "TimeoutError" ? 504 : 502)
-            return res.status(status).json({ success: false, error: error.message || "Unable to prepare the policy document" })
+            if (error instanceof RangeError) {
+                return res.status(413).json({ success: false, error: error.message })
+            }
+            const failure = getGeminiFailure(error, "policy document preparation")
+            return res.status(failure.status).json({ success: false, error: failure.error })
         }
 
         try {
@@ -273,22 +306,8 @@ function createPolicyChatController({
             })
         } catch (error) {
             console.error("Gemini policy interaction could not be started:", error)
-            if (error.status === 429) {
-                return res.status(503).json({ success: false, error: "The policy assistant is busy. Please try again later." })
-            }
-            if (error.status === 400 || error.status === 401 || error.status === 403 || error.status === 404) {
-                return res.status(502).json({
-                    success: false,
-                    error: `Gemini rejected the policy chat request: ${error.message}`
-                })
-            }
-            if (error.name === "TimeoutError" || error.name === "AbortError") {
-                return res.status(504).json({
-                    success: false,
-                    error: "The policy assistant could not start in time. Please try again."
-                })
-            }
-            return res.status(502).json({ success: false, error: "Policy assistant could not start a response" })
+            const failure = getGeminiFailure(error, "policy chat request")
+            return res.status(failure.status).json({ success: false, error: failure.error })
         }
     }
 
@@ -337,22 +356,8 @@ function createPolicyChatController({
             })
         } catch (error) {
             console.error("Gemini policy interaction status check failed:", error)
-            if (error.status === 429) {
-                return res.status(503).json({ success: false, error: "The policy assistant is busy. Please try again later." })
-            }
-            if (error.status === 400 || error.status === 401 || error.status === 403 || error.status === 404) {
-                return res.status(502).json({
-                    success: false,
-                    error: `Gemini could not retrieve the chat request: ${error.message}`
-                })
-            }
-            if (error.name === "TimeoutError" || error.name === "AbortError") {
-                return res.status(504).json({
-                    success: false,
-                    error: "Checking the policy assistant took too long. Please try again."
-                })
-            }
-            return res.status(502).json({ success: false, error: "Unable to check the policy assistant response" })
+            const failure = getGeminiFailure(error, "chat status check")
+            return res.status(failure.status).json({ success: false, error: failure.error })
         }
     }
 

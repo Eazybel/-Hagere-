@@ -211,10 +211,8 @@ test("policy chat validates inputs and returns provider errors instead of hiding
         body: { message: "Question" }
     }, invalidUrlResponse)
     assert.equal(invalidUrlResponse.statusCode, 502)
-    assert.deepEqual(invalidUrlResponse.body, {
-        success: false,
-        error: "Policy document URL is invalid"
-    })
+    assert.equal(invalidUrlResponse.body.success, false)
+    assert.match(invalidUrlResponse.body.error, /Policy document URL is invalid/)
 
     const providerErrorController = createPolicyChatController({
         Policy: makePolicyModel({ pdfUrl: policyUrl }),
@@ -233,7 +231,7 @@ test("policy chat validates inputs and returns provider errors instead of hiding
         params: { id: policyId },
         body: { message: "Question" }
     }, providerErrorResponse)
-    assert.equal(providerErrorResponse.statusCode, 403)
+    assert.equal(providerErrorResponse.statusCode, 503)
     assert.match(providerErrorResponse.body.error, /API key not valid/)
 })
 
@@ -311,4 +309,48 @@ test("policy chat polls pending and failed interactions with useful errors", asy
     }, failedResponse)
     assert.equal(failedResponse.statusCode, 502)
     assert.match(failedResponse.body.error, /Model overloaded/)
+})
+
+test("policy chat preserves Gemini HTTP errors and identifies upstream outages", async () => {
+    const makeFailingController = status => createPolicyChatController({
+        Policy: makePolicyModel({ pdfUrl: policyUrl }),
+        apiKey: "server-side-gemini-key",
+        fetchImpl: async url => {
+            if (url instanceof URL && url.href === policyUrl) {
+                return new Response(Buffer.from("%PDF-1.7 policy contents"))
+            }
+            if (url === `${GEMINI_API_BASE_FOR_TEST}/upload/v1beta/files`) {
+                return new Response(null, {
+                    status: 200,
+                    headers: { "x-goog-upload-url": fileUploadUrl }
+                })
+            }
+            if (url instanceof URL && url.href === fileUploadUrl) {
+                return Response.json({ file: { name: fileName, uri: fileUri } })
+            }
+            if (url === interactionsUrl) {
+                return Response.json({ error: { message: "Model is not enabled for this project" } }, { status })
+            }
+            throw new Error(`Unexpected Gemini request: ${String(url)}`)
+        },
+        timeoutSignal: () => new AbortController().signal
+    })
+
+    const forbiddenResponse = makeResponse()
+    await makeFailingController(403).create({
+        params: { id: policyId },
+        body: { message: "Question" }
+    }, forbiddenResponse)
+    assert.equal(forbiddenResponse.statusCode, 503)
+    assert.match(forbiddenResponse.body.error, /HTTP 403/)
+    assert.match(forbiddenResponse.body.error, /Model is not enabled for this project/)
+
+    const providerOutageResponse = makeResponse()
+    await makeFailingController(500).create({
+        params: { id: policyId },
+        body: { message: "Question" }
+    }, providerOutageResponse)
+    assert.equal(providerOutageResponse.statusCode, 502)
+    assert.match(providerOutageResponse.body.error, /HTTP 500/)
+    assert.match(providerOutageResponse.body.error, /Model is not enabled for this project/)
 })
