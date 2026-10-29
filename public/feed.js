@@ -110,10 +110,8 @@ onAuthStateChanged(auth, (user) => {
   if (user) {
     const uid = user.uid;
 localStorage.setItem("userEmail",user.email)
-fetch("/policyFetch",{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({"requestType":"policyDataFetch"})
+fetch("/api/policies",{
+  cache:"no-store"
 }).then(async response=>{
   const data=await response.json()
   if(!response.ok){

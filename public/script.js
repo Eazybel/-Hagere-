@@ -20,10 +20,8 @@ onAuthStateChanged(auth, (user) => {
   } else {
 
         // POLICY POST UPDATER
-fetch("/policyFetch",{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({"requestType":"policyDataFetch"})
+fetch("/api/policies",{
+  cache:"no-store"
 }).then(async response=>{
   const data=await response.json()
   if(!response.ok){

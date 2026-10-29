@@ -26,7 +26,10 @@ process.env.ADMIN_SERVICE_ACCOUNT = JSON.stringify({
 })
 process.env.ADMIN_UIDS = "approved-admin"
 
-const { createPolicyUpdateController } = require("../controller/policyController")
+const {
+    createPolicyUpdateController,
+    createPolicyListController
+} = require("../controller/policyController")
 
 function makeResponse() {
     return {
@@ -154,4 +157,35 @@ test("policy publishing returns JSON errors for missing input, failed uploads, a
     }, saveFailureResponse)
     assert.equal(saveFailureResponse.statusCode, 500)
     assert.deepEqual(saveFailureResponse.body, { error: "Policy could not be saved" })
+})
+
+test("policy feed returns live database policies newest-first without caching", async () => {
+    const policies = [
+        { _id: "newest", title: "Newest", interactions: {} },
+        { _id: "older", title: "Older", interactions: {} }
+    ]
+    let sortCriteria
+    let cacheControl
+    const controller = createPolicyListController({
+        Policy: {
+            find: () => ({
+                sort(criteria) {
+                    sortCriteria = criteria
+                    return Promise.resolve(policies)
+                }
+            })
+        }
+    })
+    const res = makeResponse()
+    res.set = (name, value) => {
+        if (name === "Cache-Control") cacheControl = value
+        return res
+    }
+
+    await controller({}, res, error => { throw error })
+
+    assert.deepEqual(sortCriteria, { createdAt: -1 })
+    assert.equal(cacheControl, "no-store")
+    assert.deepEqual(res.body.map(policy => policy._id), ["newest", "older"])
+    assert.equal(res.statusCode, 200)
 })

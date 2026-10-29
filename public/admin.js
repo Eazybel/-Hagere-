@@ -46,6 +46,7 @@ submitBtn.onclick=async(e)=>{
     publishMessage.textContent="Policy published successfully"
     publishMessage.className="text-green-700"
     console.log(data)
+    adminDataFetcher().catch(error=>console.error("Admin metrics refresh failed:",error))
   }catch(error){
     publishMessage.textContent=error.message || "Policy publishing failed"
     publishMessage.className="text-red-700"
@@ -58,7 +59,7 @@ const adminDataFetcher=async()=>{
   const token=await user.getIdToken()
   const headers={"Authorization":`Bearer ${token}`}
   const [policyResponse,userResponse]=await Promise.all([
-    fetch("/admin/policyCount",{headers}),
+    fetch("/admin/policyCount",{headers,cache:"no-store"}),
     fetch("/userFetch",{method:"POST",headers,body:JSON.stringify({requestType:"userNumberFetch"})})
   ])
   if(!policyResponse.ok || !userResponse.ok) throw new Error("Unable to load admin metrics")

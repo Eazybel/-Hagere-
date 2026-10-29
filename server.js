@@ -21,7 +21,7 @@ initializeApp({
 },"admin-auth")
 // CONTROLLER ROUTE
 const {userController, userFetch, profileActivity}=require("./controller/userController")
-const {policyUpdate,policyFetch,policyCount}=require("./controller/policyController")
+const {policyUpdate,policyFetch,policyList,policyCount}=require("./controller/policyController")
 const policyComment=require("./controller/commentController")
 const feedBack=require("./controller/feedBackController")
 const {createAnalyticsController}=require("./controller/analyticsController")
@@ -48,6 +48,7 @@ app.get("/admin",(req,res)=>{
 //ROUTE INITIALIZATION
 app.post("/policyUpdate",policyWriteRateLimit,authorizeRoles("admin"),upload.single("file"),policyUpdate)
 app.post("/newUserRegister",authRateLimit,userController)
+app.get("/api/policies",policyList)
 app.post("/policyFetch",(req,res,next)=>{
     let requestType=req.body?.requestType
     if(typeof req.body==="string"){

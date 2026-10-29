@@ -89,10 +89,21 @@ const createPolicyUpdateController=({Policy, cloudinary})=>async(req,res)=>{
 }
 
 const policyUpdate=createPolicyUpdateController({Policy:policyModel,cloudinary})
+const createPolicyListController=({Policy})=>async(req,res,next)=>{
+    try{
+        const policies=await Policy.find().sort({createdAt:-1})
+        res.set("Cache-Control","no-store")
+        return res.status(200).json(policies.map(toPublicPolicy))
+    }catch(error){
+        return next(error)
+    }
+}
+const policyList=createPolicyListController({Policy:policyModel})
 const policyFetch=async(req,res)=>{
 const reqData=requestData(req)
 if(reqData.requestType==="policyDataFetch"){
-    const allPolicies=await policyModel.find()
+    const allPolicies=await policyModel.find().sort({createdAt:-1})
+    res.set("Cache-Control","no-store")
     return res.status(200).json(allPolicies.map(toPublicPolicy))
 }
 if(reqData.requestType==="singlePolicyFetch" || reqData.requestType==="singlePolicyFetchNon"){
@@ -121,4 +132,11 @@ const count=await policyModel.countDocuments()
 return res.status(200).json({count})
 }
 
-module.exports={policyUpdate, policyFetch, policyCount, createPolicyUpdateController}
+module.exports={
+    policyUpdate,
+    policyFetch,
+    policyList,
+    policyCount,
+    createPolicyUpdateController,
+    createPolicyListController
+}
