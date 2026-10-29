@@ -125,33 +125,6 @@
         </div>
     </footer>
 
-    <!-- AI chat layout (UI only; native details disclosure replaces JavaScript) -->
-    <details class="fixed bottom-14 right-6 z-40 w-[calc(100%-2rem)] max-w-sm font-sans">
-        <summary class="ml-auto flex w-fit cursor-pointer list-none items-center gap-2 rounded-full bg-antique-accent px-5 py-3 text-sm font-medium text-white shadow-lg hover:bg-antique-accentHover">
-            <span aria-hidden="true" class="text-base">&#10024;</span>
-            <span data-i18n="askAi">Ask Hagere AI</span>
-        </summary>
-        <div class="mb-3 overflow-hidden rounded-lg border border-antique-border bg-antique-card shadow-xl">
-            <div class="flex items-center justify-between border-b border-antique-border bg-antique-bg px-4 py-3">
-                <div>
-                    <p data-i18n="assistant" class="text-sm font-semibold">Hagere Assistant</p>
-                    <p data-i18n="assistantDescription" class="text-xs text-antique-muted">Here to help you explore policies</p>
-                </div>
-                <span class="h-2 w-2 rounded-full bg-emerald-600" aria-label="Online"></span>
-            </div>
-            <div class="min-h-40 space-y-3 bg-antique-card p-4 text-sm">
-                <div class="max-w-[85%] rounded-lg rounded-tl-none bg-antique-bg px-3 py-2 text-antique-muted">
-                    <span data-i18n="assistantGreeting">Hello. How can I help you understand a policy today?</span>
-                </div>
-            </div>
-            <div class="border-t border-antique-border p-3">
-                <div class="flex items-center gap-2">
-                    <input data-i18n-placeholder="askPolicy" type="text" placeholder="Ask about a policy..." aria-label="Ask Hagere Assistant" class="min-w-0 flex-1 rounded border border-antique-border bg-antique-bg px-3 py-2 text-xs focus:outline-none focus:border-antique-accent">
-                    <button type="button" data-i18n="send" class="rounded bg-antique-accent px-3 py-2 text-xs font-medium text-white hover:bg-antique-accentHover">Send</button>
-                </div>
-            </div>
-        </div>
-    </details>
 <script type="module" src="./feed.js"></script>
 </body>
 </html>
