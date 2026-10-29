@@ -151,8 +151,9 @@
                 <a id="cancelBtn" href="#" class="px-4 py-2 bg-antique-bg border border-antique-border rounded text-antique-text font-medium hover:bg-antique-border transition-colors">
                     Cancel
                 </a>
-                <button id="submitBtn" type="button" class="px-4 py-2 bg-antique-accent text-white rounded font-medium hover:bg-antique-accentHover transition-colors shadow-sm">
-                    Publish Post
+                <button id="submitBtn" type="button" class="px-4 py-2 bg-antique-accent text-white rounded font-medium hover:bg-antique-accentHover transition-colors shadow-sm inline-flex items-center gap-2">
+                    <span id="publishSpinner" class="hidden h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true"></span>
+                    <span id="submitBtnText">Publish Post</span>
                 </button>
             </div>
         </form>

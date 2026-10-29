@@ -15,6 +15,8 @@
   const publishBtn=document.getElementById("publishBtn")
   const cancelBtn=document.getElementById("cancelBtn")
   const submitBtn=document.getElementById("submitBtn")
+  const publishSpinner=document.getElementById("publishSpinner")
+  const submitBtnText=document.getElementById("submitBtnText")
   const publishForm=document.getElementById("publishForm")
   const publishMessage=document.getElementById("publishMessage")
   onAuthStateChanged(auth, (user) => {
@@ -32,6 +34,11 @@
 // SUBMIT HANDLER
 submitBtn.onclick=async(e)=>{
   e.preventDefault()
+  if(submitBtn.disabled) return
+  submitBtn.disabled=true
+  submitBtn.setAttribute("aria-busy","true")
+  submitBtnText.textContent="Publishing…"
+  publishSpinner.classList.remove("hidden")
   publishMessage.classList.add("hidden")
   try{
     const form=new FormData(publishForm)
@@ -51,6 +58,11 @@ submitBtn.onclick=async(e)=>{
     publishMessage.textContent=error.message || "Policy publishing failed"
     publishMessage.className="text-red-700"
     console.error(error)
+  }finally{
+    submitBtn.disabled=false
+    submitBtn.removeAttribute("aria-busy")
+    submitBtnText.textContent="Publish Post"
+    publishSpinner.classList.add("hidden")
   }
   publishMessage.classList.remove("hidden")
 }
