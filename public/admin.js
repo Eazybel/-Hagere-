@@ -16,6 +16,7 @@
   const cancelBtn=document.getElementById("cancelBtn")
   const submitBtn=document.getElementById("submitBtn")
   const publishForm=document.getElementById("publishForm")
+  const publishMessage=document.getElementById("publishMessage")
   onAuthStateChanged(auth, (user) => {
   if (user) {
     // MODAL OOPENER AND CLOSER
@@ -31,16 +32,26 @@
 // SUBMIT HANDLER
 submitBtn.onclick=async(e)=>{
   e.preventDefault()
-  const form=new FormData(publishForm)
-  const token=await auth.currentUser.getIdToken()
-  fetch("/policyUpdate",{
-    method:"POST",
-    headers:{"Authorization":`Bearer ${token}`},
-    body:form
-  }).then(async res=>{
-    if(!res.ok) throw new Error("Policy publishing failed")
-    return res.json()
-  }).then(data=>{console.log(data)}).catch(error=>console.error(error))
+  publishMessage.classList.add("hidden")
+  try{
+    const form=new FormData(publishForm)
+    const token=await auth.currentUser.getIdToken()
+    const res=await fetch("/policyUpdate",{
+      method:"POST",
+      headers:{"Authorization":`Bearer ${token}`},
+      body:form
+    })
+    const data=await res.json().catch(()=>({}))
+    if(!res.ok) throw new Error(data.error || data.message || "Policy publishing failed")
+    publishMessage.textContent="Policy published successfully"
+    publishMessage.className="text-green-700"
+    console.log(data)
+  }catch(error){
+    publishMessage.textContent=error.message || "Policy publishing failed"
+    publishMessage.className="text-red-700"
+    console.error(error)
+  }
+  publishMessage.classList.remove("hidden")
 }
 // POLICY NUMBER UPDATE
 const adminDataFetcher=async()=>{
@@ -63,4 +74,3 @@ console.log("user is not signed up")
   }
 })
  
-

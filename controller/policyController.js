@@ -34,36 +34,61 @@ const toPublicPolicy=(policy)=>{
     }
 }
 
-const policyUpdate=(async(req,res)=>{
+const createPolicyUpdateController=({Policy, cloudinary})=>async(req,res)=>{
+    const {title, sector, description, status} = req.body || {}
     if(!req.file){
-        return res.status(400).send("File upload not found")
+        return res.status(400).json({error:"Policy document file is required"})
     }
-    try{
-const uploadStream=cloudinary.uploader.upload_stream({
-    folder:"policyFiles",
-    resource_type:"auto"
+    if(typeof title!=="string" || !title.trim()
+        || typeof sector!=="string" || !sector.trim()
+        || typeof description!=="string" || !description.trim()){
+        return res.status(400).json({error:"Policy title, category, and summary are required"})
+    }
 
-},async(error,result)=>{
-    if(error){
+    let result
+    try{
+        result=await new Promise((resolve,reject)=>{
+            const uploadStream=cloudinary.uploader.upload_stream({
+                folder:"policyFiles",
+                resource_type:"auto"
+            },(error,uploaded)=>{
+                if(error) return reject(error)
+                if(!uploaded) return reject(new Error("Policy document upload returned no result"))
+                return resolve(uploaded)
+            })
+            uploadStream.on("error",reject)
+            uploadStream.end(req.file.buffer)
+        })
+    }catch(error){
+        console.error("Policy document upload failed:",error)
         return res.status(502).json({error:"Policy document upload failed"})
     }
-    if(!result) return res.status(502).json({error:"Policy document upload returned no result"})
-    const newPolicy=new policyModel({
-    title:req.body.title,
-    category:req.body.sector,
-    summary:req.body.description,
-    pdfUrl:result.url,
-    status:req.body.status
-})
-await newPolicy.save().then(()=>console.log("saved"))
-res.status(201).json({policyId:newPolicy.id,pdfUrl:result.secure_url || result.url})
-})
-uploadStream.end(req.file.buffer)
-}catch(error){
-    return res.status(500).json({error:"Policy could not be published"})
+
+    const pdfUrl=result.url || result.secure_url
+    if(!pdfUrl){
+        return res.status(502).json({error:"Policy document upload returned no URL"})
+    }
+
+    try{
+        const newPolicy=new Policy({
+            title:title.trim(),
+            category:sector.trim(),
+            summary:description.trim(),
+            pdfUrl,
+            status
+        })
+        await newPolicy.save()
+        return res.status(201).json({
+            policyId:newPolicy.id || newPolicy._id,
+            pdfUrl:result.secure_url || result.url
+        })
+    }catch(error){
+        console.error("Policy could not be saved:",error)
+        return res.status(500).json({error:"Policy could not be saved"})
+    }
 }
 
-})
+const policyUpdate=createPolicyUpdateController({Policy:policyModel,cloudinary})
 const policyFetch=async(req,res)=>{
 const reqData=requestData(req)
 if(reqData.requestType==="policyDataFetch"){
@@ -96,4 +121,4 @@ const count=await policyModel.countDocuments()
 return res.status(200).json({count})
 }
 
-module.exports={policyUpdate, policyFetch, policyCount}
+module.exports={policyUpdate, policyFetch, policyCount, createPolicyUpdateController}
