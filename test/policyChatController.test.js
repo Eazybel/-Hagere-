@@ -30,7 +30,9 @@ const {
     SYSTEM_INSTRUCTION,
     MAX_PDF_BYTES,
     CLOUDINARY_FETCH_TIMEOUT_MS,
-    GEMINI_MODEL
+    GEMINI_MODEL,
+    GEMINI_503_RETRIES,
+    GEMINI_RETRY_DELAY_MS
 } = require("../controller/policyChatController")
 
 const policyId = "507f1f77bcf86cd799439011"
@@ -111,6 +113,7 @@ test("policy chat sends the PDF as base64 inline data and returns Gemini's answe
 
     assert.equal(res.statusCode, 200)
     assert.deepEqual(res.body, { success: true, reply: "የፖሊሲው መልስ።" })
+    assert.equal(GEMINI_MODEL, "gemini-3.1-flash-lite")
     const cloudinaryRequest = fetchMock.requests.find(request => request.url instanceof URL)
     assert.equal(cloudinaryRequest.url.href, cloudinaryUrl.href)
     assert.ok(cloudinaryRequest.options.signal instanceof AbortSignal)
@@ -367,4 +370,76 @@ test("Gemini HTTP errors, timeouts, and empty responses are returned as JSON", a
     }, empty)
     assert.equal(empty.statusCode, 502)
     assert.match(empty.body.error, /returned no answer/)
+})
+
+test("policy chat retries Gemini 503 responses twice with a two-second delay", async () => {
+    let geminiAttempts = 0
+    const retryDelays = []
+    const fetchImpl = async url => {
+        if (url instanceof URL) return new Response(pdfBytes)
+        if (url === geminiUrl) {
+            geminiAttempts += 1
+            if (geminiAttempts < 3) {
+                return Response.json({ error: { message: "This model is currently experiencing high demand" } }, {
+                    status: 503
+                })
+            }
+            return Response.json({
+                candidates: [{ content: { parts: [{ text: "የፖሊሲው መልስ።" }] } }]
+            })
+        }
+        throw new Error(`Unexpected request: ${String(url)}`)
+    }
+    const controller = createPolicyChatController({
+        Policy: makePolicyModel(),
+        apiKey: "server-side-gemini-key",
+        fetchImpl,
+        sleep: async milliseconds => retryDelays.push(milliseconds)
+    })
+    const res = makeResponse()
+
+    await controller.create({
+        params: { id: policyId },
+        body: { message: "Question" }
+    }, res)
+
+    assert.equal(GEMINI_503_RETRIES, 2)
+    assert.equal(GEMINI_RETRY_DELAY_MS, 2000)
+    assert.equal(geminiAttempts, 3)
+    assert.deepEqual(retryDelays, [2000, 2000])
+    assert.equal(res.statusCode, 200)
+    assert.deepEqual(res.body, { success: true, reply: "የፖሊሲው መልስ።" })
+})
+
+test("policy chat returns a clear 503 after Gemini remains overloaded after retries", async () => {
+    let geminiAttempts = 0
+    const retryDelays = []
+    const fetchImpl = async url => {
+        if (url instanceof URL) return new Response(pdfBytes)
+        if (url === geminiUrl) {
+            geminiAttempts += 1
+            return Response.json({ error: { message: "This model is currently experiencing high demand" } }, {
+                status: 503
+            })
+        }
+        throw new Error(`Unexpected request: ${String(url)}`)
+    }
+    const controller = createPolicyChatController({
+        Policy: makePolicyModel(),
+        apiKey: "server-side-gemini-key",
+        fetchImpl,
+        sleep: async milliseconds => retryDelays.push(milliseconds)
+    })
+    const res = makeResponse()
+
+    await controller.create({
+        params: { id: policyId },
+        body: { message: "Question" }
+    }, res)
+
+    assert.equal(geminiAttempts, 3)
+    assert.deepEqual(retryDelays, [2000, 2000])
+    assert.equal(res.statusCode, 503)
+    assert.match(res.body.error, /after 2 retries/)
+    assert.match(res.body.error, /high demand/)
 })

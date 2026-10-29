@@ -4,9 +4,11 @@ const SYSTEM_INSTRUCTION = "You are an expert AI civic assistant for Hagere. Rea
 const MAX_MESSAGE_LENGTH = 4000
 const MAX_PDF_BYTES = 14 * 1024 * 1024
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com"
-const GEMINI_MODEL = "gemini-3.8-flash"
+const GEMINI_MODEL = "gemini-3.1-flash-lite"
 const CLOUDINARY_FETCH_TIMEOUT_MS = 10_000
 const GEMINI_REQUEST_TIMEOUT_MS = 90_000
+const GEMINI_503_RETRIES = 2
+const GEMINI_RETRY_DELAY_MS = 2000
 
 function getCloudinaryUrl(pdfUrl) {
     let url
@@ -105,6 +107,12 @@ function getGeminiFailure(error, operation) {
             error: `Gemini rejected the server credentials or access during ${operation} (HTTP ${error.status}): ${error.message}`
         }
     }
+    if (error.status === 503) {
+        return {
+            status: 503,
+            error: `Gemini is still experiencing high demand during ${operation} after ${GEMINI_503_RETRIES} retries: ${error.message}`
+        }
+    }
     if (error.name === "TimeoutError" || error.name === "AbortError") {
         return {
             status: 504,
@@ -143,7 +151,8 @@ function createPolicyChatController({
     apiKey = process.env.GEMINI_API_KEY,
     fetchImpl = fetch,
     timeoutMs = GEMINI_REQUEST_TIMEOUT_MS,
-    cloudinaryTimeoutMs = CLOUDINARY_FETCH_TIMEOUT_MS
+    cloudinaryTimeoutMs = CLOUDINARY_FETCH_TIMEOUT_MS,
+    sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds))
 }) {
     async function fetchPdfBuffer(pdfUrl) {
         const cloudinaryUrl = getCloudinaryUrl(pdfUrl)
@@ -233,33 +242,38 @@ function createPolicyChatController({
 
             let result
             try {
-                const response = await fetchImpl(
-                    `${GEMINI_API_BASE}/v1beta/models/${GEMINI_MODEL}:generateContent`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "x-goog-api-key": apiKey,
-                            "Content-Type": "application/json"
+                const url = `${GEMINI_API_BASE}/v1beta/models/${GEMINI_MODEL}:generateContent`
+                const options = {
+                    method: "POST",
+                    headers: {
+                        "x-goog-api-key": apiKey,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        systemInstruction: {
+                            parts: [{ text: SYSTEM_INSTRUCTION }]
                         },
-                        body: JSON.stringify({
-                            systemInstruction: {
-                                parts: [{ text: SYSTEM_INSTRUCTION }]
-                            },
-                            contents: [{
-                                parts: [
-                                    {
-                                        inline_data: {
-                                            mime_type: "application/pdf",
-                                            data: pdfBase64
-                                        }
-                                    },
-                                    { text: message }
-                                ]
-                            }]
-                        }),
-                        signal: abortController.signal
-                    }
-                )
+                        contents: [{
+                            parts: [
+                                {
+                                    inline_data: {
+                                        mime_type: "application/pdf",
+                                        data: pdfBase64
+                                    }
+                                },
+                                { text: message }
+                            ]
+                        }]
+                    }),
+                    signal: abortController.signal
+                }
+                let response
+                for (let attempt = 0; attempt <= GEMINI_503_RETRIES; attempt += 1) {
+                    response = await fetchImpl(url, options)
+                    if (response.status !== 503 || attempt === GEMINI_503_RETRIES) break
+                    await response.body?.cancel()
+                    await sleep(GEMINI_RETRY_DELAY_MS)
+                }
                 result = await parseGeminiResponse(response, "Gemini policy chat request")
             } finally {
                 clearTimeout(timeout)
@@ -356,6 +370,8 @@ module.exports = {
     MAX_PDF_BYTES,
     CLOUDINARY_FETCH_TIMEOUT_MS,
     GEMINI_REQUEST_TIMEOUT_MS,
+    GEMINI_503_RETRIES,
+    GEMINI_RETRY_DELAY_MS,
     GEMINI_MODEL,
     getGenerateContentReply,
     getInteractionReply
