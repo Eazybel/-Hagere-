@@ -19,6 +19,14 @@ import { applyOptimisticVote } from "./voteState.mjs"
   const commentStatus=document.getElementById("commentStatus")
   let renderedComments=[]
 
+  function showPolicyLoadError(policyArticle,error) {
+    console.error("Policy detail request failed:",error)
+    const errorState=document.createElement("p")
+    errorState.className="text-sm text-rose-700"
+    errorState.textContent="Unable to load this policy. Please try again."
+    policyArticle.replaceChildren(errorState)
+  }
+
   function renderComments(policy) {
     renderedComments=Array.isArray(policy.interactions?.comments)
       ? policy.interactions.comments
@@ -88,6 +96,7 @@ import { applyOptimisticVote } from "./voteState.mjs"
         commentStatus.textContent="Your comment was posted."
         commentStatus.className="text-xs text-emerald-700"
       }catch(error){
+        console.error("Policy comment submission failed:",error)
         commentStatus.textContent=error.message || "Your comment could not be posted. Please try again."
         commentStatus.className="text-xs text-rose-700"
       }finally{
@@ -104,6 +113,7 @@ import { applyOptimisticVote } from "./voteState.mjs"
       const policyArticle=document.getElementById("policyArticle")
 fetch("/policyFetch",{method:"POST",headers:{"Authorization":`Bearer ${idToken}`},body:JSON.stringify({"requestType":"singlePolicyFetch","policyID":localStorage.getItem("policyID")})}).then(res=>{return res.json()}).then(data=>
 {
+if(!data.singlePolicy || !Array.isArray(data.userVoted)) throw new Error(data.error || data.message || "Policy response was invalid")
 console.log(data)
 renderComments(data.singlePolicy)
 enableCommentSubmission(user,data.singlePolicy._id)
@@ -117,7 +127,7 @@ policyArticle.insertAdjacentHTML("beforeend",
                 <span class="uppercase tracking-wider px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-text">${data.singlePolicy.category}</span>
                 <span class="uppercase tracking-wider px-2 py-0.5 bg-antique-bg border border-antique-border rounded text-[10px] font-semibold text-antique-accent bg-antique-accent/10">You Voted: ${data.userVoted[1]}</span>
             </div>
-            <span id="publishDate">Published on ${new Date(data.singlePolicy.createdAt).toLocaleString()} &bull; Status: ${data.singlePolicy.status}</span>
+            <span id="publishDate">Published on ${new Date(data.singlePolicy.createdAt).toLocaleString()} &bull; Status: ${data.singlePolicy.status} &bull; Views: ${data.singlePolicy.viewCount ?? 0}</span>
         </div>
         <label id="policyId" class="hidden">${data.singlePolicy._id}</label>
         <!-- Title & Full Description -->
@@ -161,7 +171,7 @@ policyArticle.insertAdjacentHTML("beforeend",
         <!-- Metadata Header -->
         <div class="flex flex-wrap items-center justify-between text-xs font-sans text-antique-muted mb-4 pb-4 border-b border-antique-border gap-2">
             <span class="uppercase tracking-wider px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-text">${data.singlePolicy.category}</span>
-            <span id="publishDate">Published on ${new Date(data.singlePolicy.createdAt).toLocaleString()} &bull; Status: ${data.singlePolicy.status}</span>
+            <span id="publishDate">Published on ${new Date(data.singlePolicy.createdAt).toLocaleString()} &bull; Status: ${data.singlePolicy.status} &bull; Views: ${data.singlePolicy.viewCount ?? 0}</span>
         </div>
         <label id="policyId" class="hidden">${data.singlePolicy._id}</label>
         <!-- Title & Full Description -->
@@ -298,6 +308,7 @@ if(data.userVoted[0]==false){
     }
 }
 })
+.catch(error=>showPolicyLoadError(policyArticle,error))
 
 } else {
     // POLICY ARTICLE RENDERING SECTION FOR NON USERS
@@ -305,6 +316,7 @@ if(data.userVoted[0]==false){
       commentPostSection.style.display="none"
 fetch("/policyFetch",{method:"POST",body:JSON.stringify({"requestType":"singlePolicyFetchNon","policyID":localStorage.getItem("policyID")})}).then(res=>{return res.json()}).then(data=>
 {
+if(!data || !data._id) throw new Error(data?.error || data?.message || "Policy response was invalid")
 policyArticle.insertAdjacentHTML("beforeend",
     `
    <div>
@@ -312,7 +324,7 @@ policyArticle.insertAdjacentHTML("beforeend",
             <!-- Metadata Header -->
             <div class="flex flex-wrap items-center justify-between text-xs font-sans text-antique-muted mb-4 pb-4 border-b border-antique-border gap-2">
                 <span class="uppercase tracking-wider px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-text">${data.category}</span>
-                <span id="publishDate">Published on ${new Date(data.createdAt).toLocaleString()} &bull; Status: ${data.status}</span>
+                <span id="publishDate">Published on ${new Date(data.createdAt).toLocaleString()} &bull; Status: ${data.status} &bull; Views: ${data.viewCount ?? 0}</span>
             </div>
 
             <!-- Title & Full Description -->
@@ -350,6 +362,7 @@ policyArticle.insertAdjacentHTML("beforeend",
 )
 renderComments(data)
 })
+.catch(error=>showPolicyLoadError(policyArticle,error))
   }
 })
  

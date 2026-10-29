@@ -19,6 +19,7 @@ const toPublicPolicy=(policy)=>{
         pdfUrl:data.pdfUrl,
         status:data.status,
         totalVotes:data.totalVotes,
+        viewCount:data.viewCount || 0,
         createdAt:data.createdAt,
         interactions:{
             votes:{
@@ -75,7 +76,17 @@ const createPolicyUpdateController=({Policy, cloudinary})=>async(req,res)=>{
             category:sector.trim(),
             summary:description.trim(),
             pdfUrl,
-            status
+            status,
+            totalVotes:0,
+            viewCount:0,
+            interactions:{
+                votes:{
+                    agree:{count:0,voters:[]},
+                    neutral:{count:0,voters:[]},
+                    disagree:{count:0,voters:[]}
+                },
+                comments:[]
+            }
         })
         await newPolicy.save()
         return res.status(201).json({
@@ -99,33 +110,41 @@ const createPolicyListController=({Policy})=>async(req,res,next)=>{
     }
 }
 const policyList=createPolicyListController({Policy:policyModel})
-const policyFetch=async(req,res)=>{
-const reqData=requestData(req)
-if(reqData.requestType==="policyDataFetch"){
-    const allPolicies=await policyModel.find().sort({createdAt:-1})
-    res.set("Cache-Control","no-store")
-    return res.status(200).json(allPolicies.map(toPublicPolicy))
-}
-if(reqData.requestType==="singlePolicyFetch" || reqData.requestType==="singlePolicyFetchNon"){
-    const singlePolicy=await policyModel.findById(reqData.policyID)
-    if(!singlePolicy) return res.status(404).json({error:"Policy not found"})
-
-    if(reqData.requestType==="singlePolicyFetch"){
-        if(!req.auth?.email) return res.status(403).json({error:"Verified account email required"})
-        const user=await userModel.findOne({email:req.auth.email})
-        const userId=user?.id
-        const votes=singlePolicy.interactions.votes
-        const userVote=votes.agree.voters.includes(userId) ? [true,"agree"]
-            : votes.neutral.voters.includes(userId) ? [true,"neutral"]
-            : votes.disagree.voters.includes(userId) ? [true,"disagree"]
-            : [false]
-        return res.status(200).json({singlePolicy:toPublicPolicy(singlePolicy),userVoted:userVote})
+const createPolicyFetchController=({Policy,User})=>async(req,res)=>{
+    const reqData=requestData(req)
+    if(reqData.requestType==="policyDataFetch"){
+        const allPolicies=await Policy.find().sort({createdAt:-1})
+        res.set("Cache-Control","no-store")
+        return res.status(200).json(allPolicies.map(toPublicPolicy))
     }
+    if(reqData.requestType==="singlePolicyFetch" || reqData.requestType==="singlePolicyFetchNon"){
+        if(reqData.requestType==="singlePolicyFetch" && !req.auth?.email){
+            return res.status(403).json({error:"Verified account email required"})
+        }
+        const singlePolicy=await Policy.findByIdAndUpdate(
+            reqData.policyID,
+            {$inc:{viewCount:1}},
+            {new:true}
+        )
+        if(!singlePolicy) return res.status(404).json({error:"Policy not found"})
+        res.set("Cache-Control","no-store")
 
-    return res.status(200).json(toPublicPolicy(singlePolicy))
+        if(reqData.requestType==="singlePolicyFetch"){
+            const user=await User.findOne({email:req.auth.email})
+            const userId=user?.id
+            const votes=singlePolicy.interactions.votes
+            const userVote=votes.agree.voters.includes(userId) ? [true,"agree"]
+                : votes.neutral.voters.includes(userId) ? [true,"neutral"]
+                : votes.disagree.voters.includes(userId) ? [true,"disagree"]
+                : [false]
+            return res.status(200).json({singlePolicy:toPublicPolicy(singlePolicy),userVoted:userVote})
+        }
+
+        return res.status(200).json(toPublicPolicy(singlePolicy))
+    }
+    return res.status(400).json({error:"Unsupported policy request"})
 }
-return res.status(400).json({error:"Unsupported policy request"})
-}
+const policyFetch=createPolicyFetchController({Policy:policyModel,User:userModel})
 
 const policyCount=async(req,res)=>{
 const count=await policyModel.countDocuments()
@@ -138,5 +157,6 @@ module.exports={
     policyList,
     policyCount,
     createPolicyUpdateController,
-    createPolicyListController
+    createPolicyListController,
+    createPolicyFetchController
 }

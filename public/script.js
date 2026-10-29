@@ -70,6 +70,7 @@ policySection.append(emptyState)
                 <span>Neutral: <strong class="text-antique-text">${policy.interactions?.votes?.neutral?.count ?? 0}</strong></span>
                 <span>Disagree: <strong class="text-antique-text">${policy.interactions?.votes?.disagree?.count ?? 0}</strong></span>
             </div>
+            <span class="text-antique-muted">Views: <strong class="text-antique-text">${policy.viewCount ?? 0}</strong></span>
             <span class="text-antique-muted">Comments: <strong class="text-antique-text">${policy.interactions?.comments?.length ?? 0}</strong></span>
         </div>
 

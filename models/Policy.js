@@ -30,6 +30,10 @@ const PolicySchema = new Schema(
       type: Number,
       default: 0,
     },
+    viewCount: {
+      type: Number,
+      default: 0,
+    },
     createdAt: {
        type: Date,
         default: Date.now,

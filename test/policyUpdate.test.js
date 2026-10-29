@@ -28,7 +28,8 @@ process.env.ADMIN_UIDS = "approved-admin"
 
 const {
     createPolicyUpdateController,
-    createPolicyListController
+    createPolicyListController,
+    createPolicyFetchController
 } = require("../controller/policyController")
 
 function makeResponse() {
@@ -96,7 +97,17 @@ test("policy publishing uploads the document and maps form fields to the schema"
         category: "Economy",
         summary: "Summary",
         pdfUrl: "http://cloudinary/policy.pdf",
-        status: "active"
+        status: "active",
+        totalVotes: 0,
+        viewCount: 0,
+        interactions: {
+            votes: {
+                agree: { count: 0, voters: [] },
+                neutral: { count: 0, voters: [] },
+                disagree: { count: 0, voters: [] }
+            },
+            comments: []
+        }
     })
     assert.equal(saved, true)
     assert.equal(res.statusCode, 201)
@@ -188,4 +199,49 @@ test("policy feed returns live database policies newest-first without caching", 
     assert.equal(cacheControl, "no-store")
     assert.deepEqual(res.body.map(policy => policy._id), ["newest", "older"])
     assert.equal(res.statusCode, 200)
+})
+
+test("policy detail reads increment and return the persisted view count", async () => {
+    let updateArguments
+    let cacheControl
+    const policy = {
+        _id: "policy-id",
+        title: "Policy",
+        category: "Economy",
+        summary: "Summary",
+        viewCount: 4,
+        interactions: {
+            votes: {
+                agree: { count: 2, voters: [] },
+                neutral: { count: 1, voters: [] },
+                disagree: { count: 0, voters: [] }
+            },
+            comments: []
+        }
+    }
+    const controller = createPolicyFetchController({
+        Policy: {
+            findByIdAndUpdate: async (...args) => {
+                updateArguments = args
+                return policy
+            }
+        },
+        User: { findOne: async () => assert.fail("Anonymous views do not query users") }
+    })
+    const res = makeResponse()
+    res.set = (name, value) => {
+        if (name === "Cache-Control") cacheControl = value
+        return res
+    }
+
+    await controller({ body: { requestType: "singlePolicyFetchNon", policyID: "policy-id" } }, res)
+
+    assert.deepEqual(updateArguments, [
+        "policy-id",
+        { $inc: { viewCount: 1 } },
+        { new: true }
+    ])
+    assert.equal(cacheControl, "no-store")
+    assert.equal(res.statusCode, 200)
+    assert.equal(res.body.viewCount, 4)
 })

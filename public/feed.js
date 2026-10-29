@@ -7,7 +7,7 @@ const translations = {
     searchPolicies: "Search policies by keyword or title...", filterSector: "Filter by Sector:", allSectors: "All Major Sectors",
     footerCopyright: "© 2026 Hagere Civic Platform. Open Source Initiative.", about: "About", privacy: "Privacy Policy", contribute: "Contribute", adminPortal: "Admin Portal",
     askAi: "Ask Hagere AI", assistant: "Hagere Assistant", assistantDescription: "Here to help you explore policies", assistantGreeting: "Hello. How can I help you understand a policy today?", askPolicy: "Ask about a policy...", send: "Send",
-    published: "Published", agree: "Agree", neutral: "Neutral", disagree: "Disagree", comments: "Comments", explore: "Explore full policy document & discussions", readVote: "Read, Vote & Comment →"
+    published: "Published", views: "Views", agree: "Agree", neutral: "Neutral", disagree: "Disagree", comments: "Comments", explore: "Explore full policy document & discussions", readVote: "Read, Vote & Comment →"
   },
   am: {
     translate: "ተርጉም", policiesFeed: "የፖሊሲዎች መጋቢ", myDashboard: "የእኔ ዳሽቦርድ", signOut: "ውጣ",
@@ -15,7 +15,7 @@ const translations = {
     searchPolicies: "ፖሊሲዎችን በቁልፍ ቃል ወይም በርዕስ ይፈልጉ...", filterSector: "በዘርፍ ያጣሩ፦", allSectors: "ሁሉም ዋና ዘርፎች",
     footerCopyright: "© 2026 የሀገሬ የዜጎች መድረክ። ክፍት ምንጭ ተነሳሽነት።", about: "ስለ እኛ", privacy: "የግላዊነት ፖሊሲ", contribute: "አስተዋጽኦ ያድርጉ", adminPortal: "የአስተዳዳሪ መግቢያ",
     askAi: "ሀገሬ AIን ይጠይቁ", assistant: "የሀገሬ ረዳት", assistantDescription: "ፖሊሲዎችን እንዲያስሱ ለመርዳት እዚህ ነኝ", assistantGreeting: "ስለ ፖሊሲ እንዲረዱ እንዴት ልርዳዎት?", askPolicy: "ስለ ፖሊሲ ይጠይቁ...", send: "ላክ",
-    published: "የታተመበት", agree: "እስማማለሁ", neutral: "ገለልተኛ", disagree: "አልስማማም", comments: "አስተያየቶች", explore: "ሙሉ የፖሊሲ ሰነዱን እና ውይይቶችን ያስሱ", readVote: "ያንብቡ፣ ድምፅ ይስጡ እና ያስተያየቱ"
+    published: "የታተመበት", views: "እይታዎች", agree: "እስማማለሁ", neutral: "ገለልተኛ", disagree: "አልስማማም", comments: "አስተያየቶች", explore: "ሙሉ የፖሊሲ ሰነዱን እና ውይይቶችን ያስሱ", readVote: "ያንብቡ፣ ድምፅ ይስጡ እና ያስተያየቱ"
   },
   om: {
     translate: "Hiiki", policiesFeed: "Tarreeffama Imaammataa", myDashboard: "Daashboordii Koo", signOut: "Ba'i",
@@ -23,7 +23,7 @@ const translations = {
     searchPolicies: "Imaammata jecha ijoo ykn mata-dureen barbaadi...", filterSector: "Kutaan ittiin calali:", allSectors: "Kutaalee Gurguddoo Hunda",
     footerCopyright: "© 2026 Waltajjii Lammii Hagere. Tattaaffii Madda Banaa.", about: "Waa'ee Keenya", privacy: "Imaammata Dhuunfaa", contribute: "Gumaachi", adminPortal: "Seensa Bulchaa",
     askAi: "Hagere AI gaafadhu", assistant: "Gargaaraa Hagere", assistantDescription: "Imaammata qorachuuf isin gargaaruuf as jira", assistantGreeting: "Har'a imaammata hubachuuf akkamitti isin gargaaruu danda'a?", askPolicy: "Waa'ee imaammataa gaafadhu...", send: "Ergi",
-    published: "Maxxanfame", agree: "Nan waliigala", neutral: "Giddugaleessa", disagree: "Waliin hin galu", comments: "Yaada", explore: "Sanada imaammataa guutuu fi marii qoradhu", readVote: "Dubbisi, Sagalee kenni fi Yaada kenni"
+    published: "Maxxanfame", views: "Ilaalcha", agree: "Nan waliigala", neutral: "Giddugaleessa", disagree: "Waliin hin galu", comments: "Yaada", explore: "Sanada imaammataa guutuu fi marii qoradhu", readVote: "Dubbisi, Sagalee kenni fi Yaada kenni"
   },
   ti: {
     translate: "ተርጉም", policiesFeed: "መግበሪ ፖሊሲታት", myDashboard: "ዳሽቦርደይ", signOut: "ውጻእ",
@@ -31,7 +31,7 @@ const translations = {
     searchPolicies: "ፖሊሲታት ብቐንዲ ቃል ወይ ብኣርእስቲ ድለዩ...", filterSector: "ብዘርፊ ምጽራይ፦", allSectors: "ኩሎም ዋና ዘርፍታት",
     footerCopyright: "© 2026 መድረኽ ዜጋታት ሀገሬ። ክፉት ምንጪ ተበግሶ።", about: "ብዛዕባና", privacy: "ፖሊሲ ምስጢራዊነት", contribute: "ኣበርክቱ", adminPortal: "መእተዊ ኣስተዳዳሪ",
     askAi: "ሀገሬ AI ሕተት", assistant: "ሓጋዚ ሀገሬ", assistantDescription: "ፖሊሲታት ንኽትድህስሱ ንምሕጋዝ ኣብዚ ኣለኹ", assistantGreeting: "ሎሚ ፖሊሲ ንኽትርድኡ ከመይ ክሕግዘኩም ይኽእል?", askPolicy: "ብዛዕባ ፖሊሲ ሕተት...", send: "ስደድ",
-    published: "ዝተሓትመ", agree: "እሰማማዕ", neutral: "ማእከላይ", disagree: "ኣይሰማማዕን", comments: "ርእይቶታት", explore: "ምሉእ ሰነድ ፖሊሲን ዘተታትን ድህሰሱ", readVote: "ኣንብብ፣ ድምጺ ሃብ እና ርእይቶ ሃብ"
+    published: "ዝተሓትመ", views: "ርእይቶታት", agree: "እሰማማዕ", neutral: "ማእከላይ", disagree: "ኣይሰማማዕን", comments: "ርእይቶታት", explore: "ምሉእ ሰነድ ፖሊሲን ዘተታትን ድህሰሱ", readVote: "ኣንብብ፣ ድምጺ ሃብ እና ርእይቶ ሃብ"
   }
 };
 
@@ -161,6 +161,7 @@ fetch("/api/policies",{
                 <span><span data-i18n="neutral">Neutral</span>: <strong class="text-antique-text">${policy.interactions?.votes?.neutral?.count ?? 0}</strong></span>
                 <span><span data-i18n="disagree">Disagree</span>: <strong class="text-antique-text">${policy.interactions?.votes?.disagree?.count ?? 0}</strong></span>
             </div>
+            <span class="text-antique-muted"><span data-i18n="views">Views</span>: <strong class="text-antique-text">${policy.viewCount ?? 0}</strong></span>
             <span class="text-antique-muted"><span data-i18n="comments">Comments</span>: <strong class="text-antique-text">${policy.interactions?.comments?.length ?? 0}</strong></span>
         </div>
 
