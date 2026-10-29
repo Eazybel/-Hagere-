@@ -28,7 +28,8 @@ process.env.ADMIN_UIDS = "approved-admin"
 const {
     createPolicyChatController,
     SYSTEM_INSTRUCTION,
-    MAX_PDF_BYTES
+    MAX_PDF_BYTES,
+    GEMINI_TIMEOUT_MS
 } = require("../controller/policyChatController")
 
 const policyId = "507f1f77bcf86cd799439011"
@@ -184,5 +185,35 @@ test("policy chat rejects oversized PDF downloads", async () => {
     assert.deepEqual(res.body, {
         success: false,
         error: "Policy PDF exceeds the supported 14 MB size"
+    })
+})
+
+test("policy chat allows longer Gemini processing and returns a clear gateway timeout", async () => {
+    let geminiSignal
+    const timeoutError = new DOMException("The operation was aborted due to timeout", "TimeoutError")
+    const controller = createPolicyChatController({
+        Policy: makePolicyModel({ pdfUrl: policyUrl }),
+        apiKey: "server-side-gemini-key",
+        fetchImpl: async (url, options) => {
+            if (url instanceof URL) {
+                return new Response(Buffer.from("%PDF-1.7 policy contents"))
+            }
+            geminiSignal = options.signal
+            throw timeoutError
+        }
+    })
+    const res = makeResponse()
+
+    await controller({
+        params: { id: policyId },
+        body: { message: "Question" }
+    }, res)
+
+    assert.ok(geminiSignal instanceof AbortSignal)
+    assert.equal(GEMINI_TIMEOUT_MS, 180000)
+    assert.equal(res.statusCode, 504)
+    assert.deepEqual(res.body, {
+        success: false,
+        error: "The policy assistant took too long to respond. Please try again."
     })
 })

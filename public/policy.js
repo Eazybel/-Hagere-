@@ -39,7 +39,7 @@ import { applyOptimisticVote } from "./voteState.mjs"
       if(submitButton.disabled) return
       submitButton.disabled=true
       submitButton.setAttribute("aria-busy","true")
-      status.textContent="Reading the policy and preparing an answer…"
+      status.textContent="Reading the policy and preparing an answer. This may take a few minutes…"
       reply.classList.add("hidden")
 
       try{

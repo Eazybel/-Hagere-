@@ -3,6 +3,7 @@ const mongoose = require("mongoose")
 const SYSTEM_INSTRUCTION = "You are an expert AI civic assistant for Hagere. Read the attached policy document carefully, and answer the user's question accurately in Amharic (አማርኛ). If the answer is not in the document, politely state that it is not covered in this policy."
 const MAX_MESSAGE_LENGTH = 4000
 const MAX_PDF_BYTES = 14 * 1024 * 1024
+const GEMINI_TIMEOUT_MS = 180000
 const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent"
 
 function getCloudinaryUrl(pdfUrl) {
@@ -131,7 +132,7 @@ function createPolicyChatController({ Policy, apiKey, fetchImpl = fetch }) {
                         ]
                     }]
                 }),
-                signal: AbortSignal.timeout(60000)
+                signal: AbortSignal.timeout(GEMINI_TIMEOUT_MS)
             })
             const result = await geminiResponse.json().catch(() => ({}))
             if (!geminiResponse.ok) {
@@ -149,6 +150,12 @@ function createPolicyChatController({ Policy, apiKey, fetchImpl = fetch }) {
             return res.status(200).json({ success: true, reply })
         } catch (error) {
             console.error("Gemini policy chat request failed:", error)
+            if (error?.name === "TimeoutError" || error?.name === "AbortError") {
+                return res.status(504).json({
+                    success: false,
+                    error: "The policy assistant took too long to respond. Please try again."
+                })
+            }
             return res.status(502).json({ success: false, error: "Policy assistant could not answer right now" })
         }
     }
@@ -158,5 +165,6 @@ module.exports = {
     createPolicyChatController,
     SYSTEM_INSTRUCTION,
     MAX_MESSAGE_LENGTH,
-    MAX_PDF_BYTES
+    MAX_PDF_BYTES,
+    GEMINI_TIMEOUT_MS
 }
