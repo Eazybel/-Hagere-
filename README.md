@@ -160,6 +160,8 @@ Receive updates when:
 - Toxic Content Detection
 - AI Moderation Assistance
 
+The policy-specific document assistant uses Google Gemini. Set `GEMINI_API_KEY` in the server's environment to enable it; the key is never sent to the browser.
+
 ---
 
 # 🛣 Development Roadmap

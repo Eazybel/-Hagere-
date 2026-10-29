@@ -21,6 +21,7 @@ const envSchema = z.object({
     CLOUDINARY_KEY: z.string().min(1),
     CLOUDINARY_SECRET: z.string().min(1),
     FIREBASE_API: z.string().min(1),
+    GEMINI_API_KEY: z.string().trim().min(1).optional(),
     SERVICE_ACCOUNT: z.string().min(1),
     ADMIN_FIREBASE_PROJECT_ID: z.string().min(1),
     ADMIN_SERVICE_ACCOUNT: z.string().min(1),

@@ -14,5 +14,6 @@ const createLimiter = limit => rateLimit({
 const authRateLimit = createLimiter(10)
 const voteRateLimit = createLimiter(20)
 const policyWriteRateLimit = createLimiter(10)
+const policyChatRateLimit = createLimiter(10)
 
-module.exports = { authRateLimit, voteRateLimit, policyWriteRateLimit }
+module.exports = { authRateLimit, voteRateLimit, policyWriteRateLimit, policyChatRateLimit }

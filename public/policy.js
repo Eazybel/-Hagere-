@@ -27,6 +27,45 @@ import { applyOptimisticVote } from "./voteState.mjs"
     policyArticle.replaceChildren(errorState)
   }
 
+  function enablePolicyChat(policyId) {
+    const form=document.getElementById("policyChatForm")
+    const input=document.getElementById("policyChatMessage")
+    const submitButton=document.getElementById("policyChatSubmit")
+    const status=document.getElementById("policyChatStatus")
+    const reply=document.getElementById("policyChatReply")
+
+    form.addEventListener("submit",async event=>{
+      event.preventDefault()
+      if(submitButton.disabled) return
+      submitButton.disabled=true
+      submitButton.setAttribute("aria-busy","true")
+      status.textContent="Reading the policy and preparing an answer…"
+      reply.classList.add("hidden")
+
+      try{
+        const response=await fetch(`/api/policies/${encodeURIComponent(policyId)}/chat`,{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({message:input.value.trim()})
+        })
+        const result=await response.json().catch(()=>({}))
+        if(!response.ok || result.success!==true){
+          throw new Error(result.error || `Policy assistant request failed (${response.status})`)
+        }
+        reply.textContent=result.reply
+        reply.classList.remove("hidden")
+        status.textContent=""
+        input.value=""
+      }catch(error){
+        console.error("Policy chat request failed:",error)
+        status.textContent=error.message || "Unable to contact the policy assistant. Please try again."
+      }finally{
+        submitButton.disabled=false
+        submitButton.removeAttribute("aria-busy")
+      }
+    })
+  }
+
   function renderComments(policy) {
     renderedComments=Array.isArray(policy.interactions?.comments)
       ? policy.interactions.comments
@@ -116,6 +155,7 @@ fetch("/policyFetch",{method:"POST",headers:{"Authorization":`Bearer ${idToken}`
 if(!data.singlePolicy || !Array.isArray(data.userVoted)) throw new Error(data.error || data.message || "Policy response was invalid")
 console.log(data)
 renderComments(data.singlePolicy)
+enablePolicyChat(data.singlePolicy._id)
 enableCommentSubmission(user,data.singlePolicy._id)
 if(data.userVoted[0]==true){
 policyArticle.insertAdjacentHTML("beforeend",
@@ -361,6 +401,7 @@ policyArticle.insertAdjacentHTML("beforeend",
     `
 )
 renderComments(data)
+enablePolicyChat(data._id)
 })
 .catch(error=>showPolicyLoadError(policyArticle,error))
   }

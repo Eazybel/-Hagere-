@@ -59,6 +59,20 @@
 
         </article>
 
+        <section class="bg-antique-card border border-antique-border rounded-lg p-8 mb-8 font-sans">
+            <h2 class="text-xl font-normal mb-2">Ask about this policy</h2>
+            <p class="text-sm text-antique-muted mb-4">Ask a question about this document. Answers are provided in Amharic.</p>
+            <form id="policyChatForm" class="space-y-3">
+                <label for="policyChatMessage" class="sr-only">Your question</label>
+                <textarea id="policyChatMessage" rows="3" maxlength="4000" required placeholder="Ask a question about this policy…" class="w-full px-3 py-2 text-sm bg-antique-bg border border-antique-border rounded focus:outline-none focus:border-antique-accent"></textarea>
+                <div class="flex items-center justify-between gap-4">
+                    <p id="policyChatStatus" class="text-xs text-antique-muted" role="status" aria-live="polite"></p>
+                    <button id="policyChatSubmit" type="submit" class="px-4 py-2 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors">Ask Hagere AI</button>
+                </div>
+                <div id="policyChatReply" class="hidden whitespace-pre-wrap rounded border border-antique-border bg-antique-bg p-4 text-sm leading-relaxed" aria-live="polite"></div>
+            </form>
+        </section>
+
         <!-- Comments Section Anchor -->
         <section id="comments" class="bg-antique-card border border-antique-border rounded-lg p-8">
             <h2 class="text-xl font-normal mb-6 pb-3 border-b border-antique-border">Citizen Discussions & Comments (<span id="commentCount">—</span>)</h2>
