@@ -1,12 +1,12 @@
 const mongoose = require("mongoose")
 
-const SYSTEM_INSTRUCTION = "You are an expert AI civic assistant for Hagere. Read the attached policy document carefully, and answer the user's question accurately in Amharic (አማርኛ). If the answer is not in the document, politely state that it is not covered in this policy."
+const SYSTEM_INSTRUCTION = "You are an expert AI civic assistant for Hagere. Read the attached policy document carefully, and answer the user's question accurately and thoroughly in Amharic (አማርኛ)."
 const MAX_MESSAGE_LENGTH = 4000
 const MAX_PDF_BYTES = 14 * 1024 * 1024
-const GEMINI_FILE_CACHE_MS = 47 * 60 * 60 * 1000
-const GEMINI_FILE_CACHE_LIMIT = 100
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com"
 const GEMINI_MODEL = "gemini-3.8-flash"
+const CLOUDINARY_FETCH_TIMEOUT_MS = 10_000
+const GEMINI_REQUEST_TIMEOUT_MS = 90_000
 
 function getCloudinaryUrl(pdfUrl) {
     let url
@@ -28,32 +28,51 @@ function getCloudinaryUrl(pdfUrl) {
     return url
 }
 
-async function readPdfBuffer(response) {
+function raceWithAbort(promise, signal, onAbort) {
+    let abortListener
+    const abortPromise = new Promise((_, reject) => {
+        abortListener = () => {
+            onAbort?.()
+            reject(signal.reason || new DOMException("PDF download aborted", "AbortError"))
+        }
+        if (signal.aborted) abortListener()
+        else signal.addEventListener("abort", abortListener, { once: true })
+    })
+    return Promise.race([promise, abortPromise]).finally(() => {
+        signal.removeEventListener("abort", abortListener)
+    })
+}
+
+async function readPdfBuffer(response, signal) {
     const contentLength = Number(response.headers.get("content-length"))
     if (Number.isFinite(contentLength) && contentLength > MAX_PDF_BYTES) {
         throw new RangeError("Policy PDF exceeds the supported size")
     }
 
     if (!response.body) {
-        const buffer = Buffer.from(await response.arrayBuffer())
+        const buffer = Buffer.from(await raceWithAbort(response.arrayBuffer(), signal))
         if (buffer.length > MAX_PDF_BYTES) throw new RangeError("Policy PDF exceeds the supported size")
         return buffer
     }
 
     const reader = response.body.getReader()
-    const chunks = []
-    let totalBytes = 0
-    while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        totalBytes += value.byteLength
-        if (totalBytes > MAX_PDF_BYTES) {
-            await reader.cancel()
-            throw new RangeError("Policy PDF exceeds the supported size")
+    return raceWithAbort((async () => {
+        const chunks = []
+        let totalBytes = 0
+        while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            totalBytes += value.byteLength
+            if (totalBytes > MAX_PDF_BYTES) {
+                await reader.cancel()
+                throw new RangeError("Policy PDF exceeds the supported size")
+            }
+            chunks.push(Buffer.from(value))
         }
-        chunks.push(Buffer.from(value))
-    }
-    return Buffer.concat(chunks, totalBytes)
+        return Buffer.concat(chunks, totalBytes)
+    })(), signal, () => {
+        reader.cancel().catch(() => {})
+    })
 }
 
 async function parseGeminiResponse(response, operation) {
@@ -64,6 +83,13 @@ async function parseGeminiResponse(response, operation) {
         throw error
     }
     return result
+}
+
+function getGenerateContentReply(result) {
+    return result.candidates?.[0]?.content?.parts
+        ?.map(part => typeof part.text === "string" ? part.text : "")
+        .join("")
+        .trim() || ""
 }
 
 function getGeminiFailure(error, operation) {
@@ -114,199 +140,152 @@ function getInteractionReply(interaction) {
 
 function createPolicyChatController({
     Policy,
-    apiKey,
+    apiKey = process.env.GEMINI_API_KEY,
     fetchImpl = fetch,
-    timeoutSignal = milliseconds => AbortSignal.timeout(milliseconds)
+    timeoutMs = GEMINI_REQUEST_TIMEOUT_MS,
+    cloudinaryTimeoutMs = CLOUDINARY_FETCH_TIMEOUT_MS
 }) {
-    const fileCache = new Map()
-    const pendingFileUploads = new Map()
+    async function fetchPdfBuffer(pdfUrl) {
+        const cloudinaryUrl = getCloudinaryUrl(pdfUrl)
+        if (!cloudinaryUrl) {
+            const error = new Error("Policy document URL is invalid")
+            error.status = 502
+            throw error
+        }
 
-    async function uploadPolicyPdf(pdfUrl, policyId) {
-        const cached = fileCache.get(pdfUrl)
-        if (cached && cached.expiresAt > Date.now()) return cached
-        if (cached) fileCache.delete(pdfUrl)
+        const abortController = new AbortController()
+        let timeout
+        let onAbort
+        const timeoutPromise = new Promise((_, reject) => {
+            onAbort = () => reject(abortController.signal.reason
+                || new DOMException("Cloudinary PDF fetch timed out", "TimeoutError"))
+            abortController.signal.addEventListener("abort", onAbort, { once: true })
+            timeout = setTimeout(() => {
+                abortController.abort(new DOMException("Cloudinary PDF fetch timed out", "TimeoutError"))
+            }, cloudinaryTimeoutMs)
+        })
 
-        const pending = pendingFileUploads.get(pdfUrl)
-        if (pending) return pending
-
-        const upload = (async () => {
-            const cloudinaryUrl = getCloudinaryUrl(pdfUrl)
-            if (!cloudinaryUrl) {
-                const error = new Error("Policy document URL is invalid")
-                error.status = 502
-                throw error
-            }
-
-            const pdfResponse = await fetchImpl(cloudinaryUrl, {
-                redirect: "error",
-                signal: timeoutSignal(30000)
-            })
-            if (!pdfResponse.ok) {
-                const error = new Error("Unable to retrieve the policy document")
-                error.status = 502
-                throw error
-            }
-
-            const pdfBuffer = await readPdfBuffer(pdfResponse)
-            if (pdfBuffer.length < 5 || pdfBuffer.toString("ascii", 0, 5) !== "%PDF-") {
-                const error = new Error("The policy document is not a valid PDF")
-                error.status = 502
-                throw error
-            }
-
-            const startResponse = await fetchImpl(`${GEMINI_API_BASE}/upload/v1beta/files`, {
-                method: "POST",
-                headers: {
-                    "x-goog-api-key": apiKey,
-                    "X-Goog-Upload-Protocol": "resumable",
-                    "X-Goog-Upload-Command": "start",
-                    "X-Goog-Upload-Header-Content-Length": String(pdfBuffer.length),
-                    "X-Goog-Upload-Header-Content-Type": "application/pdf",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    file: { display_name: `hagere-policy-${policyId}` }
-                }),
-                signal: timeoutSignal(30000)
-            })
-            if (!startResponse.ok) {
-                await parseGeminiResponse(startResponse, "Gemini file upload initialization")
-            }
-
-            const uploadUrlValue = startResponse.headers.get("x-goog-upload-url")
-            let uploadUrl
-            try {
-                uploadUrl = new URL(uploadUrlValue)
-            } catch {
-                throw new Error("Gemini did not return a valid file upload URL")
-            }
-            if (uploadUrl.protocol !== "https:"
-                || !(uploadUrl.hostname === "googleapis.com" || uploadUrl.hostname.endsWith(".googleapis.com"))
-                || uploadUrl.username
-                || uploadUrl.password) {
-                throw new Error("Gemini returned an untrusted file upload URL")
-            }
-
-            const finalizeResponse = await fetchImpl(uploadUrl, {
-                method: "POST",
-                headers: {
-                    "X-Goog-Upload-Offset": "0",
-                    "X-Goog-Upload-Command": "upload, finalize",
-                    "Content-Type": "application/pdf"
-                },
-                body: pdfBuffer,
-                signal: timeoutSignal(60000)
-            })
-            const uploadedFile = await parseGeminiResponse(finalizeResponse, "Gemini PDF upload")
-            const fileUri = uploadedFile.file?.uri
-            const fileName = uploadedFile.file?.name
-            if (typeof fileUri !== "string" || typeof fileName !== "string") {
-                throw new Error("Gemini did not return a valid uploaded file")
-            }
-
-            const cachedFile = {
-                uri: fileUri,
-                name: fileName,
-                expiresAt: Date.now() + GEMINI_FILE_CACHE_MS
-            }
-            fileCache.set(pdfUrl, cachedFile)
-            while (fileCache.size > GEMINI_FILE_CACHE_LIMIT) {
-                fileCache.delete(fileCache.keys().next().value)
-            }
-            return cachedFile
-        })()
-
-        pendingFileUploads.set(pdfUrl, upload)
         try {
-            return await upload
+            return await Promise.race([
+                (async () => {
+                    const response = await fetchImpl(cloudinaryUrl, {
+                        redirect: "error",
+                        signal: abortController.signal
+                    })
+                    if (!response.ok) {
+                        const error = new Error(`Cloudinary returned HTTP ${response.status} for the policy PDF`)
+                        error.status = 502
+                        throw error
+                    }
+
+                    const pdfBuffer = await readPdfBuffer(response, abortController.signal)
+                    if (pdfBuffer.length < 5 || pdfBuffer.toString("ascii", 0, 5) !== "%PDF-") {
+                        const error = new Error("The policy document is not a valid PDF")
+                        error.status = 502
+                        throw error
+                    }
+                    return pdfBuffer
+                })(),
+                timeoutPromise
+            ])
         } finally {
-            pendingFileUploads.delete(pdfUrl)
+            clearTimeout(timeout)
+            abortController.signal.removeEventListener("abort", onAbort)
         }
     }
 
     async function create(req, res) {
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-            return res.status(400).json({ success: false, error: "A valid policy ID is required" })
-        }
+        let operation = "policy document fetch"
+        try {
+            if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+                return res.status(400).json({ success: false, error: "A valid policy ID is required" })
+            }
 
-        const message = typeof req.body?.message === "string" ? req.body.message.trim() : ""
-        if (!message || message.length > MAX_MESSAGE_LENGTH) {
-            return res.status(400).json({
-                success: false,
-                error: `Message must be between 1 and ${MAX_MESSAGE_LENGTH} characters`
+            const message = typeof req.body?.message === "string" ? req.body.message.trim() : ""
+            if (!message || message.length > MAX_MESSAGE_LENGTH) {
+                return res.status(400).json({
+                    success: false,
+                    error: `Message must be between 1 and ${MAX_MESSAGE_LENGTH} characters`
+                })
+            }
+            if (!apiKey) {
+                return res.status(503).json({ success: false, error: "Policy assistant is not configured" })
+            }
+
+            let policy
+            try {
+                policy = await Policy.findById(req.params.id).select("pdfUrl")
+            } catch (error) {
+                console.error("Policy chat database lookup failed:", error.stack || error)
+                return res.status(500).json({ success: false, error: "Unable to load this policy" })
+            }
+            if (!policy) {
+                return res.status(404).json({ success: false, error: "Policy not found" })
+            }
+
+            const pdfBuffer = await fetchPdfBuffer(policy.pdfUrl)
+            const pdfBase64 = Buffer.from(pdfBuffer).toString("base64")
+            operation = "Gemini policy chat request"
+            const abortController = new AbortController()
+            const timeout = setTimeout(() => {
+                abortController.abort(new DOMException("Gemini request timed out", "TimeoutError"))
+            }, timeoutMs)
+
+            let result
+            try {
+                const response = await fetchImpl(
+                    `${GEMINI_API_BASE}/v1beta/models/${GEMINI_MODEL}:generateContent`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "x-goog-api-key": apiKey,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            systemInstruction: {
+                                parts: [{ text: SYSTEM_INSTRUCTION }]
+                            },
+                            contents: [{
+                                parts: [
+                                    {
+                                        inline_data: {
+                                            mime_type: "application/pdf",
+                                            data: pdfBase64
+                                        }
+                                    },
+                                    { text: message }
+                                ]
+                            }]
+                        }),
+                        signal: abortController.signal
+                    }
+                )
+                result = await parseGeminiResponse(response, "Gemini policy chat request")
+            } finally {
+                clearTimeout(timeout)
+            }
+
+            const reply = getGenerateContentReply(result)
+            if (!reply) {
+                console.error("Gemini returned no text for policy chat", JSON.stringify(result.promptFeedback || {}))
+                return res.status(502).json({
+                    success: false,
+                    error: "The policy assistant returned no answer. Please try again."
+                })
+            }
+            return res.status(200).json({
+                success: true,
+                reply
             })
-        }
-        if (!apiKey) {
-            return res.status(503).json({ success: false, error: "Policy assistant is not configured" })
-        }
-
-        let policy
-        try {
-            policy = await Policy.findById(req.params.id).select("pdfUrl")
         } catch (error) {
-            console.error("Policy chat database lookup failed:", error)
-            return res.status(500).json({ success: false, error: "Unable to load this policy" })
-        }
-        if (!policy) {
-            return res.status(404).json({ success: false, error: "Policy not found" })
-        }
-
-        let file
-        try {
-            file = await uploadPolicyPdf(policy.pdfUrl, req.params.id)
-        } catch (error) {
-            console.error("Policy document preparation failed:", error)
+            console.error("Policy chat request failed:", error.stack || error)
             if (error instanceof RangeError) {
                 return res.status(413).json({ success: false, error: error.message })
             }
-            const failure = getGeminiFailure(error, "policy document preparation")
-            return res.status(failure.status).json({ success: false, error: failure.error })
-        }
-
-        try {
-            const response = await fetchImpl(`${GEMINI_API_BASE}/v1beta/interactions`, {
-                method: "POST",
-                headers: {
-                    "x-goog-api-key": apiKey,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    model: GEMINI_MODEL,
-                    background: true,
-                    system_instruction: SYSTEM_INSTRUCTION,
-                    input: [
-                        { type: "document", uri: file.uri, mime_type: "application/pdf" },
-                        { type: "text", text: message }
-                    ]
-                }),
-                signal: timeoutSignal(30000)
-            })
-            const interaction = await parseGeminiResponse(response, "Gemini interaction creation")
-            if (typeof interaction.id !== "string" || !interaction.id) {
-                console.error("Gemini interaction response did not contain an ID")
-                return res.status(502).json({ success: false, error: "Policy assistant could not start a response" })
-            }
-            if (interaction.status === "completed") {
-                const reply = getInteractionReply(interaction)
-                if (reply) return res.status(200).json({ success: true, reply })
-            }
-            if (interaction.status === "failed" || interaction.status === "cancelled") {
-                console.error("Gemini policy interaction ended:", interaction.status, interaction.error)
-                return res.status(502).json({
-                    success: false,
-                    error: interaction.error?.message
-                        ? `Policy assistant could not answer: ${interaction.error.message}`
-                        : "Policy assistant could not answer right now"
-                })
-            }
-            return res.status(202).json({
-                success: true,
-                status: interaction.status || "in_progress",
-                interactionId: interaction.id
-            })
-        } catch (error) {
-            console.error("Gemini policy interaction could not be started:", error)
-            const failure = getGeminiFailure(error, "policy chat request")
+            const failure = getGeminiFailure(
+                error,
+                operation
+            )
             return res.status(failure.status).json({ success: false, error: failure.error })
         }
     }
@@ -325,12 +304,16 @@ function createPolicyChatController({
             return res.status(503).json({ success: false, error: "Policy assistant is not configured" })
         }
 
+        const abortController = new AbortController()
+        const timeout = setTimeout(() => {
+            abortController.abort(new DOMException("Gemini status check timed out", "TimeoutError"))
+        }, timeoutMs)
         try {
             const response = await fetchImpl(
                 `${GEMINI_API_BASE}/v1beta/interactions/${encodeURIComponent(interactionId)}`,
                 {
                     headers: { "x-goog-api-key": apiKey },
-                    signal: timeoutSignal(15000)
+                    signal: abortController.signal
                 }
             )
             const interaction = await parseGeminiResponse(response, "Gemini interaction status check")
@@ -358,6 +341,8 @@ function createPolicyChatController({
             console.error("Gemini policy interaction status check failed:", error)
             const failure = getGeminiFailure(error, "chat status check")
             return res.status(failure.status).json({ success: false, error: failure.error })
+        } finally {
+            clearTimeout(timeout)
         }
     }
 
@@ -369,8 +354,9 @@ module.exports = {
     SYSTEM_INSTRUCTION,
     MAX_MESSAGE_LENGTH,
     MAX_PDF_BYTES,
-    GEMINI_FILE_CACHE_MS,
-    GEMINI_FILE_CACHE_LIMIT,
+    CLOUDINARY_FETCH_TIMEOUT_MS,
+    GEMINI_REQUEST_TIMEOUT_MS,
     GEMINI_MODEL,
+    getGenerateContentReply,
     getInteractionReply
 }

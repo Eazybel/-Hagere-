@@ -29,15 +29,15 @@ const {
     createPolicyChatController,
     SYSTEM_INSTRUCTION,
     MAX_PDF_BYTES,
+    CLOUDINARY_FETCH_TIMEOUT_MS,
     GEMINI_MODEL
 } = require("../controller/policyChatController")
 
 const policyId = "507f1f77bcf86cd799439011"
 const policyUrl = "https://res.cloudinary.com/hagere/raw/upload/policy.pdf"
-const fileUploadUrl = "https://generativelanguage.googleapis.com/upload/file-upload"
-const fileUri = "https://generativelanguage.googleapis.com/v1beta/files/gemini-file"
-const fileName = "files/gemini-file"
-const interactionsUrl = "https://generativelanguage.googleapis.com/v1beta/interactions"
+const cloudinaryUrl = new URL(policyUrl)
+const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`
+const pdfBytes = Buffer.from("%PDF-1.7 policy contents")
 
 function makeResponse() {
     return {
@@ -54,7 +54,7 @@ function makeResponse() {
     }
 }
 
-function makePolicyModel(policy) {
+function makePolicyModel(policy = { pdfUrl: policyUrl }) {
     return {
         findById(id) {
             assert.equal(id, policyId)
@@ -68,177 +68,185 @@ function makePolicyModel(policy) {
     }
 }
 
-function createGeminiFetchMock({ status = "in_progress", pollStatus = "completed", onRequest = () => {} } = {}) {
+function createPdfFetchMock({ geminiResponse = null, onGeminiRequest = () => {} } = {}) {
     const requests = []
     const fetchImpl = async (url, options = {}) => {
         requests.push({ url, options })
-        if (url instanceof URL && url.href === policyUrl) {
-            return new Response(Buffer.from("%PDF-1.7 policy contents"))
-        }
-        if (url === `${GEMINI_API_BASE_FOR_TEST}/upload/v1beta/files`) {
-            return new Response(null, {
-                status: 200,
-                headers: { "x-goog-upload-url": fileUploadUrl }
+        if (url instanceof URL && url.href === cloudinaryUrl.href) {
+            return new Response(pdfBytes, {
+                headers: { "content-type": "application/pdf" }
             })
         }
-        if (url instanceof URL && url.href === fileUploadUrl) {
-            return Response.json({ file: { name: fileName, uri: fileUri } })
-        }
-        if (url === interactionsUrl && options.method === "POST") {
-            onRequest(JSON.parse(options.body), options)
-            return Response.json({ id: "interaction_123", status })
-        }
-        if (url === `${interactionsUrl}/interaction_123`) {
-            return Response.json({
-                id: "interaction_123",
-                status: pollStatus,
-                outputs: [{ type: "text", text: "የፖሊሲው መልስ።" }]
+        if (url === geminiUrl) {
+            onGeminiRequest(options)
+            return geminiResponse || Response.json({
+                candidates: [{
+                    content: {
+                        parts: [{ text: "የፖሊሲው መልስ።" }]
+                    }
+                }]
             })
         }
-        throw new Error(`Unexpected Gemini request: ${String(url)}`)
+        throw new Error(`Unexpected request: ${String(url)}`)
     }
     return { fetchImpl, requests }
 }
 
-const GEMINI_API_BASE_FOR_TEST = "https://generativelanguage.googleapis.com"
-
-test("policy chat uploads and caches the PDF, starts a background answer, and polls it", async () => {
-    let interactionBody
-    const fetchMock = createGeminiFetchMock({
-        onRequest: body => { interactionBody = body }
+test("policy chat sends the PDF as base64 inline data and returns Gemini's answer", async () => {
+    let geminiOptions
+    const fetchMock = createPdfFetchMock({
+        onGeminiRequest: options => { geminiOptions = options }
     })
     const controller = createPolicyChatController({
-        Policy: makePolicyModel({ pdfUrl: policyUrl }),
+        Policy: makePolicyModel(),
         apiKey: "server-side-gemini-key",
-        fetchImpl: fetchMock.fetchImpl,
-        timeoutSignal: () => new AbortController().signal
+        fetchImpl: fetchMock.fetchImpl
     })
-    const createResponse = makeResponse()
+    const res = makeResponse()
 
     await controller.create({
         params: { id: policyId },
         body: { message: "What does this policy say?" }
-    }, createResponse)
+    }, res)
 
-    assert.equal(createResponse.statusCode, 202)
-    assert.deepEqual(createResponse.body, {
-        success: true,
-        status: "in_progress",
-        interactionId: "interaction_123"
-    })
-
+    assert.equal(res.statusCode, 200)
+    assert.deepEqual(res.body, { success: true, reply: "የፖሊሲው መልስ።" })
     const cloudinaryRequest = fetchMock.requests.find(request => request.url instanceof URL)
-    assert.equal(cloudinaryRequest.url.href, policyUrl)
-    const uploadStart = fetchMock.requests.find(request => request.url === `${GEMINI_API_BASE_FOR_TEST}/upload/v1beta/files`)
-    assert.equal(uploadStart.options.headers["x-goog-api-key"], "server-side-gemini-key")
-    assert.equal(uploadStart.options.headers["X-Goog-Upload-Header-Content-Type"], "application/pdf")
-    const fileUpload = fetchMock.requests.find(request => request.url instanceof URL && request.url.href === fileUploadUrl)
-    assert.equal(fileUpload.options.headers["X-Goog-Upload-Command"], "upload, finalize")
-    assert.equal(fileUpload.options.body.toString("ascii", 0, 5), "%PDF-")
-    assert.equal(interactionBody.model, GEMINI_MODEL)
-    assert.equal(interactionBody.background, true)
-    assert.equal(interactionBody.system_instruction, SYSTEM_INSTRUCTION)
-    assert.deepEqual(interactionBody.input, [
-        { type: "document", uri: fileUri, mime_type: "application/pdf" },
-        { type: "text", text: "What does this policy say?" }
-    ])
-
-    const pollResponse = makeResponse()
-    await controller.poll({
-        params: { id: policyId, interactionId: "interaction_123" }
-    }, pollResponse)
-    assert.equal(pollResponse.statusCode, 200)
-    assert.deepEqual(pollResponse.body, {
-        success: true,
-        status: "completed",
-        reply: "የፖሊሲው መልስ።"
+    assert.equal(cloudinaryRequest.url.href, cloudinaryUrl.href)
+    assert.ok(cloudinaryRequest.options.signal instanceof AbortSignal)
+    assert.equal(geminiOptions.headers["x-goog-api-key"], "server-side-gemini-key")
+    assert.deepEqual(JSON.parse(geminiOptions.body), {
+        systemInstruction: {
+            parts: [{ text: SYSTEM_INSTRUCTION }]
+        },
+        contents: [{
+            parts: [
+                {
+                    inline_data: {
+                        mime_type: "application/pdf",
+                        data: pdfBytes.toString("base64")
+                    }
+                },
+                { text: "What does this policy say?" }
+            ]
+        }]
     })
-    assert.ok(fetchMock.requests.some(request => request.url === `${interactionsUrl}/interaction_123`))
+    assert.equal(SYSTEM_INSTRUCTION, "You are an expert AI civic assistant for Hagere. Read the attached policy document carefully, and answer the user's question accurately and thoroughly in Amharic (አማርኛ).")
+    assert.equal(fetchMock.requests.find(request => request.url === geminiUrl).url.includes("?key="), false)
 })
 
-test("policy chat caches uploaded documents for follow-up questions", async () => {
-    const fetchMock = createGeminiFetchMock()
-    const controller = createPolicyChatController({
-        Policy: makePolicyModel({ pdfUrl: policyUrl }),
-        apiKey: "server-side-gemini-key",
-        fetchImpl: fetchMock.fetchImpl,
-        timeoutSignal: () => new AbortController().signal
-    })
-
-    for (const message of ["First question", "Follow-up question"]) {
-        const res = makeResponse()
-        await controller.create({ params: { id: policyId }, body: { message } }, res)
-        assert.equal(res.statusCode, 202)
+test("Cloudinary PDF fetch has a strict 10-second AbortController timeout", async () => {
+    let cloudinarySignal
+    const fetchImpl = async (url, options = {}) => {
+        if (url instanceof URL && url.href === cloudinaryUrl.href) {
+            cloudinarySignal = options.signal
+            return new Promise((resolve, reject) => {
+                options.signal.addEventListener("abort", () => reject(options.signal.reason), { once: true })
+            })
+        }
+        throw new Error(`Unexpected request: ${String(url)}`)
     }
+    const controller = createPolicyChatController({
+        Policy: makePolicyModel(),
+        apiKey: "server-side-gemini-key",
+        fetchImpl,
+        cloudinaryTimeoutMs: 5
+    })
+    const res = makeResponse()
 
-    assert.equal(fetchMock.requests.filter(request => request.url instanceof URL && request.url.href === policyUrl).length, 1)
-    assert.equal(fetchMock.requests.filter(request => request.url === `${GEMINI_API_BASE_FOR_TEST}/upload/v1beta/files`).length, 1)
-    assert.equal(fetchMock.requests.filter(request => request.url instanceof URL && request.url.href === fileUploadUrl).length, 1)
-    assert.equal(fetchMock.requests.filter(request => request.url === interactionsUrl).length, 2)
+    await controller.create({
+        params: { id: policyId },
+        body: { message: "Question" }
+    }, res)
+
+    assert.equal(CLOUDINARY_FETCH_TIMEOUT_MS, 10_000)
+    assert.equal(cloudinarySignal.aborted, true)
+    assert.equal(res.statusCode, 504)
+    assert.match(res.body.error, /timed out/i)
 })
 
-test("policy chat validates inputs and returns provider errors instead of hiding them", async () => {
+test("Cloudinary timeout also bounds a stalled PDF body after headers", async () => {
+    const fetchImpl = async (url, options = {}) => {
+        if (url instanceof URL && url.href === cloudinaryUrl.href) {
+            return {
+                ok: true,
+                headers: new Headers(),
+                body: new ReadableStream({
+                    start() {},
+                    cancel() {}
+                })
+            }
+        }
+        throw new Error(`Unexpected request: ${String(url)}`)
+    }
+    const controller = createPolicyChatController({
+        Policy: makePolicyModel(),
+        apiKey: "server-side-gemini-key",
+        fetchImpl,
+        cloudinaryTimeoutMs: 5
+    })
+    const res = makeResponse()
+
+    await controller.create({
+        params: { id: policyId },
+        body: { message: "Question" }
+    }, res)
+
+    assert.equal(res.statusCode, 504)
+    assert.match(res.body.error, /timed out/i)
+})
+
+test("policy chat returns JSON for invalid input, missing policy, and unavailable configuration", async () => {
     const noFetch = async () => assert.fail("Invalid requests must not fetch")
     const controller = createPolicyChatController({
-        Policy: makePolicyModel({ pdfUrl: policyUrl }),
+        Policy: makePolicyModel(),
         apiKey: "",
-        fetchImpl: noFetch,
-        timeoutSignal: () => new AbortController().signal
+        fetchImpl: noFetch
     })
-    const invalidIdResponse = makeResponse()
-    await controller.create({ params: { id: "invalid" }, body: { message: "Question" } }, invalidIdResponse)
-    assert.equal(invalidIdResponse.statusCode, 400)
 
-    const missingMessageResponse = makeResponse()
-    await controller.create({ params: { id: policyId }, body: { message: "  " } }, missingMessageResponse)
-    assert.equal(missingMessageResponse.statusCode, 400)
+    const invalidId = makeResponse()
+    await controller.create({ params: { id: "invalid" }, body: { message: "Question" } }, invalidId)
+    assert.equal(invalidId.statusCode, 400)
 
-    const missingKeyResponse = makeResponse()
-    await controller.create({ params: { id: policyId }, body: { message: "Question" } }, missingKeyResponse)
-    assert.equal(missingKeyResponse.statusCode, 503)
+    const emptyMessage = makeResponse()
+    await controller.create({ params: { id: policyId }, body: { message: " " } }, emptyMessage)
+    assert.equal(emptyMessage.statusCode, 400)
 
-    const invalidUrlController = createPolicyChatController({
+    const noKey = makeResponse()
+    await controller.create({ params: { id: policyId }, body: { message: "Question" } }, noKey)
+    assert.equal(noKey.statusCode, 503)
+
+    const missingPolicy = createPolicyChatController({
+        Policy: makePolicyModel(null),
+        apiKey: "server-side-gemini-key",
+        fetchImpl: noFetch
+    })
+    const missing = makeResponse()
+    await missingPolicy.create({ params: { id: policyId }, body: { message: "Question" } }, missing)
+    assert.equal(missing.statusCode, 404)
+
+    const databaseErrorController = createPolicyChatController({
         Policy: {
-            findById: () => ({ select: async () => ({ pdfUrl: "https://example.com/policy.pdf" }) })
+            findById() {
+                throw new Error("database unavailable")
+            }
         },
         apiKey: "server-side-gemini-key",
-        fetchImpl: noFetch,
-        timeoutSignal: () => new AbortController().signal
+        fetchImpl: noFetch
     })
-    const invalidUrlResponse = makeResponse()
-    await invalidUrlController.create({
+    const databaseError = makeResponse()
+    await databaseErrorController.create({
         params: { id: policyId },
         body: { message: "Question" }
-    }, invalidUrlResponse)
-    assert.equal(invalidUrlResponse.statusCode, 502)
-    assert.equal(invalidUrlResponse.body.success, false)
-    assert.match(invalidUrlResponse.body.error, /Policy document URL is invalid/)
-
-    const providerErrorController = createPolicyChatController({
-        Policy: makePolicyModel({ pdfUrl: policyUrl }),
-        apiKey: "invalid-key",
-        fetchImpl: async (url, options = {}) => {
-            if (url instanceof URL) return new Response(Buffer.from("%PDF-1.7 policy contents"))
-            if (url === `${GEMINI_API_BASE_FOR_TEST}/upload/v1beta/files`) {
-                return Response.json({ error: { message: "API key not valid" } }, { status: 403 })
-            }
-            throw new Error("Unexpected request")
-        },
-        timeoutSignal: () => new AbortController().signal
-    })
-    const providerErrorResponse = makeResponse()
-    await providerErrorController.create({
-        params: { id: policyId },
-        body: { message: "Question" }
-    }, providerErrorResponse)
-    assert.equal(providerErrorResponse.statusCode, 503)
-    assert.match(providerErrorResponse.body.error, /API key not valid/)
+    }, databaseError)
+    assert.equal(databaseError.statusCode, 500)
+    assert.deepEqual(databaseError.body, { success: false, error: "Unable to load this policy" })
 })
 
-test("policy chat rejects oversized PDFs before sending them to Gemini", async () => {
+test("policy chat rejects oversized, invalid, and unavailable Cloudinary PDFs with JSON errors", async () => {
     let cancelled = false
-    const controller = createPolicyChatController({
-        Policy: makePolicyModel({ pdfUrl: policyUrl }),
+    const oversizedController = createPolicyChatController({
+        Policy: makePolicyModel(),
         apiKey: "server-side-gemini-key",
         fetchImpl: async url => {
             if (url instanceof URL) {
@@ -250,107 +258,113 @@ test("policy chat rejects oversized PDFs before sending them to Gemini", async (
                             stream.enqueue(new Uint8Array(MAX_PDF_BYTES))
                             stream.enqueue(new Uint8Array(1))
                         },
-                        cancel() { cancelled = true }
+                        cancel() {
+                            cancelled = true
+                        }
                     })
                 }
             }
-            assert.fail("Oversized PDF must not be uploaded")
+            throw new Error(`Unexpected request: ${String(url)}`)
         }
     })
-    const res = makeResponse()
-
-    await controller.create({
+    const oversized = makeResponse()
+    await oversizedController.create({
         params: { id: policyId },
         body: { message: "Question" }
-    }, res)
-
+    }, oversized)
+    assert.equal(oversized.statusCode, 413)
     assert.equal(cancelled, true)
-    assert.equal(res.statusCode, 413)
-    assert.deepEqual(res.body, {
-        success: false,
-        error: "Policy PDF exceeds the supported size"
-    })
-})
 
-test("policy chat polls pending and failed interactions with useful errors", async () => {
-    const controller = createPolicyChatController({
-        Policy: makePolicyModel({ pdfUrl: policyUrl }),
+    const invalidPdfController = createPolicyChatController({
+        Policy: makePolicyModel(),
         apiKey: "server-side-gemini-key",
-        fetchImpl: async url => {
-            if (url.endsWith("/pending_123")) {
-                return Response.json({ status: "in_progress" })
-            }
-            if (url.endsWith("/failed_123")) {
-                return Response.json({
-                    status: "failed",
-                    error: { message: "Model overloaded" }
-                })
-            }
-            throw new Error("Unexpected request")
-        },
-        timeoutSignal: () => new AbortController().signal
+        fetchImpl: async () => new Response("not a PDF")
     })
-    const pendingResponse = makeResponse()
-    await controller.poll({
-        params: { id: policyId, interactionId: "pending_123" }
-    }, pendingResponse)
-    assert.equal(pendingResponse.statusCode, 202)
-    assert.deepEqual(pendingResponse.body, { success: true, status: "in_progress" })
-
-    const invalidIdResponse = makeResponse()
-    await controller.poll({
-        params: { id: policyId, interactionId: "../other" }
-    }, invalidIdResponse)
-    assert.equal(invalidIdResponse.statusCode, 400)
-
-    const failedResponse = makeResponse()
-    await controller.poll({
-        params: { id: policyId, interactionId: "failed_123" }
-    }, failedResponse)
-    assert.equal(failedResponse.statusCode, 502)
-    assert.match(failedResponse.body.error, /Model overloaded/)
-})
-
-test("policy chat preserves Gemini HTTP errors and identifies upstream outages", async () => {
-    const makeFailingController = status => createPolicyChatController({
-        Policy: makePolicyModel({ pdfUrl: policyUrl }),
-        apiKey: "server-side-gemini-key",
-        fetchImpl: async url => {
-            if (url instanceof URL && url.href === policyUrl) {
-                return new Response(Buffer.from("%PDF-1.7 policy contents"))
-            }
-            if (url === `${GEMINI_API_BASE_FOR_TEST}/upload/v1beta/files`) {
-                return new Response(null, {
-                    status: 200,
-                    headers: { "x-goog-upload-url": fileUploadUrl }
-                })
-            }
-            if (url instanceof URL && url.href === fileUploadUrl) {
-                return Response.json({ file: { name: fileName, uri: fileUri } })
-            }
-            if (url === interactionsUrl) {
-                return Response.json({ error: { message: "Model is not enabled for this project" } }, { status })
-            }
-            throw new Error(`Unexpected Gemini request: ${String(url)}`)
-        },
-        timeoutSignal: () => new AbortController().signal
-    })
-
-    const forbiddenResponse = makeResponse()
-    await makeFailingController(403).create({
+    const invalidPdf = makeResponse()
+    await invalidPdfController.create({
         params: { id: policyId },
         body: { message: "Question" }
-    }, forbiddenResponse)
-    assert.equal(forbiddenResponse.statusCode, 503)
-    assert.match(forbiddenResponse.body.error, /HTTP 403/)
-    assert.match(forbiddenResponse.body.error, /Model is not enabled for this project/)
+    }, invalidPdf)
+    assert.equal(invalidPdf.statusCode, 502)
+    assert.match(invalidPdf.body.error, /not a valid PDF/)
+})
 
-    const providerOutageResponse = makeResponse()
-    await makeFailingController(500).create({
+test("Gemini HTTP errors, timeouts, and empty responses are returned as JSON", async () => {
+    const forbiddenMock = createPdfFetchMock({
+        geminiResponse: Response.json(
+            { error: { message: "API key not valid" } },
+            { status: 403 }
+        )
+    })
+    const forbiddenController = createPolicyChatController({
+        Policy: makePolicyModel(),
+        apiKey: "invalid-key",
+        fetchImpl: forbiddenMock.fetchImpl
+    })
+    const forbidden = makeResponse()
+    await forbiddenController.create({
         params: { id: policyId },
         body: { message: "Question" }
-    }, providerOutageResponse)
-    assert.equal(providerOutageResponse.statusCode, 502)
-    assert.match(providerOutageResponse.body.error, /HTTP 500/)
-    assert.match(providerOutageResponse.body.error, /Model is not enabled for this project/)
+    }, forbidden)
+    assert.equal(forbidden.statusCode, 503)
+    assert.match(forbidden.body.error, /API key not valid/)
+
+    const networkFailureController = createPolicyChatController({
+        Policy: makePolicyModel(),
+        apiKey: "server-side-gemini-key",
+        fetchImpl: async url => {
+            if (url instanceof URL) return new Response(pdfBytes)
+            throw new TypeError("Gemini connection reset")
+        }
+    })
+    const networkFailure = makeResponse()
+    await networkFailureController.create({
+        params: { id: policyId },
+        body: { message: "Question" }
+    }, networkFailure)
+    assert.equal(networkFailure.statusCode, 502)
+    assert.match(networkFailure.body.error, /Gemini connection reset/)
+
+    const timeoutMock = createPdfFetchMock({
+        onGeminiRequest: options => {
+            options.signal.addEventListener("abort", () => {}, { once: true })
+        }
+    })
+    timeoutMock.fetchImpl = async (url, options = {}) => {
+        if (url instanceof URL) return new Response(pdfBytes)
+        if (url === geminiUrl) {
+            return new Promise((resolve, reject) => {
+                options.signal.addEventListener("abort", () => reject(options.signal.reason), { once: true })
+            })
+        }
+        throw new Error(`Unexpected request: ${String(url)}`)
+    }
+    const timeoutController = createPolicyChatController({
+        Policy: makePolicyModel(),
+        apiKey: "server-side-gemini-key",
+        fetchImpl: timeoutMock.fetchImpl,
+        timeoutMs: 5
+    })
+    const timeoutResponse = makeResponse()
+    await timeoutController.create({
+        params: { id: policyId },
+        body: { message: "Question" }
+    }, timeoutResponse)
+    assert.equal(timeoutResponse.statusCode, 504)
+
+    const emptyMock = createPdfFetchMock({
+        geminiResponse: Response.json({ candidates: [] })
+    })
+    const emptyController = createPolicyChatController({
+        Policy: makePolicyModel(),
+        apiKey: "server-side-gemini-key",
+        fetchImpl: emptyMock.fetchImpl
+    })
+    const empty = makeResponse()
+    await emptyController.create({
+        params: { id: policyId },
+        body: { message: "Question" }
+    }, empty)
+    assert.equal(empty.statusCode, 502)
+    assert.match(empty.body.error, /returned no answer/)
 })
