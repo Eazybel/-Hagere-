@@ -7,7 +7,7 @@ const cors=require("cors")
 const admin=require("firebase-admin")
 var {cert,initializeApp} = require("firebase-admin/app");
 const {cloudinary, upload}=require("./utils/cloudinary")
-const {authRateLimit, voteRateLimit, policyWriteRateLimit, policyChatRateLimit}=require("./controller/rateLimitController")
+const {authRateLimit, voteRateLimit, policyWriteRateLimit, policyChatRateLimit, policyChatPollRateLimit}=require("./controller/rateLimitController")
 const {notFoundHandler, errorHandler}=require("./middleware/errorHandler")
 
 // var serviceAccount = require("./serviceAccount.json");
@@ -50,10 +50,12 @@ app.get("/admin",(req,res)=>{
 app.post("/policyUpdate",policyWriteRateLimit,authorizeRoles("admin"),upload.single("file"),policyUpdate)
 app.post("/newUserRegister",authRateLimit,userController)
 app.get("/api/policies",policyList)
-app.post("/api/policies/:id/chat",policyChatRateLimit,createPolicyChatController({
+const policyChatController=createPolicyChatController({
     Policy:require("./models/Policy"),
     apiKey:env.GEMINI_API_KEY
-}))
+})
+app.post("/api/policies/:id/chat",policyChatRateLimit,policyChatController.create)
+app.get("/api/policies/:id/chat/:interactionId",policyChatPollRateLimit,policyChatController.poll)
 app.post("/policyFetch",(req,res,next)=>{
     let requestType=req.body?.requestType
     if(typeof req.body==="string"){

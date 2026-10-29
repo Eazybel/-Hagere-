@@ -52,6 +52,31 @@ import { applyOptimisticVote } from "./voteState.mjs"
         if(!response.ok || result.success!==true){
           throw new Error(result.error || `Policy assistant request failed (${response.status})`)
         }
+        if(result.interactionId){
+          const deadline=Date.now()+5*60*1000
+          let interaction=result
+          while(interaction.status!=="completed" && Date.now()<deadline){
+            await new Promise(resolve=>setTimeout(resolve,2000))
+            const pollResponse=await fetch(
+              `/api/policies/${encodeURIComponent(policyId)}/chat/${encodeURIComponent(result.interactionId)}`,
+              {cache:"no-store"}
+            )
+            interaction=await pollResponse.json().catch(()=>({}))
+            if(!pollResponse.ok || interaction.success!==true){
+              throw new Error(interaction.error || `Policy assistant request failed (${pollResponse.status})`)
+            }
+            if(interaction.status!=="completed"){
+              status.textContent="The policy assistant is still reviewing the document…"
+            }
+          }
+          if(interaction.status!=="completed"){
+            throw new Error("The policy assistant is taking longer than expected. Please try again.")
+          }
+          result.reply=interaction.reply
+        }
+        if(typeof result.reply!=="string" || !result.reply.trim()){
+          throw new Error("The policy assistant returned no answer.")
+        }
         reply.textContent=result.reply
         reply.classList.remove("hidden")
         status.textContent=""
