@@ -92,7 +92,7 @@ test("policy chat sends the selected PDF and question to Gemini and returns its 
         body: { message: "What does this policy say?" }
     }, res)
 
-    assert.equal(geminiRequest.url, "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent")
+    assert.equal(geminiRequest.url, "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent")
     assert.equal(geminiRequest.options.headers["x-goog-api-key"], "server-side-gemini-key")
     const requestBody = JSON.parse(geminiRequest.options.body)
     assert.deepEqual(requestBody.systemInstruction, { parts: [{ text: SYSTEM_INSTRUCTION }] })

@@ -3,7 +3,7 @@ const mongoose = require("mongoose")
 const SYSTEM_INSTRUCTION = "You are an expert AI civic assistant for Hagere. Read the attached policy document carefully, and answer the user's question accurately in Amharic (አማርኛ). If the answer is not in the document, politely state that it is not covered in this policy."
 const MAX_MESSAGE_LENGTH = 4000
 const MAX_PDF_BYTES = 14 * 1024 * 1024
-const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent"
 
 function getCloudinaryUrl(pdfUrl) {
     let url
