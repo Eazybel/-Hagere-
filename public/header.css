@@ -1,0 +1,60 @@
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    color: #fff;
+    background-color: #183b52 !important;
+    border-color: #102638 !important;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 10%);
+}
+
+.site-header a,
+.site-header button,
+.site-header summary {
+    color: #fff !important;
+}
+
+.site-header a:hover,
+.site-header button:hover {
+    color: #fff !important;
+}
+
+.site-header [aria-current="page"] {
+    color: #fcd34d !important;
+}
+
+.site-header details > summary,
+.site-header a.border,
+.site-header button {
+    border: 1px solid rgb(255 255 255 / 30%);
+    background-color: rgb(255 255 255 / 10%);
+}
+
+.site-header details > summary:hover,
+.site-header a.border:hover,
+.site-header button:hover {
+    background-color: rgb(255 255 255 / 20%);
+}
+
+.site-header details > div {
+    color: #2c2a29;
+    background-color: #fffdf9 !important;
+    border-color: #d8cebc !important;
+}
+
+.site-header details > div button {
+    color: #2c2a29 !important;
+    border: 0;
+    background-color: transparent;
+}
+
+.site-header details > div button:hover {
+    color: #2c2a29 !important;
+    background-color: #f9f6f0;
+}
+
+.site-header .site-header-label {
+    color: #fcd34d;
+    background-color: rgb(255 255 255 / 10%);
+    border-color: rgb(255 255 255 / 30%);
+}
