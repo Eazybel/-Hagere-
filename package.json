@@ -18,7 +18,8 @@
     "test": "node --test",
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "cleanup:dummy-policies": "node scripts/cleanupDummyPolicies.js"
+    "cleanup:dummy-policies": "node scripts/cleanupDummyPolicies.js",
+    "seed:news": "node scripts/seedNews.js"
   },
   "dependencies": {
     "cloudinary": "^2.10.0",
