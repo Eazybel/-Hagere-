@@ -4,35 +4,97 @@ const userModel=require("../models/User")
 const policyModel=require("../models/Policy")
 const admin = require("firebase-admin")
 const {getAuth} = require("firebase-admin/auth")
-// USER UPDATER ROUTE
-const userController=async(req,res)=>{
-    if(req.headers.authorization){
-       const token=req.headers.authorization.split("Bearer ")[1]
-      const decodedToken=await getAuth().verifyIdToken(token)
-      const trustedToken=decodedToken.uid
-      const isUser=await userModel.findOne({"email":req.body.email})
-const {name,email,avatar}=req.body
-if(isUser){
-console.log("user is already registered")
-}else if(!isUser)
-    try{
-{
-const newUser=new userModel({
-    name:name,
-    email:email,
-    avatar:avatar
-    })
-    newUser.save().then(()=>console.log("user saved"))
-}
-    }catch(error){
-        res.send(error)
-    }
-    res.send(req.body)
-      }else if(req.headers.authorization){
-       res.status(401).send("Unauthorized Request")
-    }
+const invalidTokenErrorCodes=new Set([
+    "auth/argument-error",
+    "auth/id-token-expired",
+    "auth/id-token-revoked",
+    "auth/invalid-id-token",
+    "auth/user-disabled",
+    "auth/user-not-found"
+])
 
+function createUserController({
+    User,
+    verifyIdToken=token=>getAuth().verifyIdToken(token,true)
+}) {
+    return async(req,res,next)=>{
+        const authorization=req.get?.("authorization") || req.headers?.authorization
+        const match=typeof authorization==="string"
+            ? authorization.match(/^Bearer\s+(.+)$/i)
+            : null
+        if(!match){
+            return res.status(401).json({success:false,error:"Authentication required"})
+        }
+
+        let decodedToken
+        try{
+            decodedToken=await verifyIdToken(match[1].trim())
+        }catch(error){
+            if(invalidTokenErrorCodes.has(error.code)){
+                return res.status(401).json({success:false,error:"Invalid or expired authentication token"})
+            }
+            return next(error)
+        }
+
+        const email=typeof decodedToken.email==="string"
+            ? decodedToken.email.trim().toLowerCase()
+            : ""
+        if(!email){
+            return res.status(401).json({success:false,error:"Verified account email required"})
+        }
+        if(decodedToken.email_verified!==true){
+            return res.status(403).json({success:false,error:"Verified citizen account required"})
+        }
+
+        try{
+            const existingUser=await User.findOne({email})
+            if(existingUser){
+                return res.status(200).json({
+                    success:true,
+                    user:{
+                        id:existingUser.id || existingUser._id,
+                        name:existingUser.name,
+                        email:existingUser.email
+                    }
+                })
+            }
+
+            const name=typeof decodedToken.name==="string" && decodedToken.name.trim()
+                ? decodedToken.name.trim()
+                : typeof req.body?.name==="string" ? req.body.name.trim() : ""
+            if(!name){
+                return res.status(400).json({success:false,error:"A profile name is required"})
+            }
+            const avatar=typeof decodedToken.picture==="string"
+                ? decodedToken.picture
+                : typeof req.body?.avatar==="string" ? req.body.avatar : ""
+
+            const user=new User({name,email,avatar})
+            await user.save()
+            return res.status(201).json({
+                success:true,
+                user:{id:user.id || user._id,name:user.name,email:user.email}
+            })
+        }catch(error){
+            if(error.code===11000){
+                const existingUser=await User.findOne({email})
+                if(existingUser){
+                    return res.status(200).json({
+                        success:true,
+                        user:{
+                            id:existingUser.id || existingUser._id,
+                            name:existingUser.name,
+                            email:existingUser.email
+                        }
+                    })
+                }
+            }
+            return next(error)
+        }
+    }
 }
+
+const userController=createUserController({User:userModel})
 // USER FETCHER ROUTE
 const userFetch=(async(req,res)=>{
 const userNumber=await userModel.countDocuments()
@@ -87,4 +149,4 @@ const createProfileActivityController=({User,Policy})=>async(req,res,next)=>{
 
 const profileActivity=createProfileActivityController({User:userModel,Policy:policyModel})
 
-module.exports={userController, userFetch, profileActivity, createProfileActivityController}
+module.exports={userController, userFetch, profileActivity, createProfileActivityController, createUserController}
