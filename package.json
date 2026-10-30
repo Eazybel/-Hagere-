@@ -15,7 +15,7 @@
   "type": "commonjs",
   "main": "server.js",
   "scripts": {
-    "test": "node --test",
+    "test": "node --test \"test/**/*.test.js\" \"tests/news.test.js\" \"tests/seedNews.test.js\"",
     "test:v1:e2e": "jest --runInBand tests/v1_e2e.test.js",
     "start": "node server.js",
     "dev": "nodemon server.js",
@@ -34,5 +34,9 @@
     "multer": "^2.2.0",
     "nodemon": "^3.1.14",
     "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "jest": "^30.5.2",
+    "supertest": "^7.3.1"
   }
 }

@@ -4,6 +4,13 @@ jest.mock("../utils/cloudinary", () => ({
     cloudinary: {},
     upload: {}
 }))
+jest.mock("../utils/env", () => ({
+    SERVICE_ACCOUNT: { project_id: "citizen-project" },
+    ADMIN_FIREBASE_PROJECT_ID: "admin-project",
+    ADMIN_UIDS: ["test-admin"]
+}))
+jest.mock("firebase-admin/auth", () => ({ getAuth: jest.fn() }))
+jest.mock("firebase-admin/app", () => ({ getApp: jest.fn() }))
 
 const express = require("express")
 const multer = require("multer")
