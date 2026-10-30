@@ -1,7 +1,12 @@
 const test = require("node:test")
 const assert = require("node:assert/strict")
 const mongoose = require("mongoose")
-const { NEWS_SEED_DATA, seedNews } = require("../scripts/seedNews")
+const {
+    NEWS_SEED_DATA,
+    DNS_CONNECT_RETRIES,
+    DNS_RETRY_DELAY_MS,
+    seedNews
+} = require("../scripts/seedNews")
 
 test("news seeder links four seed posts to an existing policy and closes MongoDB", async () => {
     const calls = []
@@ -89,4 +94,60 @@ test("news seeder supports no existing policies and disconnects if insertion fai
     assert.equal(disconnected, true)
     assert.equal(insertedDocuments.length, 4)
     assert.equal(insertedDocuments[0].relatedPolicy, null)
+})
+
+test("news seeder retries transient Atlas SRV DNS failures before continuing", async () => {
+    let attempts = 0
+    const delays = []
+    const fakeMongoose = {
+        Types: mongoose.Types,
+        async connect() {
+            attempts += 1
+            if (attempts === 1) {
+                const error = new Error("querySrv ESERVFAIL _mongodb._tcp.cluster.example.mongodb.net")
+                error.code = "ESERVFAIL"
+                throw error
+            }
+        },
+        async disconnect() {}
+    }
+
+    await seedNews({
+        mongoose: fakeMongoose,
+        Policy: { findOne: () => ({ select: async () => null }) },
+        News: {
+            async deleteMany() {},
+            async insertMany(documents) { return documents }
+        },
+        logger: { log() {}, warn() {} },
+        sleep: async milliseconds => delays.push(milliseconds)
+    })
+
+    assert.equal(DNS_CONNECT_RETRIES, 2)
+    assert.equal(DNS_RETRY_DELAY_MS, 2000)
+    assert.equal(attempts, 2)
+    assert.deepEqual(delays, [2000])
+})
+
+test("news seeder reports persistent SRV DNS failure with a remediation hint", async () => {
+    let attempts = 0
+    const fakeMongoose = {
+        async connect() {
+            attempts += 1
+            const error = new Error("querySrv ESERVFAIL _mongodb._tcp.cluster.example.mongodb.net")
+            error.code = "ESERVFAIL"
+            throw error
+        }
+    }
+
+    await assert.rejects(seedNews({
+        mongoose: fakeMongoose,
+        sleep: async () => {},
+        logger: { warn() {} }
+    }), error => {
+        assert.match(error.message, /Check the network's DNS resolver/)
+        assert.equal(error.cause.code, "ESERVFAIL")
+        return true
+    })
+    assert.equal(attempts, 3)
 })

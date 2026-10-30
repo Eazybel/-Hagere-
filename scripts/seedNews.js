@@ -4,6 +4,9 @@ const mongoose = require("mongoose")
 const News = require("../models/News")
 const Policy = require("../models/Policy")
 
+const DNS_CONNECT_RETRIES = 2
+const DNS_RETRY_DELAY_MS = 2000
+
 const NEWS_SEED_DATA = [
     {
         title: "Government Launches Expanded 'Digital Ethiopia' Framework for Regional Innovation Hubs",
@@ -66,11 +69,29 @@ async function seedNews({
     mongoUri = process.env.MONGODB_URI
         || process.env.CONNECTION_STRING
         || "mongodb://127.0.0.1:27017/hagere",
-    logger = console
+    logger = console,
+    sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds))
 } = {}) {
     let connected = false
     try {
-        await mongooseInstance.connect(mongoUri)
+        for (let attempt = 0; ; attempt += 1) {
+            try {
+                await mongooseInstance.connect(mongoUri)
+                break
+            } catch (error) {
+                if (!isTransientDnsSrvError(error) || attempt >= DNS_CONNECT_RETRIES) {
+                    if (isTransientDnsSrvError(error)) {
+                        throw new Error(
+                            `MongoDB Atlas SRV DNS lookup failed after ${DNS_CONNECT_RETRIES} retries. Check the network's DNS resolver or set MONGODB_URI to a reachable MongoDB connection string.`,
+                            { cause: error }
+                        )
+                    }
+                    throw error
+                }
+                logger.warn?.(`MongoDB SRV DNS lookup failed; retrying (${attempt + 1}/${DNS_CONNECT_RETRIES})...`)
+                await sleep(DNS_RETRY_DELAY_MS)
+            }
+        }
         connected = true
 
         const policy = await PolicyModel.findOne().select("_id")
@@ -92,11 +113,31 @@ async function seedNews({
     }
 }
 
+function isTransientDnsSrvError(error) {
+    for (let current = error; current; current = current.cause) {
+        if (["ESERVFAIL", "ENOTFOUND", "EAI_AGAIN"].includes(current.code)) return true
+        if (typeof current.message === "string"
+            && /querySrv\s+(ESERVFAIL|ENOTFOUND|EAI_AGAIN)\b/i.test(current.message)) {
+            return true
+        }
+    }
+    return false
+}
+
 if (require.main === module) {
     seedNews().catch(error => {
         console.error("Policy news seeding failed:", error.stack || error)
+        if (error.cause && isTransientDnsSrvError(error.cause)) {
+            console.error("This is a DNS/network resolution error, not a MongoDB password error. Retry when DNS is available, or configure MONGODB_URI with a reachable MongoDB URI.")
+        }
         process.exitCode = 1
     })
 }
 
-module.exports = { NEWS_SEED_DATA, seedNews }
+module.exports = {
+    NEWS_SEED_DATA,
+    DNS_CONNECT_RETRIES,
+    DNS_RETRY_DELAY_MS,
+    isTransientDnsSrvError,
+    seedNews
+}
