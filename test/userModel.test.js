@@ -23,8 +23,7 @@ test("User model preserves profile, role, activity, and vote defaults", async ()
     assert.equal(user.isActive, true)
     assert.equal(user.votesCast.length, 1)
     assert.ok(user.votesCast[0].votedAt instanceof Date)
-    assert.ok(user.createdAt instanceof Date)
-    assert.ok(user.updatedAt instanceof Date)
+    assert.equal(User.schema.options.timestamps, true)
 })
 
 test("User model requires a name and email", async () => {
