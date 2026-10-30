@@ -26,31 +26,31 @@
     </script>
 </head>
 <body class="bg-antique-bg text-antique-text font-serif antialiased min-h-screen flex flex-col">
-    <header class="border-b border-antique-border bg-antique-card sticky top-0 z-50">
+    <header class="sticky top-0 z-50 border-b border-[#102638] bg-[#183b52] text-white shadow-sm">
         <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-            <a href="index.html" class="text-2xl font-bold tracking-tight text-antique-accent">ሀገሬ (Hagere)</a>
+            <a href="index.html" class="text-2xl font-bold tracking-tight text-white">ሀገሬ (Hagere)</a>
             <nav class="hidden md:flex items-center space-x-6 text-sm font-sans">
-                <a href="feed.html" class="text-antique-text font-medium hover:text-antique-accent">Policies Feed</a>
-                <a href="news.html" aria-current="page" class="text-antique-accent font-medium">Policy News</a>
+                <a href="feed.html" class="font-medium text-slate-200 hover:text-white">Policies Feed</a>
+                <a href="news.html" aria-current="page" class="font-semibold text-amber-300">Policy News</a>
             </nav>
             <div class="flex items-center space-x-4 font-sans text-sm">
                 <details class="relative">
-                    <summary class="flex cursor-pointer list-none items-center gap-2 rounded border border-antique-border bg-antique-bg px-3 py-1.5 font-medium hover:bg-antique-border">
+                    <summary class="flex cursor-pointer list-none items-center gap-2 rounded border border-white/30 bg-white/10 px-3 py-1.5 font-medium text-white hover:bg-white/20">
                         <span>Translate</span>
                         <span aria-hidden="true" class="text-xs">&#9662;</span>
                     </summary>
-                    <div class="absolute right-0 mt-2 w-40 rounded border border-antique-border bg-antique-card p-1 shadow-lg">
+                    <div class="absolute right-0 mt-2 w-40 rounded border border-antique-border bg-antique-card p-1 text-antique-text shadow-lg">
                         <button type="button" data-language="am" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Amharic</button>
                         <button type="button" data-language="om" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Oromiffa</button>
                         <button type="button" data-language="ti" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Tigirigna</button>
                         <button type="button" data-language="en" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">English</button>
                     </div>
                 </details>
-                <a href="dashboard.html" class="px-3 py-1.5 bg-antique-bg border border-antique-border rounded hover:bg-antique-border transition-colors flex items-center space-x-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                <a href="dashboard.html" class="flex items-center space-x-2 rounded border border-white/30 bg-white/10 px-3 py-1.5 transition-colors hover:bg-white/20">
+                    <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
                     <span class="font-medium">My Dashboard</span>
                 </a>
-                <button id="signOutButton" class="text-xs text-antique-muted hover:text-antique-accent">Sign Out</button>
+                <button id="signOutButton" class="text-xs text-slate-200 hover:text-white">Sign Out</button>
             </div>
         </div>
     </header>

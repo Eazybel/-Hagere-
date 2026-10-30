@@ -9,8 +9,9 @@ const requestData=(req)=>{
     return {}
 }
 
-const toPublicPolicy=(policy)=>{
+const toPublicPolicy=(policy,currentUserId=null)=>{
     const data=policy.toObject ? policy.toObject() : policy
+    const likes=Array.isArray(data.likes) ? data.likes : []
     return {
         _id:data._id,
         title:data.title,
@@ -20,6 +21,8 @@ const toPublicPolicy=(policy)=>{
         status:data.status,
         totalVotes:data.totalVotes,
         viewCount:data.viewCount || 0,
+        likesCount:likes.length,
+        liked:Boolean(currentUserId && likes.some(userId=>userId.toString()===currentUserId)),
         createdAt:data.createdAt,
         interactions:{
             votes:{
@@ -100,16 +103,21 @@ const createPolicyUpdateController=({Policy, cloudinary})=>async(req,res)=>{
 }
 
 const policyUpdate=createPolicyUpdateController({Policy:policyModel,cloudinary})
-const createPolicyListController=({Policy})=>async(req,res,next)=>{
+const createPolicyListController=({Policy,User})=>async(req,res,next)=>{
     try{
+        let currentUserId=null
+        if(req.auth?.email && User){
+            const user=await User.findOne({email:req.auth.email})
+            currentUserId=user?._id?.toString() || null
+        }
         const policies=await Policy.find().sort({createdAt:-1})
         res.set("Cache-Control","no-store")
-        return res.status(200).json(policies.map(toPublicPolicy))
+        return res.status(200).json(policies.map(policy=>toPublicPolicy(policy,currentUserId)))
     }catch(error){
         return next(error)
     }
 }
-const policyList=createPolicyListController({Policy:policyModel})
+const policyList=createPolicyListController({Policy:policyModel,User:userModel})
 const createPolicyFetchController=({Policy,User})=>async(req,res)=>{
     const reqData=requestData(req)
     if(reqData.requestType==="policyDataFetch"){

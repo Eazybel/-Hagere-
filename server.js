@@ -28,6 +28,7 @@ const feedBack=require("./controller/feedBackController")
 const {createAnalyticsController}=require("./controller/analyticsController")
 const {authorizeRoles}=require("./middleware/auth")
 const newsRoutes=require("./routes/newsRoutes")
+const {createPolicyLikeController}=require("./controller/policyLikeController")
 // Package initiation
 const app=express()
 app.use(express.static(path.join(__dirname,"public")))
@@ -50,7 +51,15 @@ app.get("/admin",(req,res)=>{
 //ROUTE INITIALIZATION
 app.post("/policyUpdate",policyWriteRateLimit,authorizeRoles("admin"),upload.single("file"),policyUpdate)
 app.post("/newUserRegister",authRateLimit,userController)
-app.get("/api/policies",policyList)
+const optionalPolicyFeedAuth=(req,res,next)=>{
+    if(!req.get("authorization")) return next()
+    return authorizeRoles("citizen","admin")(req,res,next)
+}
+app.get("/api/policies",optionalPolicyFeedAuth,policyList)
+app.post("/api/policies/:id/like",voteRateLimit,authorizeRoles("citizen"),createPolicyLikeController({
+    Policy:require("./models/Policy"),
+    User:require("./models/User")
+}))
 app.use("/api/news",newsRoutes)
 const policyChatController=createPolicyChatController({
     Policy:require("./models/Policy"),

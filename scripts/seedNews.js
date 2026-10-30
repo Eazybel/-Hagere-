@@ -6,6 +6,7 @@ const Policy = require("../models/Policy")
 
 const DNS_CONNECT_RETRIES = 2
 const DNS_RETRY_DELAY_MS = 2000
+const MONGO_CONNECT_TIMEOUT_MS = 15_000
 
 const NEWS_SEED_DATA = [
     {
@@ -76,19 +77,28 @@ async function seedNews({
     try {
         for (let attempt = 0; ; attempt += 1) {
             try {
-                await mongooseInstance.connect(mongoUri)
+                await mongooseInstance.connect(mongoUri, {
+                    serverSelectionTimeoutMS: MONGO_CONNECT_TIMEOUT_MS
+                })
                 break
             } catch (error) {
-                if (!isTransientDnsSrvError(error) || attempt >= DNS_CONNECT_RETRIES) {
+                if (!isTransientConnectionError(error) || attempt >= DNS_CONNECT_RETRIES) {
                     if (isTransientDnsSrvError(error)) {
                         throw new Error(
                             `MongoDB Atlas SRV DNS lookup failed after ${DNS_CONNECT_RETRIES} retries. Check the network's DNS resolver or set MONGODB_URI to a reachable MongoDB connection string.`,
                             { cause: error }
                         )
                     }
+                    if (isTransientMongoNetworkError(error)) {
+                        throw new Error(
+                            `MongoDB could not reach a cluster node after ${DNS_CONNECT_RETRIES} retries. Check Atlas Network Access (allowlist this machine's public IP), outbound TCP port 27017, and the cluster's status.`,
+                            { cause: error }
+                        )
+                    }
                     throw error
                 }
-                logger.warn?.(`MongoDB SRV DNS lookup failed; retrying (${attempt + 1}/${DNS_CONNECT_RETRIES})...`)
+                const reason = isTransientDnsSrvError(error) ? "SRV DNS" : "network connection"
+                logger.warn?.(`MongoDB ${reason} failed; retrying (${attempt + 1}/${DNS_CONNECT_RETRIES})...`)
                 await sleep(DNS_RETRY_DELAY_MS)
             }
         }
@@ -124,11 +134,32 @@ function isTransientDnsSrvError(error) {
     return false
 }
 
+function isTransientMongoNetworkError(error) {
+    for (let current = error; current; current = current.cause) {
+        if (["ETIMEDOUT", "ECONNREFUSED", "EHOSTUNREACH", "ENETUNREACH", "ECONNRESET"].includes(current.code)) {
+            return true
+        }
+        if (/(?:MongoNetwork|ServerSelectionError)/i.test(current.name || "")) return true
+        if (typeof current.message === "string"
+            && (/server selection timed out/i.test(current.message)
+                || /connect (ETIMEDOUT|ECONNREFUSED|EHOSTUNREACH|ENETUNREACH|ECONNRESET)\b/i.test(current.message))) {
+            return true
+        }
+    }
+    return false
+}
+
+function isTransientConnectionError(error) {
+    return isTransientDnsSrvError(error) || isTransientMongoNetworkError(error)
+}
+
 if (require.main === module) {
     seedNews().catch(error => {
         console.error("Policy news seeding failed:", error.stack || error)
         if (error.cause && isTransientDnsSrvError(error.cause)) {
             console.error("This is a DNS/network resolution error, not a MongoDB password error. Retry when DNS is available, or configure MONGODB_URI with a reachable MongoDB URI.")
+        } else if (error.cause && isTransientMongoNetworkError(error.cause)) {
+            console.error("The cluster hostname resolved, but TCP connections timed out. Check Atlas Network Access, your current public IP allowlist entry, and outbound firewall access to port 27017.")
         }
         process.exitCode = 1
     })
@@ -139,5 +170,7 @@ module.exports = {
     DNS_CONNECT_RETRIES,
     DNS_RETRY_DELAY_MS,
     isTransientDnsSrvError,
+    isTransientMongoNetworkError,
+    isTransientConnectionError,
     seedNews
 }

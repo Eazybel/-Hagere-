@@ -172,12 +172,13 @@ test("policy publishing returns JSON errors for missing input, failed uploads, a
 
 test("policy feed returns live database policies newest-first without caching", async () => {
     const policies = [
-        { _id: "newest", title: "Newest", interactions: {} },
+        { _id: "newest", title: "Newest", likes: ["citizen-id"], interactions: {} },
         { _id: "older", title: "Older", interactions: {} }
     ]
     let sortCriteria
     let cacheControl
     const controller = createPolicyListController({
+        User: { findOne: async () => ({ _id: { toString: () => "citizen-id" } }) },
         Policy: {
             find: () => ({
                 sort(criteria) {
@@ -193,11 +194,13 @@ test("policy feed returns live database policies newest-first without caching", 
         return res
     }
 
-    await controller({}, res, error => { throw error })
+    await controller({ auth: { email: "citizen@example.com" } }, res, error => { throw error })
 
     assert.deepEqual(sortCriteria, { createdAt: -1 })
     assert.equal(cacheControl, "no-store")
     assert.deepEqual(res.body.map(policy => policy._id), ["newest", "older"])
+    assert.equal(res.body[0].likesCount, 1)
+    assert.equal(res.body[0].liked, true)
     assert.equal(res.statusCode, 200)
 })
 

@@ -5,6 +5,7 @@ const {
     NEWS_SEED_DATA,
     DNS_CONNECT_RETRIES,
     DNS_RETRY_DELAY_MS,
+    isTransientMongoNetworkError,
     seedNews
 } = require("../scripts/seedNews")
 
@@ -150,4 +151,90 @@ test("news seeder reports persistent SRV DNS failure with a remediation hint", a
         return true
     })
     assert.equal(attempts, 3)
+})
+
+test("news seeder retries cluster socket timeouts and classifies persistent network errors", async () => {
+    let attempts = 0
+    const delays = []
+    const fakeMongoose = {
+        Types: mongoose.Types,
+        async connect() {
+            attempts += 1
+            if (attempts === 1) {
+                const error = new Error("connect ETIMEDOUT 203.0.113.10:27017")
+                error.name = "MongoNetworkError"
+                error.code = "ETIMEDOUT"
+                throw error
+            }
+        },
+        async disconnect() {}
+    }
+
+    await seedNews({
+        mongoose: fakeMongoose,
+        Policy: { findOne: () => ({ select: async () => null }) },
+        News: {
+            async deleteMany() {},
+            async insertMany(documents) { return documents }
+        },
+        logger: { log() {}, warn() {} },
+        sleep: async milliseconds => delays.push(milliseconds)
+    })
+    assert.equal(attempts, 2)
+    assert.deepEqual(delays, [DNS_RETRY_DELAY_MS])
+
+    const timeout = new Error("connect ETIMEDOUT")
+    timeout.code = "ETIMEDOUT"
+    assert.equal(isTransientMongoNetworkError(timeout), true)
+})
+
+test("news seeder gives Atlas allowlist guidance after persistent socket timeouts", async () => {
+    const fakeMongoose = {
+        async connect() {
+            const error = new Error("connect ETIMEDOUT 203.0.113.10:27017")
+            error.name = "MongoNetworkError"
+            error.code = "ETIMEDOUT"
+            throw error
+        }
+    }
+
+    await assert.rejects(seedNews({
+        mongoose: fakeMongoose,
+        sleep: async () => {},
+        logger: { warn() {} }
+    }), error => {
+        assert.match(error.message, /allowlist this machine's public IP/)
+        assert.equal(error.cause.code, "ETIMEDOUT")
+        return true
+    })
+})
+
+test("news seeder retries Mongoose server-selection timeout errors", async () => {
+    let attempts = 0
+    const delays = []
+    const fakeMongoose = {
+        Types: mongoose.Types,
+        async connect() {
+            attempts += 1
+            if (attempts === 1) {
+                const error = new Error("Server selection timed out after 15000 ms")
+                error.name = "MongooseServerSelectionError"
+                throw error
+            }
+        },
+        async disconnect() {}
+    }
+
+    await seedNews({
+        mongoose: fakeMongoose,
+        Policy: { findOne: () => ({ select: async () => null }) },
+        News: {
+            async deleteMany() {},
+            async insertMany(documents) { return documents }
+        },
+        logger: { log() {}, warn() {} },
+        sleep: async milliseconds => delays.push(milliseconds)
+    })
+    assert.equal(attempts, 2)
+    assert.deepEqual(delays, [DNS_RETRY_DELAY_MS])
 })

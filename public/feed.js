@@ -106,13 +106,116 @@ const signOutButton=document.getElementById("signOutButton")
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const auth=getAuth(app)
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    const uid = user.uid;
-localStorage.setItem("userEmail",user.email)
-fetch("/api/policies",{
-  cache:"no-store"
-}).then(async response=>{
+  function createPolicyComment(comment) {
+    const item=document.createElement("li")
+    item.className="rounded border border-antique-border bg-antique-bg p-3"
+    const text=document.createElement("p")
+    text.className="whitespace-pre-wrap break-words text-sm"
+    text.textContent=comment.text
+    const date=document.createElement("time")
+    date.className="mt-1 block text-xs text-antique-muted"
+    date.textContent=new Date(comment.createdAt).toLocaleString()
+    item.append(text,date)
+    return item
+  }
+
+  function createPolicyEngagement(policy,user) {
+    const section=document.createElement("section")
+    section.className="mt-4 border-t border-antique-border pt-4 font-sans"
+    const likeButton=document.createElement("button")
+    likeButton.type="button"
+    likeButton.className="rounded border border-antique-border px-3 py-2 text-sm hover:bg-antique-bg"
+    likeButton.textContent=`${policy.liked ? "Unlike" : "Like"} · ${policy.likesCount ?? 0}`
+    likeButton.addEventListener("click",async()=>{
+      likeButton.disabled=true
+      try{
+        const token=await user.getIdToken()
+        const response=await fetch(`/api/policies/${encodeURIComponent(policy._id)}/like`,{
+          method:"POST",
+          headers:{"Authorization":`Bearer ${token}`}
+        })
+        const result=await response.json().catch(()=>({}))
+        if(!response.ok || result.success!==true) throw new Error(result.error || `Like request failed (${response.status})`)
+        policy.liked=result.liked
+        policy.likesCount=result.likesCount
+        likeButton.textContent=`${policy.liked ? "Unlike" : "Like"} · ${policy.likesCount}`
+      }catch(error){
+        console.error("Policy like failed:",error)
+        window.alert(error.message || "Unable to update policy like.")
+      }finally{
+        likeButton.disabled=false
+      }
+    })
+
+    const comments=Array.isArray(policy.interactions?.comments) ? policy.interactions.comments : []
+    const heading=document.createElement("h3")
+    heading.className="mb-2 mt-4 text-sm font-semibold"
+    heading.textContent=`Comments (${comments.length})`
+    const list=document.createElement("ul")
+    list.className="space-y-2"
+    for(const comment of comments) list.append(createPolicyComment(comment))
+    if(!comments.length){
+      const empty=document.createElement("li")
+      empty.className="text-sm text-antique-muted"
+      empty.textContent="No comments yet."
+      list.append(empty)
+    }
+
+    const form=document.createElement("form")
+    form.className="mt-3 flex flex-col gap-2 sm:flex-row"
+    const input=document.createElement("input")
+    input.type="text"
+    input.name="text"
+    input.maxLength=2000
+    input.required=true
+    input.placeholder="Write a comment…"
+    input.className="min-w-0 flex-1 rounded border border-antique-border bg-antique-bg px-3 py-2 text-sm"
+    const submit=document.createElement("button")
+    submit.type="submit"
+    submit.className="rounded bg-antique-accent px-4 py-2 text-sm font-medium text-white hover:bg-antique-accentHover disabled:opacity-60"
+    submit.textContent="Comment"
+    form.append(input,submit)
+    form.addEventListener("submit",async event=>{
+      event.preventDefault()
+      submit.disabled=true
+      try{
+        const token=await user.getIdToken()
+        const response=await fetch("/policyComment",{
+          method:"POST",
+          headers:{
+            "Authorization":`Bearer ${token}`,
+            "Content-Type":"application/json"
+          },
+          body:JSON.stringify({policyId:policy._id,text:input.value})
+        })
+        const result=await response.json().catch(()=>({}))
+        if(!response.ok || result.success!==true) throw new Error(result.error || `Comment request failed (${response.status})`)
+        const empty=list.querySelector("li")
+        if(comments.length===0 && empty?.textContent==="No comments yet.") empty.remove()
+        comments.push(result.comment)
+        list.append(createPolicyComment(result.comment))
+        heading.textContent=`Comments (${comments.length})`
+        const count=section.closest("article")?.querySelector(".policyCommentCount")
+        if(count) count.textContent=String(comments.length)
+        form.reset()
+      }catch(error){
+        console.error("Policy comment failed:",error)
+        window.alert(error.message || "Unable to add policy comment.")
+      }finally{
+        submit.disabled=false
+      }
+    })
+    section.append(likeButton,heading,list,form)
+    return section
+  }
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      const uid = user.uid;
+  localStorage.setItem("userEmail",user.email)
+  user.getIdToken().then(token=>fetch("/api/policies",{
+    cache:"no-store",
+    headers:{"Authorization":`Bearer ${token}`}
+  })).then(async response=>{
   const data=await response.json()
   if(!response.ok){
     throw new Error(data.message || data.error || `Policy request failed (${response.status})`)
@@ -136,7 +239,7 @@ fetch("/api/policies",{
   data.forEach(policy=>{
     policySection.insertAdjacentHTML("beforeend",
       `
-        <article class="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col justify-between">
+        <article data-policy-id="${policy._id}" class="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col justify-between">
     <div>
         <div class="flex items-center justify-between text-xs font-sans text-antique-muted mb-2">
             <div class="flex items-center space-x-2">
@@ -162,7 +265,7 @@ fetch("/api/policies",{
                 <span><span data-i18n="disagree">Disagree</span>: <strong class="text-antique-text">${policy.interactions?.votes?.disagree?.count ?? 0}</strong></span>
             </div>
             <span class="text-antique-muted"><span data-i18n="views">Views</span>: <strong class="text-antique-text">${policy.viewCount ?? 0}</strong></span>
-            <span class="text-antique-muted"><span data-i18n="comments">Comments</span>: <strong class="text-antique-text">${policy.interactions?.comments?.length ?? 0}</strong></span>
+            <span class="text-antique-muted"><span data-i18n="comments">Comments</span>: <strong class="policyCommentCount text-antique-text">${policy.interactions?.comments?.length ?? 0}</strong></span>
         </div>
 
         <!-- Action Link to Vote, Read & Comment -->
@@ -177,6 +280,7 @@ fetch("/api/policies",{
 </article>
       `
     )
+    policySection.lastElementChild.append(createPolicyEngagement(policy,user))
   })
 return data
     }
