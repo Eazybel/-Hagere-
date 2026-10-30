@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy News | Hagere (ሀገሬ)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        antique: {
+                            bg: '#F9F6F0',
+                            card: '#FFFDF9',
+                            border: '#D8CEBC',
+                            text: '#2C2A29',
+                            muted: '#6B6560',
+                            accent: '#8C4A32',
+                            accentHover: '#733B26'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-antique-bg text-antique-text font-serif antialiased min-h-screen flex flex-col">
+    <header class="border-b border-antique-border bg-antique-card sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="index.html" class="text-2xl font-bold tracking-tight text-antique-accent">ሀገሬ (Hagere)</a>
+            <nav class="hidden md:flex items-center space-x-6 text-sm font-sans">
+                <a href="feed.html" class="text-antique-text font-medium hover:text-antique-accent">Policies Feed</a>
+                <a href="news.html" aria-current="page" class="text-antique-accent font-medium">Policy News</a>
+            </nav>
+            <div class="flex items-center space-x-4 font-sans text-sm">
+                <details class="relative">
+                    <summary class="flex cursor-pointer list-none items-center gap-2 rounded border border-antique-border bg-antique-bg px-3 py-1.5 font-medium hover:bg-antique-border">
+                        <span>Translate</span>
+                        <span aria-hidden="true" class="text-xs">&#9662;</span>
+                    </summary>
+                    <div class="absolute right-0 mt-2 w-40 rounded border border-antique-border bg-antique-card p-1 shadow-lg">
+                        <button type="button" data-language="am" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Amharic</button>
+                        <button type="button" data-language="om" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Oromiffa</button>
+                        <button type="button" data-language="ti" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">Tigirigna</button>
+                        <button type="button" data-language="en" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">English</button>
+                    </div>
+                </details>
+                <a href="dashboard.html" class="px-3 py-1.5 bg-antique-bg border border-antique-border rounded hover:bg-antique-border transition-colors flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                    <span class="font-medium">My Dashboard</span>
+                </a>
+                <button id="signOutButton" class="text-xs text-antique-muted hover:text-antique-accent">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-6xl mx-auto px-4 py-8 w-full">
+        <section class="mb-10 text-center max-w-2xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-normal mb-3">Policy News</h1>
+            <p class="text-antique-muted text-base font-sans">Updates and announcements related to public policy.</p>
+        </section>
+        <section id="newsFeed" class="grid grid-cols-1 md:grid-cols-2 gap-6" aria-live="polite">
+            <p class="col-span-full py-12 text-center text-antique-muted text-sm bg-antique-card border border-antique-border rounded-lg font-sans">Loading policy news…</p>
+        </section>
+    </main>
+
+    <footer class="border-t border-antique-border bg-antique-card mt-16 py-6 font-sans text-xs text-antique-muted">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>&copy; 2026 Hagere Civic Platform. Open Source Initiative.</p>
+            <div class="flex items-center space-x-6">
+                <a href="#" class="hover:text-antique-accent">About</a>
+                <a href="#" class="hover:text-antique-accent">Privacy Policy</a>
+                <a href="contributing.md" class="hover:text-antique-accent">Contribute</a>
+                <a href="./adminAuth.html" class="text-antique-accent hover:underline font-medium">Admin Portal</a>
+            </div>
+        </div>
+    </footer>
+    <script type="module" src="./news.js"></script>
+</body>
+</html>

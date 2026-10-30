@@ -27,6 +27,7 @@ const policyComment=require("./controller/commentController")
 const feedBack=require("./controller/feedBackController")
 const {createAnalyticsController}=require("./controller/analyticsController")
 const {authorizeRoles}=require("./middleware/auth")
+const newsRoutes=require("./routes/newsRoutes")
 // Package initiation
 const app=express()
 app.use(express.static(path.join(__dirname,"public")))
@@ -50,6 +51,7 @@ app.get("/admin",(req,res)=>{
 app.post("/policyUpdate",policyWriteRateLimit,authorizeRoles("admin"),upload.single("file"),policyUpdate)
 app.post("/newUserRegister",authRateLimit,userController)
 app.get("/api/policies",policyList)
+app.use("/api/news",newsRoutes)
 const policyChatController=createPolicyChatController({
     Policy:require("./models/Policy"),
     apiKey:env.GEMINI_API_KEY
