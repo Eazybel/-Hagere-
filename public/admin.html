@@ -6,6 +6,7 @@
     <title>Hagere (ሀገሬ)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./header.css">
     <script>
         tailwind.config = {
             theme: {
@@ -29,11 +30,11 @@
 <body class="bg-antique-bg text-antique-text font-serif antialiased min-h-screen flex flex-col relative">
 
     <!-- Navigation Header -->
-    <header class="border-b border-antique-border bg-antique-card sticky top-0 z-50">
+    <header class="site-header border-b sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <a href="index.html" class="text-2xl font-bold tracking-tight text-antique-accent">ሀገሬ (Hagere)</a>
-                <span class="px-2 py-0.5 bg-antique-bg border border-antique-border rounded text-[10px] font-sans text-antique-accent uppercase tracking-wider font-semibold">Admin Panel</span>
+                <span class="site-header-label px-2 py-0.5 border rounded text-[10px] font-sans uppercase tracking-wider font-semibold">Admin Panel</span>
             </div>
             <div class="flex items-center gap-4">
                 <details class="relative">
