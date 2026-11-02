@@ -169,12 +169,20 @@ const newsList=document.getElementById("adminNewsList")
 const makeDeleteButton=(label,endpoint,card)=>{
   const button=document.createElement("button")
   button.type="button"
-  button.textContent="Delete"
-  button.className="rounded border border-red-300 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:opacity-60"
+  button.className="inline-flex items-center gap-2 rounded border border-red-300 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
   button.setAttribute("aria-label",`Delete ${label}`)
+  const spinner=document.createElement("span")
+  spinner.className="hidden h-3 w-3 animate-spin rounded-full border-2 border-red-300 border-t-red-700"
+  spinner.setAttribute("aria-hidden","true")
+  const text=document.createElement("span")
+  text.textContent="Delete"
+  button.append(spinner,text)
   button.addEventListener("click",async()=>{
     if(!window.confirm(`Delete this ${label}? This action cannot be undone.`)) return
     button.disabled=true
+    button.setAttribute("aria-busy","true")
+    spinner.classList.remove("hidden")
+    text.textContent="Deleting…"
     try{
       const token=await user.getIdToken()
       const response=await fetch(endpoint,{
@@ -191,6 +199,9 @@ const makeDeleteButton=(label,endpoint,card)=>{
       console.error(`Admin ${label} deletion failed:`,error)
       window.alert(error.message || `Unable to delete ${label}`)
       button.disabled=false
+      button.removeAttribute("aria-busy")
+      spinner.classList.add("hidden")
+      text.textContent="Delete"
     }
   })
   return button

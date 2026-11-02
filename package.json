@@ -15,12 +15,13 @@
   "type": "commonjs",
   "main": "server.js",
   "scripts": {
-    "test": "node --test \"test/**/*.test.js\" \"tests/news.test.js\" \"tests/seedNews.test.js\"",
+    "test": "node --test \"test/**/*.test.js\" \"tests/news.test.js\" \"tests/seedNews.test.js\" \"tests/seedPolicies.test.js\"",
     "test:v1:e2e": "jest --runInBand tests/v1_e2e.test.js tests/admin_management.test.js",
     "start": "node server.js",
     "dev": "nodemon server.js",
     "cleanup:dummy-policies": "node scripts/cleanupDummyPolicies.js",
-    "seed:news": "node scripts/seedNews.js"
+    "seed:news": "node scripts/seedNews.js",
+    "seed:policies": "node scripts/seedPolicies.js"
   },
   "dependencies": {
     "cloudinary": "^2.10.0",

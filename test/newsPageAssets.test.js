@@ -18,6 +18,12 @@ test("news page and its Firebase module dependencies are served as static assets
     assert.match(page.text, /src="\.\/news\.js"/)
     assert.equal(script.status, 200)
     assert.match(script.text, /from "\.\/firebaseInit\.js"/)
+    assert.match(script.text, /"Log in to like or comment on this news\."/)
+    assert.match(script.text, /loadNews\(user\)/)
+    assert.doesNotMatch(
+        script.text,
+        /onAuthStateChanged\(auth,\s*user\s*=>\s*\{\s*if\s*\(!user\)/
+    )
     assert.equal(firebaseInit.status, 200)
     assert.match(firebaseInit.text, /export const auth = getAuth\(app\)/)
 })

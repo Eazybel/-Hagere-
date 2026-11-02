@@ -35,6 +35,19 @@ Features and documentation will continue evolving as development progresses.
 
 ---
 
+# Database Seed Data
+
+Set `CONNECTION_STRING` (or `MONGODB_URI`) in the environment, then run:
+
+```sh
+npm run seed:policies
+npm run seed:news
+```
+
+Both seeders upsert their records by title and preserve existing policy engagement and news comments. News records link to matching seeded policies when available.
+
+---
+
 # 🎯 Vision
 
 To become Ethiopia's leading digital platform for civic participation, enabling every citizen to understand, discuss, and contribute to conversations about public policies in an accessible, transparent, and respectful environment.

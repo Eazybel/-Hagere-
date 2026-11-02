@@ -10,7 +10,7 @@ const router = express.Router()
 const newsController = createNewsController({ News, User, Policy })
 const optionalCitizenAuth = (req, res, next) => {
     if (!req.get("authorization")) return next()
-    return authorizeRoles("citizen")(req, res, next)
+    return authorizeRoles("citizen", "admin")(req, res, next)
 }
 
 router.get("/", optionalCitizenAuth, newsController.list)

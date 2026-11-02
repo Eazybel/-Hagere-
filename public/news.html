@@ -12,13 +12,13 @@
                 extend: {
                     colors: {
                         antique: {
-                            bg: '#F9F6F0',
-                            card: '#FFFDF9',
-                            border: '#D8CEBC',
-                            text: '#2C2A29',
-                            muted: '#6B6560',
-                            accent: '#8C4A32',
-                            accentHover: '#733B26'
+                            bg: '#F7F5F0',
+                            card: '#FBFBFA',
+                            border: '#D6CEC2',
+                            text: '#1E293B',
+                            muted: '#57534E',
+                            accent: '#92400E',
+                            accentHover: '#78350F'
                         }
                     }
                 }
@@ -27,12 +27,12 @@
     </script>
 </head>
 <body class="bg-antique-bg text-antique-text font-serif antialiased min-h-screen flex flex-col">
-    <header class="site-header sticky top-0 z-50 border-b border-[#102638] bg-[#183b52] text-white shadow-sm">
+    <header class="site-header sticky top-0 z-50 border-b">
         <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
             <a href="index.html" class="text-2xl font-bold tracking-tight text-white">ሀገሬ (Hagere)</a>
             <nav class="hidden md:flex items-center space-x-6 text-sm font-sans">
-                <a href="feed.html" class="font-medium text-slate-200 hover:text-white">Policies Feed</a>
-                <a href="news.html" aria-current="page" class="font-semibold text-amber-300">Policy News</a>
+                <a href="feed.html" class="font-medium">Policies Feed</a>
+                <a href="news.html" aria-current="page" class="font-semibold">Policy News</a>
             </nav>
             <div class="flex items-center space-x-4 font-sans text-sm">
                 <details class="relative">
@@ -47,11 +47,14 @@
                         <button type="button" data-language="en" class="block w-full rounded px-3 py-2 text-left text-xs hover:bg-antique-bg">English</button>
                     </div>
                 </details>
-                <a href="dashboard.html" class="flex items-center space-x-2 rounded border border-white/30 bg-white/10 px-3 py-1.5 transition-colors hover:bg-white/20">
-                    <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                    <span class="font-medium">My Dashboard</span>
-                </a>
-                <button id="signOutButton" class="text-xs text-slate-200 hover:text-white">Sign Out</button>
+                <div id="newsAccountControls" class="hidden items-center gap-4">
+                    <a href="dashboard.html" class="flex items-center space-x-2 rounded border border-antique-border bg-antique-card px-3 py-1.5 hover:bg-antique-bg">
+                        <span class="h-2 w-2 rounded-full bg-emerald-600"></span>
+                        <span class="font-medium">My Dashboard</span>
+                    </a>
+                    <button id="signOutButton" class="text-xs text-antique-muted hover:text-antique-accent">Sign Out</button>
+                </div>
+                <a id="newsSignIn" href="login.html" class="rounded border border-antique-border bg-antique-card px-3 py-1.5 text-antique-accent hover:bg-antique-bg">Sign in</a>
             </div>
         </div>
     </header>

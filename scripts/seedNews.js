@@ -10,54 +10,140 @@ const MONGO_CONNECT_TIMEOUT_MS = 15_000
 
 const NEWS_SEED_DATA = [
     {
-        title: "Government Launches Expanded 'Digital Ethiopia' Framework for Regional Innovation Hubs",
-        content: "The Ministry of Innovation and Technology (MInT) has officially announced the expansion phase of the Digital Transformation Framework. The initiative aims to enhance digital public infrastructure, extend Fayda Digital ID integration across public services, and establish regional tech incubators to accelerate youth employment in software and emerging tech sectors.",
+        title: "Citizen's Guide to the EFY 2018 Federal Budget",
+        content: "The annual citizen budget is designed to make public revenue and spending easier to understand. Readers can use it to follow the budget cycle, compare allocations across sectors, and ask how national priorities are reflected in services in their community. The Ministry of Finance publishes budget information and related public documents.",
         imageUrl: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=1200&q=80",
-        author: "Government Communication Service",
+        author: "Ministry of Finance",
+        relatedPolicyTitle: "Citizens' Budget (EFY 2018 / 2025–2026)",
         comments: [
             {
                 userName: "Abebe Tadesse",
-                comment: "Great move for local software developers! Will regional hubs have direct cloud grants?"
+                comment: "A plain-language budget guide makes it easier for communities to follow public spending."
             },
             {
                 userName: "Marta Haile",
-                comment: "Digital ID integration will simplify business registration significantly."
+                comment: "It would be helpful to compare planned allocations with local service delivery."
             }
         ]
     },
     {
-        title: "House of People's Representatives Approves Revised Proclamation on Urban Infrastructure Development",
-        content: "In a landmark parliamentary session, lawmakers passed the updated Urban Infrastructure and Sustainable Development Proclamation. The policy outlines major funding allocations for eco-friendly public transportation, modernized municipal sanitation, and affordable housing projects across major primary and secondary cities.",
-        imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
-        author: "Ministry of Urban and Infrastructure",
+        title: "PFM Reform Strategy: Following the Public Finance Cycle",
+        content: "Ethiopia's Public Financial Management reform strategy sets out a framework for strengthening how public resources are planned, budgeted, spent, recorded, and audited. Its reform areas give institutions and citizens a shared vocabulary for discussing transparency, accountability, and the quality of public financial information.",
+        imageUrl: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80",
+        author: "Ministry of Finance",
+        relatedPolicyTitle: "Public Financial Management (PFM) Reform Strategy",
         comments: [
             {
                 userName: "Dawit Kebede",
-                comment: "Hope the implementation starts quickly in Soddo and Hawassa."
+                comment: "Clear reporting is important for accountability at every level of government."
             }
         ]
     },
     {
-        title: "National Green Legacy Initiative Reaches Major Urban Forestry Benchmark",
-        content: "The Green Legacy Initiative steering committee released its updated environmental impact assessment, showing a 15% increase in urban canopy coverage across primary municipal zones. New policy mandates now require commercial real estate projects to allocate at least 20% of plot space to indigenous green areas.",
-        imageUrl: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=80",
-        author: "Ministry of Agriculture & Environment",
+        title: "How Social Accountability Connects Citizens and Service Providers",
+        content: "The Ethiopian Social Accountability Program implementation guide describes a structured way for communities and service providers to review public services together. The approach supports evidence-based dialogue, follow-up on agreed actions, and stronger participation in local planning and service improvement.",
+        imageUrl: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80",
+        author: "Ministry of Finance",
+        relatedPolicyTitle: "Ethiopian Social Accountability Program (ESAP) Implementation Guide",
         comments: [
             {
                 userName: "Segenet Worku",
-                comment: "Mandating green space in commercial zones is a essential policy decision."
+                comment: "Community meetings work best when public offices report back on agreed actions."
             }
         ]
     },
     {
-        title: "Public Consultation Opens for Draft National Renewable Energy Tariff Policy",
-        content: "The Ministry of Water and Energy has formally opened a 30-day public consultation window for the proposed Renewable Energy Framework. Citizens, clean energy startups, and private operators are invited to submit feedback and section-by-section comments via the official Hagere portal.",
+        title: "National Energy Policy: Balancing Access, Reliability, and Sustainability",
+        content: "Ethiopia's National Energy Policy provides a framework for developing energy resources and expanding access to reliable energy. Public discussion of energy policy can consider affordability, rural and urban access, the role of renewable resources, and how infrastructure decisions affect households and productive sectors.",
         imageUrl: "https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&w=1200&q=80",
         author: "Ministry of Water and Energy",
+        relatedPolicyTitle: "National Energy Policy of Ethiopia",
         comments: [
             {
                 userName: "Ephrem Yilma",
-                comment: "Is there a tariff exemption for solar micro-grid installations in rural areas?"
+                comment: "Reliable electricity is essential for health services, schools, and small businesses."
+            },
+            {
+                userName: "Rahel Bekele",
+                comment: "How can remote communities be included in energy-access planning?"
+            }
+        ]
+    },
+    {
+        title: "National Employment Policy: Connecting Skills and Decent Work",
+        content: "The National Employment Policy and Strategy addresses employment promotion and the conditions that support productive work. Its themes provide a basis for discussing skills development, job opportunities for young people, inclusive access to work, and coordination between public institutions, employers, and training providers.",
+        imageUrl: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1200&q=80",
+        author: "Ministry of Labor and Skills",
+        relatedPolicyTitle: "National Employment Policy and Strategy of Ethiopia",
+        comments: [
+            {
+                userName: "Mekdes Girma",
+                comment: "Training should connect to the skills employers and local economies need."
+            }
+        ]
+    },
+    {
+        title: "Education and Training Policy: A Framework for Lifelong Learning",
+        content: "Ethiopia's Education and Training Policy sets broad direction for education and skills formation. The policy invites discussion about equitable access, learning quality, teacher support, technical and vocational pathways, and how education can respond to changing community needs.",
+        imageUrl: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1200&q=80",
+        author: "Ministry of Education",
+        relatedPolicyTitle: "Education and Training Policy",
+        comments: [
+            {
+                userName: "Henok Alemu",
+                comment: "Equal access and strong learning outcomes need to be considered together."
+            }
+        ]
+    },
+    {
+        title: "Tourism Development Policy: Supporting Communities and Heritage",
+        content: "The National Tourism Development Policy offers a framework for developing tourism while recognizing Ethiopia's cultural and natural heritage. Citizens can consider how tourism planning supports local livelihoods, protects historic and natural sites, improves infrastructure, and shares benefits with host communities.",
+        imageUrl: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=1200&q=80",
+        author: "Ministry of Tourism",
+        relatedPolicyTitle: "National Tourism Development Policy",
+        comments: [
+            {
+                userName: "Selamawit Tadesse",
+                comment: "Local communities should have a meaningful role in tourism decisions."
+            }
+        ]
+    },
+    {
+        title: "Water Resources Management: Planning for Shared and Sustainable Use",
+        content: "The Water Resources Management Policy frames the planning and use of Ethiopia's water resources. Policy discussions include watershed protection, reliable water supply, irrigation, coordination among users, and the need to manage water in ways that support communities and future generations.",
+        imageUrl: "https://images.unsplash.com/photo-1437482078695-73f5ca6c96e2?auto=format&fit=crop&w=1200&q=80",
+        author: "Ministry of Water and Energy",
+        relatedPolicyTitle: "Water Resources Management Policy",
+        comments: [
+            {
+                userName: "Tewodros Mulu",
+                comment: "Coordination across communities is important for managing shared water resources."
+            }
+        ]
+    },
+    {
+        title: "National Population Policy: Linking Demographic Trends and Services",
+        content: "The National Population Policy of Ethiopia provides a framework for considering population dynamics alongside social and economic development. Its themes support discussion of health, education, livelihoods, population data, and the planning needed to make public services accessible as communities change.",
+        imageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1200&q=80",
+        author: "Ministry of Planning and Development",
+        relatedPolicyTitle: "National Population Policy of Ethiopia",
+        comments: [
+            {
+                userName: "Yohannes Fikru",
+                comment: "Local plans need reliable data and input from the people they serve."
+            }
+        ]
+    },
+    {
+        title: "National Policy on Ethiopian Women: Advancing Equality and Participation",
+        content: "The National Policy on Ethiopian Women establishes a framework for addressing women's participation and equality. Public discussion can examine how policy commitments translate into access to education and economic opportunity, representation in decision-making, and protection from barriers that limit full participation.",
+        imageUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1200&q=80",
+        author: "Ministry of Women and Social Affairs",
+        relatedPolicyTitle: "National Policy on Ethiopian Women",
+        comments: [
+            {
+                userName: "Marta Haile",
+                comment: "Implementation and accountability matter as much as policy commitments."
             }
         ]
     }
@@ -104,20 +190,31 @@ async function seedNews({
         }
         connected = true
 
-        const policy = await PolicyModel.findOne().select("_id")
+        const relatedTitles = [...new Set(NEWS_SEED_DATA.map(entry => entry.relatedPolicyTitle))]
+        const policies = await PolicyModel.find({ title: { $in: relatedTitles } }).select("_id title")
+        const policyIdsByTitle = new Map(policies.map(policy => [policy.title, policy._id]))
         const newsDocuments = NEWS_SEED_DATA.map(entry => ({
             ...entry,
-            relatedPolicy: policy?._id || null,
+            relatedPolicy: policyIdsByTitle.get(entry.relatedPolicyTitle) || null,
+            relatedPolicyTitle: undefined,
             comments: entry.comments.map(comment => ({
                 ...comment,
                 user: new mongooseInstance.Types.ObjectId()
             }))
         }))
-
-        await NewsModel.deleteMany({})
-        const insertedNews = await NewsModel.insertMany(newsDocuments)
-        logger.log(`Successfully seeded ${insertedNews.length} policy news posts!`)
-        return insertedNews
+        const operations = newsDocuments.map(({ title, content, imageUrl, author, relatedPolicy, comments }) => ({
+            updateOne: {
+                filter: { title },
+                update: {
+                    $set: { content, imageUrl, author, relatedPolicy },
+                    $setOnInsert: { title, comments }
+                },
+                upsert: true
+            }
+        }))
+        await NewsModel.bulkWrite(operations, { ordered: true })
+        logger.log(`Successfully seeded ${operations.length} policy news posts!`)
+        return operations
     } finally {
         if (connected) await mongooseInstance.disconnect()
     }

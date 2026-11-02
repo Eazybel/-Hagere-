@@ -79,27 +79,6 @@ function renderNewsPost(post, user) {
     }
 
     const actions = makeElement("div", "mt-5 border-t border-antique-border pt-4")
-    const likeButton = makeElement(
-        "button",
-        "rounded border border-antique-border px-3 py-2 text-sm font-sans hover:bg-antique-bg",
-        `${post.liked ? "Unlike" : "Like"} · ${post.likesCount ?? 0}`
-    )
-    likeButton.type = "button"
-    likeButton.addEventListener("click", async () => {
-        likeButton.disabled = true
-        try {
-            const result = await authenticatedRequest(`/api/news/${encodeURIComponent(post._id)}/like`, "POST", {}, user)
-            post.liked = result.liked
-            post.likesCount = result.likesCount
-            likeButton.textContent = `${post.liked ? "Unlike" : "Like"} · ${post.likesCount}`
-        } catch (error) {
-            console.error("News like failed:", error)
-            window.alert(error.message)
-        } finally {
-            likeButton.disabled = false
-        }
-    })
-
     const commentsHeading = makeElement("h3", "mb-3 text-sm font-semibold", `Comments (${post.comments?.length || 0})`)
     const commentsList = makeElement("ul", "space-y-2")
     for (const comment of post.comments || []) commentsList.append(renderComment(comment))
@@ -143,7 +122,46 @@ function renderNewsPost(post, user) {
         }
     })
 
-    actions.append(likeButton, commentsHeading, commentsList, commentForm)
+    if (user) {
+        const likeButton = makeElement(
+            "button",
+            "rounded border border-antique-border px-3 py-2 text-sm font-sans hover:bg-antique-bg disabled:opacity-60",
+            `${post.liked ? "Unlike" : "Like"} · ${post.likesCount ?? 0}`
+        )
+        likeButton.type = "button"
+        likeButton.addEventListener("click", async () => {
+            likeButton.disabled = true
+            likeButton.textContent = "Updating…"
+            try {
+                const result = await authenticatedRequest(`/api/news/${encodeURIComponent(post._id)}/like`, "POST", {}, user)
+                post.liked = result.liked
+                post.likesCount = result.likesCount
+                likeButton.textContent = `${post.liked ? "Unlike" : "Like"} · ${post.likesCount}`
+            } catch (error) {
+                console.error("News like failed:", error)
+                window.alert(error.message)
+                likeButton.textContent = `${post.liked ? "Unlike" : "Like"} · ${post.likesCount ?? 0}`
+            } finally {
+                likeButton.disabled = false
+            }
+        })
+        actions.append(likeButton)
+    }
+
+    actions.append(commentsHeading, commentsList)
+    if (user) {
+        actions.append(commentForm)
+    } else {
+        const signInPrompt = makeElement(
+            "p",
+            "mt-4 rounded border border-antique-border bg-antique-bg px-3 py-2 text-sm text-antique-muted",
+            "Log in to like or comment on this news."
+        )
+        const signInLink = makeElement("a", "ml-1 font-medium text-antique-accent hover:underline", "Sign in")
+        signInLink.href = "./login.html"
+        signInPrompt.append(signInLink)
+        actions.append(signInPrompt)
+    }
     body.append(actions)
     card.append(image, body)
     return card
@@ -170,10 +188,11 @@ async function loadNews(user) {
 }
 
 onAuthStateChanged(auth, user => {
-    if (!user) {
-        window.location.replace("./index.html")
-        return
-    }
+    const signInLink = document.getElementById("newsSignIn")
+    const accountControls = document.getElementById("newsAccountControls")
+    signInLink.classList.toggle("hidden", Boolean(user))
+    accountControls.classList.toggle("hidden", !user)
+    accountControls.classList.toggle("flex", Boolean(user))
     loadNews(user)
 })
 

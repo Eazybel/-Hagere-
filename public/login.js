@@ -2,12 +2,19 @@ import { GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/fir
 import { auth } from "./firebaseInit.js"
 
 const signInButton=document.getElementById("logInButton")
+const signInButtonText=document.getElementById("loginButtonText")
+const signInSpinner=document.getElementById("loginSpinner")
+const signInLogo=signInButton.querySelector("svg")
 const errorMessage=document.getElementById("loginError")
 const provider=new GoogleAuthProvider()
 provider.setCustomParameters({prompt:"select_account"})
 
 signInButton.addEventListener("click",async()=>{
     signInButton.disabled=true
+    signInButton.setAttribute("aria-busy","true")
+    signInButtonText.textContent="Signing in..."
+    signInSpinner.classList.remove("hidden")
+    signInLogo.classList.add("hidden")
     errorMessage.classList.add("hidden")
     errorMessage.textContent=""
 
@@ -36,5 +43,9 @@ signInButton.addEventListener("click",async()=>{
         errorMessage.classList.remove("hidden")
     }finally{
         signInButton.disabled=false
+        signInButton.removeAttribute("aria-busy")
+        signInButtonText.textContent="Continue with Google"
+        signInSpinner.classList.add("hidden")
+        signInLogo.classList.remove("hidden")
     }
 })

@@ -9,12 +9,14 @@ const {
     seedNews
 } = require("../scripts/seedNews")
 
-test("news seeder links four seed posts to an existing policy and closes MongoDB", async () => {
+const noSeedPolicies = { find: () => ({ select: async () => [] }) }
+const successfulNewsWrite = { bulkWrite: async operations => operations }
+
+test("news seeder upserts ten policy news posts with linked policies and closes MongoDB", async () => {
     const calls = []
     const mongoUri = "mongodb://seed-test/news"
     const policyId = new mongoose.Types.ObjectId()
-    const insertedDocuments = []
-    const seededRows = NEWS_SEED_DATA.map((entry, index) => ({ ...entry, _id: index }))
+    let operations
     const fakeMongoose = {
         Types: mongoose.Types,
         async connect(uri) {
@@ -28,49 +30,50 @@ test("news seeder links four seed posts to an existing policy and closes MongoDB
         mongoose: fakeMongoose,
         mongoUri,
         Policy: {
-            findOne() {
-                calls.push(["findOne"])
+            find(filter) {
+                calls.push(["find", filter])
                 return { select: async fields => {
                     calls.push(["select", fields])
-                    return { _id: policyId }
+                    return NEWS_SEED_DATA.map(entry => ({
+                        title: entry.relatedPolicyTitle,
+                        _id: policyId
+                    }))
                 } }
             }
         },
         News: {
-            async deleteMany(filter) {
-                calls.push(["deleteMany", filter])
-            },
-            async insertMany(documents) {
-                calls.push(["insertMany"])
-                insertedDocuments.push(...documents)
-                return seededRows
+            async bulkWrite(items) {
+                calls.push(["bulkWrite"])
+                operations = items
             }
         },
         logger: { log: message => calls.push(["log", message]) }
     })
 
-    assert.equal(result.length, 4)
-    assert.equal(insertedDocuments.length, 4)
-    assert.equal(insertedDocuments[0].relatedPolicy, policyId)
-    assert.equal(insertedDocuments[0].imageUrl, NEWS_SEED_DATA[0].imageUrl)
-    assert.equal(insertedDocuments[0].author, "Government Communication Service")
-    assert.equal(insertedDocuments[0].comments[0].userName, "Abebe Tadesse")
-    assert.ok(insertedDocuments[0].comments[0].user instanceof mongoose.Types.ObjectId)
-    assert.equal(insertedDocuments[1].comments[0].userName, "Dawit Kebede")
+    assert.equal(NEWS_SEED_DATA.length, 10)
+    assert.equal(result.length, 10)
+    assert.equal(operations.length, 10)
+    assert.equal(operations[0].updateOne.filter.title, NEWS_SEED_DATA[0].title)
+    assert.equal(operations[0].updateOne.update.$set.relatedPolicy, policyId)
+    assert.equal(operations[0].updateOne.update.$set.imageUrl, NEWS_SEED_DATA[0].imageUrl)
+    assert.equal(operations[0].updateOne.update.$set.author, "Ministry of Finance")
+    assert.equal(operations[0].updateOne.update.$setOnInsert.comments[0].userName, "Abebe Tadesse")
+    assert.ok(operations[0].updateOne.update.$setOnInsert.comments[0].user instanceof mongoose.Types.ObjectId)
+    assert.equal(operations[1].updateOne.update.$setOnInsert.comments[0].userName, "Dawit Kebede")
+    assert.equal(operations[0].updateOne.upsert, true)
     assert.deepEqual(calls, [
         ["connect", mongoUri],
-        ["findOne"],
-        ["select", "_id"],
-        ["deleteMany", {}],
-        ["insertMany"],
-        ["log", "Successfully seeded 4 policy news posts!"],
+        ["find", { title: { $in: [...new Set(NEWS_SEED_DATA.map(entry => entry.relatedPolicyTitle))] } }],
+        ["select", "_id title"],
+        ["bulkWrite"],
+        ["log", "Successfully seeded 10 policy news posts!"],
         ["disconnect"]
     ])
 })
 
-test("news seeder supports no existing policies and disconnects if insertion fails", async () => {
+test("news seeder supports missing policies and disconnects if upsert fails", async () => {
     let disconnected = false
-    let insertedDocuments
+    let operations
     const fakeMongoose = {
         Types: mongoose.Types,
         async connect() {},
@@ -81,20 +84,19 @@ test("news seeder supports no existing policies and disconnects if insertion fai
 
     await assert.rejects(seedNews({
         mongoose: fakeMongoose,
-        Policy: { findOne: () => ({ select: async () => null }) },
+        Policy: { find: () => ({ select: async () => [] }) },
         News: {
-            async deleteMany() {},
-            async insertMany(documents) {
-                insertedDocuments = documents
-                throw new Error("insert failed")
+            async bulkWrite(items) {
+                operations = items
+                throw new Error("upsert failed")
             }
         },
         logger: { log() {} }
-    }), /insert failed/)
+    }), /upsert failed/)
 
     assert.equal(disconnected, true)
-    assert.equal(insertedDocuments.length, 4)
-    assert.equal(insertedDocuments[0].relatedPolicy, null)
+    assert.equal(operations.length, 10)
+    assert.equal(operations[0].updateOne.update.$set.relatedPolicy, null)
 })
 
 test("news seeder retries transient Atlas SRV DNS failures before continuing", async () => {
@@ -115,11 +117,8 @@ test("news seeder retries transient Atlas SRV DNS failures before continuing", a
 
     await seedNews({
         mongoose: fakeMongoose,
-        Policy: { findOne: () => ({ select: async () => null }) },
-        News: {
-            async deleteMany() {},
-            async insertMany(documents) { return documents }
-        },
+        Policy: noSeedPolicies,
+        News: successfulNewsWrite,
         logger: { log() {}, warn() {} },
         sleep: async milliseconds => delays.push(milliseconds)
     })
@@ -172,11 +171,8 @@ test("news seeder retries cluster socket timeouts and classifies persistent netw
 
     await seedNews({
         mongoose: fakeMongoose,
-        Policy: { findOne: () => ({ select: async () => null }) },
-        News: {
-            async deleteMany() {},
-            async insertMany(documents) { return documents }
-        },
+        Policy: noSeedPolicies,
+        News: successfulNewsWrite,
         logger: { log() {}, warn() {} },
         sleep: async milliseconds => delays.push(milliseconds)
     })
@@ -227,11 +223,8 @@ test("news seeder retries Mongoose server-selection timeout errors", async () =>
 
     await seedNews({
         mongoose: fakeMongoose,
-        Policy: { findOne: () => ({ select: async () => null }) },
-        News: {
-            async deleteMany() {},
-            async insertMany(documents) { return documents }
-        },
+        Policy: noSeedPolicies,
+        News: successfulNewsWrite,
         logger: { log() {}, warn() {} },
         sleep: async milliseconds => delays.push(milliseconds)
     })

@@ -11,6 +11,8 @@ const firebaseConfig={
 }
 const auth=getAuth(initializeApp(firebaseConfig))
 const signInButton=document.getElementById("logInBtn")
+const signInButtonText=document.getElementById("adminLoginButtonText")
+const signInSpinner=document.getElementById("adminLoginSpinner")
 const emailInput=document.getElementById("adminEmail")
 const passwordInput=document.getElementById("adminPassword")
 const errorMessage=document.getElementById("errorMessage")
@@ -18,6 +20,9 @@ const errorMessage=document.getElementById("errorMessage")
 document.getElementById("adminLoginForm").addEventListener("submit",async event=>{
     event.preventDefault()
     signInButton.disabled=true
+    signInButton.setAttribute("aria-busy","true")
+    signInButtonText.textContent="Signing in..."
+    signInSpinner.classList.remove("hidden")
     errorMessage.classList.add("hidden")
     errorMessage.textContent=""
 
@@ -51,5 +56,8 @@ document.getElementById("adminLoginForm").addEventListener("submit",async event=
         errorMessage.classList.remove("hidden")
     }finally{
         signInButton.disabled=false
+        signInButton.removeAttribute("aria-busy")
+        signInButtonText.textContent="Sign In as Admin"
+        signInSpinner.classList.add("hidden")
     }
 })
