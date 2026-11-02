@@ -57,6 +57,16 @@ function renderNewsPost(post, user) {
         image.alt = "News image unavailable"
         image.className = "h-56 w-full bg-antique-bg object-contain text-antique-muted"
     }, { once: true })
+    if (post.imageSource && post.imageCredit) {
+        const attribution = makeElement("a", "block px-5 pt-2 text-right text-xs text-antique-muted hover:text-antique-accent")
+        attribution.href = post.imageSource
+        attribution.target = "_blank"
+        attribution.rel = "noopener noreferrer"
+        attribution.textContent = `Image: ${post.imageCredit}`
+        card.append(image, attribution)
+    } else {
+        card.append(image)
+    }
 
     const body = makeElement("div", "p-5")
     body.append(
@@ -163,7 +173,7 @@ function renderNewsPost(post, user) {
         actions.append(signInPrompt)
     }
     body.append(actions)
-    card.append(image, body)
+    card.append(body)
     return card
 }
 

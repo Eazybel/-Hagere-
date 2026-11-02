@@ -54,6 +54,16 @@ const newsSchema = new mongoose.Schema({
             message: "Image URL must be a valid HTTP or HTTPS URL"
         }
     },
+    imageSource: {
+        type: String,
+        trim: true,
+        default: ""
+    },
+    imageCredit: {
+        type: String,
+        trim: true,
+        default: ""
+    },
     relatedPolicy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "policyModel",

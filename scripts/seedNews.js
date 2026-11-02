@@ -12,7 +12,9 @@ const NEWS_SEED_DATA = [
     {
         title: "Citizen's Guide to the EFY 2018 Federal Budget",
         content: "The annual citizen budget is designed to make public revenue and spending easier to understand. Readers can use it to follow the budget cycle, compare allocations across sectors, and ask how national priorities are reflected in services in their community. The Ministry of Finance publishes budget information and related public documents.",
-        imageUrl: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=1200&q=80",
+        imageUrl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Addis_Mercato%2C_Ad%C3%ADs_Abeba%2C_Etiop%C3%ADa%2C_2024-01-19%2C_DD_26.jpg/1280px-Addis_Mercato%2C_Ad%C3%ADs_Abeba%2C_Etiop%C3%ADa%2C_2024-01-19%2C_DD_26.jpg",
+        imageSource: "https://commons.wikimedia.org/wiki/File:Addis_Mercato,_Ad%C3%ADs_Abeba,_Etiop%C3%ADa,_2024-01-19,_DD_26.jpg",
+        imageCredit: "Diego Delso, CC BY-SA 4.0",
         author: "Ministry of Finance",
         relatedPolicyTitle: "Citizens' Budget (EFY 2018 / 2025–2026)",
         comments: [
@@ -29,7 +31,9 @@ const NEWS_SEED_DATA = [
     {
         title: "PFM Reform Strategy: Following the Public Finance Cycle",
         content: "Ethiopia's Public Financial Management reform strategy sets out a framework for strengthening how public resources are planned, budgeted, spent, recorded, and audited. Its reform areas give institutions and citizens a shared vocabulary for discussing transparency, accountability, and the quality of public financial information.",
-        imageUrl: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/1/10/Dizi_Highlands%2C_Sth_Ethiopia_%2850647997717%29.jpg",
+        imageSource: "https://commons.wikimedia.org/wiki/File:Dizi_Highlands,_Sth_Ethiopia_(50647997717).jpg",
+        imageCredit: "Rod Waddington, CC BY-SA 2.0",
         author: "Ministry of Finance",
         relatedPolicyTitle: "Public Financial Management (PFM) Reform Strategy",
         comments: [
@@ -42,7 +46,9 @@ const NEWS_SEED_DATA = [
     {
         title: "How Social Accountability Connects Citizens and Service Providers",
         content: "The Ethiopian Social Accountability Program implementation guide describes a structured way for communities and service providers to review public services together. The approach supports evidence-based dialogue, follow-up on agreed actions, and stronger participation in local planning and service improvement.",
-        imageUrl: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/b/b2/Ethiopian_Coffee_Ceremony_Set.jpg",
+        imageSource: "https://commons.wikimedia.org/wiki/File:Ethiopian_Coffee_Ceremony_Set.jpg",
+        imageCredit: "Khajitdadddy, CC BY-SA 4.0",
         author: "Ministry of Finance",
         relatedPolicyTitle: "Ethiopian Social Accountability Program (ESAP) Implementation Guide",
         comments: [
@@ -55,7 +61,9 @@ const NEWS_SEED_DATA = [
     {
         title: "National Energy Policy: Balancing Access, Reliability, and Sustainability",
         content: "Ethiopia's National Energy Policy provides a framework for developing energy resources and expanding access to reliable energy. Public discussion of energy policy can consider affordability, rural and urban access, the role of renewable resources, and how infrastructure decisions affect households and productive sectors.",
-        imageUrl: "https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&w=1200&q=80",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/9/99/Omo_Gibe_III%2C_Wolayita_3.jpg",
+        imageSource: "https://commons.wikimedia.org/wiki/File:Omo_Gibe_III,_Wolayita_3.jpg",
+        imageCredit: "Mimi Abebayehu, CC BY-SA 4.0",
         author: "Ministry of Water and Energy",
         relatedPolicyTitle: "National Energy Policy of Ethiopia",
         comments: [
@@ -72,7 +80,9 @@ const NEWS_SEED_DATA = [
     {
         title: "National Employment Policy: Connecting Skills and Decent Work",
         content: "The National Employment Policy and Strategy addresses employment promotion and the conditions that support productive work. Its themes provide a basis for discussing skills development, job opportunities for young people, inclusive access to work, and coordination between public institutions, employers, and training providers.",
-        imageUrl: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1200&q=80",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/f2/Ethiopia-farmers-harvest-teff.jpg",
+        imageSource: "https://commons.wikimedia.org/wiki/File:Ethiopia-farmers-harvest-teff.jpg",
+        imageCredit: "Esayas Ayele, CC BY-SA 4.0",
         author: "Ministry of Labor and Skills",
         relatedPolicyTitle: "National Employment Policy and Strategy of Ethiopia",
         comments: [
@@ -85,7 +95,9 @@ const NEWS_SEED_DATA = [
     {
         title: "Education and Training Policy: A Framework for Lifelong Learning",
         content: "Ethiopia's Education and Training Policy sets broad direction for education and skills formation. The policy invites discussion about equitable access, learning quality, teacher support, technical and vocational pathways, and how education can respond to changing community needs.",
-        imageUrl: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1200&q=80",
+        imageUrl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/School_in_Semien_Mountains%2C_Ethiopia.jpg/1280px-School_in_Semien_Mountains%2C_Ethiopia.jpg",
+        imageSource: "https://commons.wikimedia.org/wiki/File:School_in_Semien_Mountains,_Ethiopia.jpg",
+        imageCredit: "Zelalemgizachew, CC BY-SA 4.0",
         author: "Ministry of Education",
         relatedPolicyTitle: "Education and Training Policy",
         comments: [
@@ -98,7 +110,9 @@ const NEWS_SEED_DATA = [
     {
         title: "Tourism Development Policy: Supporting Communities and Heritage",
         content: "The National Tourism Development Policy offers a framework for developing tourism while recognizing Ethiopia's cultural and natural heritage. Citizens can consider how tourism planning supports local livelihoods, protects historic and natural sites, improves infrastructure, and shares benefits with host communities.",
-        imageUrl: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=1200&q=80",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/0/0b/Bete_Giyorgis_03.jpg",
+        imageSource: "https://commons.wikimedia.org/wiki/File:Bete_Giyorgis_03.jpg",
+        imageCredit: "Bernard Gagnon, CC BY-SA 3.0",
         author: "Ministry of Tourism",
         relatedPolicyTitle: "National Tourism Development Policy",
         comments: [
@@ -111,7 +125,9 @@ const NEWS_SEED_DATA = [
     {
         title: "Water Resources Management: Planning for Shared and Sustainable Use",
         content: "The Water Resources Management Policy frames the planning and use of Ethiopia's water resources. Policy discussions include watershed protection, reliable water supply, irrigation, coordination among users, and the need to manage water in ways that support communities and future generations.",
-        imageUrl: "https://images.unsplash.com/photo-1437482078695-73f5ca6c96e2?auto=format&fit=crop&w=1200&q=80",
+        imageUrl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/ET_Afar_asv2018-01_img48_Dallol.jpg/1280px-ET_Afar_asv2018-01_img48_Dallol.jpg",
+        imageSource: "https://commons.wikimedia.org/wiki/File:ET_Afar_asv2018-01_img48_Dallol.jpg",
+        imageCredit: "A.Savin, Free Art License",
         author: "Ministry of Water and Energy",
         relatedPolicyTitle: "Water Resources Management Policy",
         comments: [
@@ -124,7 +140,9 @@ const NEWS_SEED_DATA = [
     {
         title: "National Population Policy: Linking Demographic Trends and Services",
         content: "The National Population Policy of Ethiopia provides a framework for considering population dynamics alongside social and economic development. Its themes support discussion of health, education, livelihoods, population data, and the planning needed to make public services accessible as communities change.",
-        imageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1200&q=80",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/a/af/Ethiopian_Landscape_Near_Lalibela_%283352783606%29.jpg",
+        imageSource: "https://commons.wikimedia.org/wiki/File:Ethiopian_Landscape_Near_Lalibela_(3352783606).jpg",
+        imageCredit: "A. Davey, CC BY 2.0",
         author: "Ministry of Planning and Development",
         relatedPolicyTitle: "National Population Policy of Ethiopia",
         comments: [
@@ -137,7 +155,9 @@ const NEWS_SEED_DATA = [
     {
         title: "National Policy on Ethiopian Women: Advancing Equality and Participation",
         content: "The National Policy on Ethiopian Women establishes a framework for addressing women's participation and equality. Public discussion can examine how policy commitments translate into access to education and economic opportunity, representation in decision-making, and protection from barriers that limit full participation.",
-        imageUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1200&q=80",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/b/bc/ETHIOPIA%2CTIGRAY_ONION_MARKET.png",
+        imageSource: "https://commons.wikimedia.org/wiki/File:ETHIOPIA,TIGRAY_ONION_MARKET.png",
+        imageCredit: "Berket Mengesha, CC BY-SA 4.0",
         author: "Ministry of Women and Social Affairs",
         relatedPolicyTitle: "National Policy on Ethiopian Women",
         comments: [
@@ -202,11 +222,20 @@ async function seedNews({
                 user: new mongooseInstance.Types.ObjectId()
             }))
         }))
-        const operations = newsDocuments.map(({ title, content, imageUrl, author, relatedPolicy, comments }) => ({
+        const operations = newsDocuments.map(({
+            title,
+            content,
+            imageUrl,
+            imageSource,
+            imageCredit,
+            author,
+            relatedPolicy,
+            comments
+        }) => ({
             updateOne: {
                 filter: { title },
                 update: {
-                    $set: { content, imageUrl, author, relatedPolicy },
+                    $set: { content, imageUrl, imageSource, imageCredit, author, relatedPolicy },
                     $setOnInsert: { title, comments }
                 },
                 upsert: true
