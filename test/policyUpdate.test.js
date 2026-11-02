@@ -93,6 +93,29 @@ test("policy publishing stores a direct document URL and maps JSON fields to the
     })
 })
 
+test("policy publishing accepts a direct HTTP document URL", async () => {
+    let policyData
+    class Policy {
+        constructor(data) {
+            policyData = data
+        }
+        async save() {}
+    }
+
+    const response = makeResponse()
+    await createPolicyUpdateController({ Policy })({
+        body: {
+            title: "Public policy",
+            category: "Governance",
+            description: "A policy available over HTTP.",
+            documentUrl: "http://documents.example/policy.pdf"
+        }
+    }, response)
+
+    assert.equal(response.statusCode, 201)
+    assert.equal(policyData.documentUrl, "http://documents.example/policy.pdf")
+})
+
 test("policy publishing rejects missing or invalid fields and reports database errors", async () => {
     const shouldNotSave = createPolicyUpdateController({
         Policy: { save: () => assert.fail("Invalid policy should not be saved") }
@@ -100,7 +123,7 @@ test("policy publishing rejects missing or invalid fields and reports database e
     for (const body of [
         {},
         { title: "Title", category: "Economy", description: "Summary", documentUrl: "javascript:alert(1)" },
-        { title: "Title", category: "Economy", description: "Summary", documentUrl: "http://documents.example/policy.pdf" }
+        { title: "Title", category: "Economy", description: "Summary", documentUrl: "ftp://documents.example/policy.pdf" }
     ]) {
         const response = makeResponse()
         await shouldNotSave({ body }, response)

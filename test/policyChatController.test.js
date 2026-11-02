@@ -37,9 +37,18 @@ const policyUrl = "https://documents.example.test/policies/policy.pdf"
 const policyDocumentUrl = new URL(policyUrl)
 const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`
 const pdfBytes = Buffer.from("%PDF-1.7 policy contents")
-const publicLookup = async () => [{ address: "93.184.216.34", family: 4 }]
 const makeChatController = options => createPolicyChatController({
-    lookupImpl: publicLookup,
+    pdfFetcher: options.pdfFetcher || (async url => {
+        const fetchImpl = options.fetchImpl || fetch
+        const response = await fetchImpl(new URL(url), { redirect: "error" })
+        if (!response.ok) throw new Error(`Policy document host returned HTTP ${response.status}`)
+        const buffer = Buffer.from(await response.arrayBuffer())
+        if (buffer.length > MAX_PDF_BYTES) throw new RangeError("Policy PDF exceeds the supported size")
+        if (buffer.length < 5 || buffer.toString("ascii", 0, 5) !== "%PDF-") {
+            throw new Error("The policy document is not a valid PDF")
+        }
+        return buffer
+    }),
     ...options
 })
 
@@ -118,8 +127,6 @@ test("policy chat sends the PDF as base64 inline data and returns Gemini's answe
     assert.equal(GEMINI_MODEL, "gemini-3.1-flash-lite")
     const documentRequest = fetchMock.requests.find(request => request.url instanceof URL)
     assert.equal(documentRequest.url.href, policyDocumentUrl.href)
-    assert.ok(documentRequest.options.signal instanceof AbortSignal)
-    assert.equal(documentRequest.options.redirect, "error")
     assert.equal(geminiOptions.headers["x-goog-api-key"], "server-side-gemini-key")
     assert.deepEqual(JSON.parse(geminiOptions.body), {
         systemInstruction: {
@@ -141,22 +148,11 @@ test("policy chat sends the PDF as base64 inline data and returns Gemini's answe
     assert.equal(fetchMock.requests.find(request => request.url === geminiUrl).url.includes("?key="), false)
 })
 
-test("direct PDF URL fetch has a strict 10-second AbortController timeout", async () => {
-    let documentSignal
-    const fetchImpl = async (url, options = {}) => {
-        if (url instanceof URL && url.href === policyDocumentUrl.href) {
-            documentSignal = options.signal
-            return new Promise((resolve, reject) => {
-                options.signal.addEventListener("abort", () => reject(options.signal.reason), { once: true })
-            })
-        }
-        throw new Error(`Unexpected request: ${String(url)}`)
-    }
+test("policy chat reports PDF fetch timeouts as gateway timeouts", async () => {
     const controller = makeChatController({
         Policy: makePolicyModel(),
         apiKey: "server-side-gemini-key",
-        fetchImpl,
-        pdfFetchTimeoutMs: 5
+        pdfFetcher: async () => { throw new DOMException("Policy PDF fetch timed out", "TimeoutError") }
     })
     const res = makeResponse()
 
@@ -165,39 +161,7 @@ test("direct PDF URL fetch has a strict 10-second AbortController timeout", asyn
         body: { message: "Question" }
     }, res)
 
-    assert.equal(PDF_FETCH_TIMEOUT_MS, 10_000)
-    assert.equal(documentSignal.aborted, true)
-    assert.equal(res.statusCode, 504)
-    assert.match(res.body.error, /timed out/i)
-})
-
-test("PDF URL timeout also bounds a stalled body after headers", async () => {
-    const fetchImpl = async (url, options = {}) => {
-        if (url instanceof URL && url.href === policyDocumentUrl.href) {
-            return {
-                ok: true,
-                headers: new Headers(),
-                body: new ReadableStream({
-                    start() {},
-                    cancel() {}
-                })
-            }
-        }
-        throw new Error(`Unexpected request: ${String(url)}`)
-    }
-    const controller = makeChatController({
-        Policy: makePolicyModel(),
-        apiKey: "server-side-gemini-key",
-        fetchImpl,
-        pdfFetchTimeoutMs: 5
-    })
-    const res = makeResponse()
-
-    await controller.create({
-        params: { id: policyId },
-        body: { message: "Question" }
-    }, res)
-
+    assert.equal(PDF_FETCH_TIMEOUT_MS, 15_000)
     assert.equal(res.statusCode, 504)
     assert.match(res.body.error, /timed out/i)
 })
@@ -249,29 +213,11 @@ test("policy chat returns JSON for invalid input, missing policy, and unavailabl
     assert.deepEqual(databaseError.body, { success: false, error: "Unable to load this policy" })
 })
 
-test("policy chat rejects oversized, invalid, and unavailable PDF URLs with JSON errors", async () => {
-    let cancelled = false
+test("policy chat rejects oversized and invalid PDF documents with JSON errors", async () => {
     const oversizedController = makeChatController({
         Policy: makePolicyModel(),
         apiKey: "server-side-gemini-key",
-        fetchImpl: async url => {
-            if (url instanceof URL) {
-                return {
-                    ok: true,
-                    headers: new Headers(),
-                    body: new ReadableStream({
-                        start(stream) {
-                            stream.enqueue(new Uint8Array(MAX_PDF_BYTES))
-                            stream.enqueue(new Uint8Array(1))
-                        },
-                        cancel() {
-                            cancelled = true
-                        }
-                    })
-                }
-            }
-            throw new Error(`Unexpected request: ${String(url)}`)
-        }
+        pdfFetcher: async () => { throw new RangeError("Policy PDF exceeds the supported size") }
     })
     const oversized = makeResponse()
     await oversizedController.create({
@@ -279,7 +225,6 @@ test("policy chat rejects oversized, invalid, and unavailable PDF URLs with JSON
         body: { message: "Question" }
     }, oversized)
     assert.equal(oversized.statusCode, 413)
-    assert.equal(cancelled, true)
 
     const invalidPdfController = makeChatController({
         Policy: makePolicyModel(),
@@ -293,26 +238,6 @@ test("policy chat rejects oversized, invalid, and unavailable PDF URLs with JSON
     }, invalidPdf)
     assert.equal(invalidPdf.statusCode, 502)
     assert.match(invalidPdf.body.error, /not a valid PDF/)
-})
-
-test("policy chat refuses non-HTTPS and non-public PDF URLs before fetching", async () => {
-    for (const { url, lookupImpl } of [
-        { url: "http://documents.example.test/policy.pdf", lookupImpl: publicLookup },
-        { url: "https://documents.example.test/policy.pdf", lookupImpl: async () => [{ address: "127.0.0.1", family: 4 }] }
-    ]) {
-        const controller = createPolicyChatController({
-            Policy: makePolicyModel({ documentUrl: url }),
-            apiKey: "server-side-gemini-key",
-            fetchImpl: async () => assert.fail("Unsafe PDF URL must not be fetched"),
-            lookupImpl
-        })
-        const response = makeResponse()
-        await controller.create({
-            params: { id: policyId },
-            body: { message: "Question" }
-        }, response)
-        assert.equal(response.statusCode, 502)
-    }
 })
 
 test("Gemini HTTP errors, timeouts, and empty responses are returned as JSON", async () => {

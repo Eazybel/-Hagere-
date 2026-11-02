@@ -234,7 +234,7 @@ Receive updates when:
 - Toxic Content Detection
 - AI Moderation Assistance
 
-The policy-specific document assistant reads a policy's direct, publicly reachable HTTPS PDF URL and sends its contents to Google Gemini. The PDF URL must not redirect and must resolve only to public IP addresses. Set `GEMINI_API_KEY` in the server's environment to enable the assistant; the key is never sent to the browser.
+The policy-specific document assistant reads a policy's direct, publicly reachable HTTP or HTTPS PDF URL and sends its contents to Google Gemini. The PDF URL must not redirect and must resolve only to public IP addresses. HTTPS certificates are verified; configure an additional trusted certificate authority with Node's `NODE_EXTRA_CA_CERTS` rather than disabling TLS verification. Set `GEMINI_API_KEY` in the server's environment to enable the assistant; the key is never sent to the browser.
 
 ---
 

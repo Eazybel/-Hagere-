@@ -106,7 +106,7 @@
                         </div>
                         <div>
                             <h3 class="font-semibold text-antique-text">AI policy assistant (RAG)</h3>
-                            <p class="mt-1">The policy chat endpoint loads the policy's direct, publicly reachable HTTPS PDF URL, sends its content and the user's prompt to the Gemini API, and returns an Amharic answer grounded in the document. The URL must not redirect or resolve to private network addresses. The current implementation uses <code>gemini-3.1-flash-lite</code> and applies abort-controller timeouts to document retrieval and model requests.</p>
+                            <p class="mt-1">The policy chat endpoint loads the policy's direct, publicly reachable HTTP or HTTPS PDF URL, sends its content and the user's prompt to the Gemini API, and returns an Amharic answer grounded in the document. The URL must not redirect or resolve to private network addresses. HTTPS certificate verification remains enabled; configure trusted certificate authorities rather than bypassing TLS validation. The current implementation uses <code>gemini-3.1-flash-lite</code> with bounded document downloads and request timeouts.</p>
                         </div>
                         <div>
                             <h3 class="font-semibold text-antique-text">Database and seed data</h3>

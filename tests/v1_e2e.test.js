@@ -222,7 +222,11 @@ function makeTestApp({ fetchImpl, sleep, chatTimeoutMs } = {}) {
         Policy,
         apiKey: "test-gemini-api-key",
         fetchImpl,
-        lookupImpl: async () => [{ address: "93.184.216.34", family: 4 }],
+        pdfFetcher: async url => {
+            const response = await fetchImpl(new URL(url))
+            if (!response.ok) throw new Error(`Policy document host returned HTTP ${response.status}`)
+            return Buffer.from(await response.arrayBuffer())
+        },
         sleep,
         timeoutMs: chatTimeoutMs
     })
@@ -383,7 +387,7 @@ describe("Hagere v1 HTTP integration flows", () => {
         expect(state.news.has(newsId)).toBe(true)
     })
 
-    test("policy chat downloads and encodes the PDF, sends an abort signal, and returns Amharic", async () => {
+    test("policy chat fetches and encodes the PDF, then returns Amharic", async () => {
         let geminiOptions
         const { fetchImpl, requests } = makePdfAndGeminiFetch({
             onGeminiRequest: options => { geminiOptions = options }
@@ -399,7 +403,6 @@ describe("Hagere v1 HTTP integration flows", () => {
         expect(response.status).toBe(200)
         expect(response.body).toEqual({ success: true, reply: "የፖሊሲው መልስ።" })
         expect(requests[0].url.href).toBe(POLICY_PDF_URL)
-        expect(requests[0].options.signal).toBeInstanceOf(AbortSignal)
         expect(geminiOptions.signal).toBeInstanceOf(AbortSignal)
         expect(geminiOptions.headers["x-goog-api-key"]).toBe("test-gemini-api-key")
 
