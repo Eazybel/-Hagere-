@@ -27,7 +27,7 @@ Our goal is to encourage informed participation, respectful discussions, and gre
 
 Hagere V1 provides a responsive civic platform for discovering public policies, reading policy-related news, engaging with content, and asking questions about policy documents. The current implementation is a Node.js/Express application that serves static HTML, CSS, and JavaScript pages, exposes REST API endpoints, and persists data in MongoDB through Mongoose.
 
-Authentication is handled with Firebase Authentication. Policy-document question answering uses Google Gemini and document context; Cloudinary is configured for asset handling. Admin-only publishing and deletion operations are protected by role-based authorization.
+Authentication is handled with Firebase Authentication. Policy-document question answering uses Google Gemini and the policy's direct PDF URL. Admin-only publishing and deletion operations are protected by role-based authorization.
 
 The test suites were verified at **63/63 Node tests** and **9/9 V1 Jest integration/E2E tests** when the documentation page was added. Run the commands below to verify the current checkout.
 
@@ -57,7 +57,7 @@ Both seeders upsert their records by title and preserve existing policy engageme
 
 # 🧰 Local Development
 
-Requirements: a supported Node.js version, npm, and access to configured MongoDB, Firebase, and Cloudinary projects.
+Requirements: a supported Node.js version, npm, and access to configured MongoDB and Firebase projects.
 
 ```sh
 npm install
@@ -81,9 +81,6 @@ The application validates its environment on startup. Set these values in your l
 | `ADMIN_FIREBASE_PROJECT_ID` | Separate Firebase project ID used for admin authentication |
 | `ADMIN_SERVICE_ACCOUNT` | JSON service-account credentials for the admin Firebase project |
 | `ADMIN_UIDS` | Comma-separated allowlist of admin user IDs |
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
-| `CLOUDINARY_KEY` | Cloudinary API key |
-| `CLOUDINARY_SECRET` | Cloudinary API secret |
 
 For production, add the Render service's outbound IP addresses to MongoDB Atlas Network Access, use least-privilege database credentials, and add the deployed hostname to Firebase Authentication's Authorized domains. See the [deployment guide](public/docs.html#deployment) for operational details.
 
@@ -237,7 +234,7 @@ Receive updates when:
 - Toxic Content Detection
 - AI Moderation Assistance
 
-The policy-specific document assistant uses Google Gemini. Set `GEMINI_API_KEY` in the server's environment to enable it; the key is never sent to the browser.
+The policy-specific document assistant reads a policy's direct, publicly reachable HTTPS PDF URL and sends its contents to Google Gemini. The PDF URL must not redirect and must resolve only to public IP addresses. Set `GEMINI_API_KEY` in the server's environment to enable the assistant; the key is never sent to the browser.
 
 ---
 
@@ -302,10 +299,6 @@ The following items are roadmap concepts and should not be read as a description
 
 - Firebase Authentication
 - Firebase ID-token verification and role-based authorization
-
-### Cloud Storage
-
-- Cloudinary asset handling
 
 ### AI
 

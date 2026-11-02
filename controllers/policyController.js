@@ -58,14 +58,14 @@ const toPublicPolicy=(policy,currentUserId=null)=>{
 }
 
 /**
- * Validates that a document link uses HTTP(S) and contains no embedded credentials.
+ * Validates that a document link uses HTTPS and contains no embedded credentials.
  * @param {string} value Candidate document URL.
  * @returns {boolean} Whether the URL is acceptable.
  */
 const isValidDocumentUrl=value=>{
     try{
         const url=new URL(value)
-        return ["http:","https:"].includes(url.protocol) && !url.username && !url.password
+        return url.protocol==="https:" && !url.username && !url.password
     }catch{
         return false
     }

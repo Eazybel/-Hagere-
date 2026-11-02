@@ -84,7 +84,7 @@
                         <div class="rounded-md border border-antique-border bg-antique-bg p-4">
                             <h3 class="font-semibold">Version 1 platform</h3>
                             <p class="mt-2 font-sans text-sm leading-relaxed text-antique-muted">
-                                Node.js and Express serve the static frontend and REST API; MongoDB Atlas stores platform data; Firebase Authentication supports user identity; Cloudinary is configured for asset handling; and Gemini powers policy-document question answering.
+                                Node.js and Express serve the static frontend and REST API; MongoDB Atlas stores platform data; Firebase Authentication supports user identity; and Gemini powers policy-document question answering from direct PDF URLs.
                             </p>
                         </div>
                         <div class="rounded-md border border-antique-border bg-antique-bg p-4">
@@ -106,7 +106,7 @@
                         </div>
                         <div>
                             <h3 class="font-semibold text-antique-text">AI policy assistant (RAG)</h3>
-                            <p class="mt-1">The policy chat endpoint loads a policy's PDF, sends its content and the user's prompt to the Gemini API, and returns an Amharic answer grounded in the document. The current implementation uses <code>gemini-3.1-flash-lite</code>, validates Cloudinary PDF URLs, and applies abort-controller timeouts to document retrieval and model requests.</p>
+                            <p class="mt-1">The policy chat endpoint loads the policy's direct, publicly reachable HTTPS PDF URL, sends its content and the user's prompt to the Gemini API, and returns an Amharic answer grounded in the document. The URL must not redirect or resolve to private network addresses. The current implementation uses <code>gemini-3.1-flash-lite</code> and applies abort-controller timeouts to document retrieval and model requests.</p>
                         </div>
                         <div>
                             <h3 class="font-semibold text-antique-text">Database and seed data</h3>
@@ -128,7 +128,7 @@
 ├── scripts/          # Idempotent seed and maintenance scripts
 ├── test/             # Node test-runner unit and asset tests
 ├── tests/            # Jest/Supertest integration and E2E tests
-├── utils/            # Environment, database, and Cloudinary helpers
+├── utils/            # Environment and application helpers
 └── server.js         # Express app and route initialization</code></pre>
                 </section>
 
@@ -163,13 +163,13 @@
                     <h2 id="deployment-heading" class="mt-2 text-2xl font-semibold">Deployment &amp; environment operations</h2>
                     <ol class="mt-5 list-decimal space-y-4 pl-5 font-sans text-sm leading-relaxed text-antique-muted">
                         <li><strong class="text-antique-text">Create a Render Web Service.</strong> Connect the repository, use the Node runtime, set the build command to <code>npm install</code>, and the start command to <code>npm start</code>. Configure the service to use the repository's Node.js version and monitor deploy logs and health.</li>
-                        <li><strong class="text-antique-text">Configure environment variables.</strong> The app currently reads <code>CONNECTION_STRING</code> for MongoDB (not <code>MONGODB_URI</code>), plus <code>PORT</code>, <code>NODE_ENV</code>, <code>GEMINI_API_KEY</code>, <code>FIREBASE_API</code>, <code>SERVICE_ACCOUNT</code>, <code>ADMIN_FIREBASE_PROJECT_ID</code>, <code>ADMIN_SERVICE_ACCOUNT</code>, <code>ADMIN_UIDS</code>, and <code>CLOUDINARY_CLOUD_NAME</code>, <code>CLOUDINARY_KEY</code>, <code>CLOUDINARY_SECRET</code>. Store credentials only in the hosting provider's secret environment settings, never in source control.</li>
+                        <li><strong class="text-antique-text">Configure environment variables.</strong> The app currently reads <code>CONNECTION_STRING</code> for MongoDB (not <code>MONGODB_URI</code>), plus <code>PORT</code>, <code>NODE_ENV</code>, <code>GEMINI_API_KEY</code>, <code>FIREBASE_API</code>, <code>SERVICE_ACCOUNT</code>, <code>ADMIN_FIREBASE_PROJECT_ID</code>, <code>ADMIN_SERVICE_ACCOUNT</code>, and <code>ADMIN_UIDS</code>. Store credentials only in the hosting provider's secret environment settings, never in source control.</li>
                         <li><strong class="text-antique-text">Set up MongoDB Atlas access.</strong> Create a database user with only the permissions the app needs, set <code>CONNECTION_STRING</code> to its SRV connection string, and allow the Render service's outbound IP addresses in Atlas Network Access. Avoid broad public IP access in production.</li>
                         <li><strong class="text-antique-text">Configure Firebase Authentication.</strong> Enable the sign-in providers used by the app and add the deployed Render hostname to Firebase Authentication's Authorized domains. Ensure the client Firebase configuration and server service-account credentials belong to their intended projects; configure the admin project and allowlisted admin UIDs separately.</li>
                         <li><strong class="text-antique-text">Verify the deployment.</strong> Confirm the service starts, static pages load, database connection succeeds, authentication callbacks return to an authorized domain, and policy chat has a valid Gemini API key. Run <code>npm test</code> before deploying changes.</li>
                     </ol>
                     <p class="mt-5 rounded-md border border-antique-border bg-antique-bg p-4 font-sans text-xs leading-relaxed text-antique-muted">
-                        Environment variable names above follow the current application configuration. Firebase web API configuration is not a substitute for protecting server credentials; never publish service-account private keys or Cloudinary secrets.
+                        Environment variable names above follow the current application configuration. Firebase web API configuration is not a substitute for protecting server credentials; never publish service-account private keys.
                     </p>
                 </section>
             </main>

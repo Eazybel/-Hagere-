@@ -1,44 +1,128 @@
 /**
  * @file policyChatController.js
- * @description Retrieves bounded Cloudinary PDF content and sends policy-grounded questions to Gemini with timeout/retry handling.
+ * @description Retrieves bounded PDF content from public HTTPS URLs and sends policy-grounded questions to Gemini with timeout/retry handling.
  * @module Controllers/PolicyChat
- * @requires mongoose and Node.js fetch, Buffer, AbortController APIs
+ * @requires mongoose and Node.js HTTPS, DNS, fetch, Buffer, and AbortController APIs
  */
 const mongoose = require("mongoose")
+const { lookup } = require("node:dns/promises")
+const { isIP } = require("node:net")
+const { request: httpsRequest } = require("node:https")
+const { Readable } = require("node:stream")
 
 const SYSTEM_INSTRUCTION = "You are an expert AI civic assistant for Hagere. Read the attached policy document carefully, and answer the user's question accurately and thoroughly in Amharic (አማርኛ)."
 const MAX_MESSAGE_LENGTH = 4000
 const MAX_PDF_BYTES = 14 * 1024 * 1024
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com"
 const GEMINI_MODEL = "gemini-3.1-flash-lite"
-const CLOUDINARY_FETCH_TIMEOUT_MS = 10_000
+const PDF_FETCH_TIMEOUT_MS = 10_000
 const GEMINI_REQUEST_TIMEOUT_MS = 90_000
 const GEMINI_503_RETRIES = 2
 const GEMINI_RETRY_DELAY_MS = 2000
 
 /**
- * Restricts policy document retrieval to credential-free Cloudinary URLs.
+ * Restricts policy document retrieval to credential-free HTTPS URLs resolving only to public IPs.
  * @param {string} pdfUrl Stored policy document URL.
- * @returns {?URL} HTTPS Cloudinary URL or null when outside the allowed URL shape.
+ * @param {Function} lookupImpl DNS lookup implementation.
+ * @returns {Promise<{url: URL, addresses: object[]}>} Validated public HTTPS destination.
  */
-function getCloudinaryUrl(pdfUrl) {
+async function getPublicPdfUrl(pdfUrl, lookupImpl) {
     let url
     try {
         url = new URL(pdfUrl)
     } catch {
-        return null
+        throw new Error("Policy document URL is invalid")
     }
 
-    if (url.hostname !== "res.cloudinary.com"
-        || !["http:", "https:"].includes(url.protocol)
+    if (url.protocol !== "https:"
         || url.username
         || url.password
-        || (url.port && url.port !== "80" && url.port !== "443")) {
-        return null
+        || (url.port && url.port !== "443")) {
+        throw new Error("Policy document URL must use HTTPS without embedded credentials")
     }
-    url.protocol = "https:"
-    url.port = ""
-    return url
+
+    const hostname = url.hostname.replace(/^\[|\]$/g, "")
+    const addresses = isIP(hostname)
+        ? [{ address: hostname, family: isIP(hostname) }]
+        : await lookupImpl(hostname, { all: true, verbatim: true })
+    if (!addresses.length || addresses.some(({ address }) => !isPublicIp(address))) {
+        throw new Error("Policy document URL must resolve only to public IP addresses")
+    }
+
+    return { url, addresses }
+}
+
+function createPinnedLookup(addresses) {
+    return (hostname, options, callback) => {
+        if (typeof options === "function") {
+            callback = options
+            options = {}
+        }
+        options = options || {}
+        const matchingAddresses = addresses.filter(({ family }) =>
+            !options.family || family === options.family
+        )
+        if (!matchingAddresses.length) {
+            callback(new Error("No public IP address available for policy PDF host"))
+            return
+        }
+        if (options.all) {
+            callback(null, matchingAddresses)
+            return
+        }
+        callback(null, matchingAddresses[0].address, matchingAddresses[0].family)
+    }
+}
+
+function fetchPinnedPdf(url, addresses, signal) {
+    return new Promise((resolve, reject) => {
+        const request = httpsRequest(url, {
+            method: "GET",
+            signal,
+            lookup: createPinnedLookup(addresses)
+        }, response => {
+            const headers = new Headers()
+            for (const [name, value] of Object.entries(response.headers)) {
+                if (value !== undefined) {
+                    headers.set(name, Array.isArray(value) ? value.join(", ") : value)
+                }
+            }
+            const ok = response.statusCode >= 200 && response.statusCode < 300
+            if (!ok) response.resume()
+            resolve({
+                ok,
+                status: response.statusCode,
+                headers,
+                body: ok ? Readable.toWeb(response) : null
+            })
+        })
+        request.once("error", reject)
+        request.end()
+    })
+}
+
+function isPublicIp(address) {
+    const family = isIP(address)
+    if (family === 4) {
+        const octets = address.split(".").map(Number)
+        const value = octets.reduce((result, octet) => result * 256 + octet, 0)
+        const blockedRanges = [
+            [0x00000000, 8], [0x0a000000, 8], [0x64400000, 10], [0x7f000000, 8],
+            [0xa9fe0000, 16], [0xac100000, 12], [0xc0000000, 24], [0xc0000200, 24],
+            [0xc0586300, 24], [0xc0a80000, 16], [0xc6120000, 15], [0xc6336400, 24],
+            [0xcb007100, 24], [0xe0000000, 4], [0xf0000000, 4]
+        ]
+        return !blockedRanges.some(([network, prefix]) =>
+            Math.floor(value / 2 ** (32 - prefix)) === Math.floor(network / 2 ** (32 - prefix))
+        )
+    }
+    if (family !== 6) return false
+
+    const normalized = address.toLowerCase()
+    if (normalized.startsWith("::ffff:")) {
+        return isPublicIp(normalized.slice(7))
+    }
+    return /^[23]/.test(normalized) && !normalized.startsWith("2001:db8:")
 }
 
 /**
@@ -183,52 +267,50 @@ function getInteractionReply(interaction) {
 
 /**
  * Creates HTTP handlers for synchronous Gemini policy chat and interaction polling.
- * @param {object} options Policy model, API key, fetch implementation, and timeout/retry dependencies.
+ * @param {object} options Policy model, API key, request dependencies, and timeout/retry configuration.
  * @returns {{create: import("express").RequestHandler, poll: import("express").RequestHandler}} Chat handlers.
  */
 function createPolicyChatController({
     Policy,
     apiKey = process.env.GEMINI_API_KEY,
     fetchImpl = fetch,
+    lookupImpl = lookup,
     timeoutMs = GEMINI_REQUEST_TIMEOUT_MS,
-    cloudinaryTimeoutMs = CLOUDINARY_FETCH_TIMEOUT_MS,
+    pdfFetchTimeoutMs = PDF_FETCH_TIMEOUT_MS,
     sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds))
 }) {
     /**
-     * Fetches a bounded PDF from Cloudinary. AbortController limits network resource use.
+     * Fetches a bounded PDF from its public HTTPS URL. AbortController limits network resource use.
      * @param {string} pdfUrl Policy document URL.
      * @returns {Promise<Buffer>} PDF bytes.
      * @throws {Error} For invalid/unavailable documents or fetch timeout.
      */
     async function fetchPdfBuffer(pdfUrl) {
-        const cloudinaryUrl = getCloudinaryUrl(pdfUrl)
-        if (!cloudinaryUrl) {
-            const error = new Error("Policy document URL is invalid")
-            error.status = 502
-            throw error
-        }
+        const { url: documentUrl, addresses } = await getPublicPdfUrl(pdfUrl, lookupImpl)
 
         const abortController = new AbortController()
         let timeout
         let onAbort
         const timeoutPromise = new Promise((_, reject) => {
             onAbort = () => reject(abortController.signal.reason
-                || new DOMException("Cloudinary PDF fetch timed out", "TimeoutError"))
+                || new DOMException("Policy PDF fetch timed out", "TimeoutError"))
             abortController.signal.addEventListener("abort", onAbort, { once: true })
             timeout = setTimeout(() => {
-                abortController.abort(new DOMException("Cloudinary PDF fetch timed out", "TimeoutError"))
-            }, cloudinaryTimeoutMs)
+                abortController.abort(new DOMException("Policy PDF fetch timed out", "TimeoutError"))
+            }, pdfFetchTimeoutMs)
         })
 
         try {
             return await Promise.race([
                 (async () => {
-                    const response = await fetchImpl(cloudinaryUrl, {
-                        redirect: "error",
-                        signal: abortController.signal
-                    })
+                    const response = fetchImpl === fetch
+                        ? await fetchPinnedPdf(documentUrl, addresses, abortController.signal)
+                        : await fetchImpl(documentUrl, {
+                            redirect: "error",
+                            signal: abortController.signal
+                        })
                     if (!response.ok) {
-                        const error = new Error(`Cloudinary returned HTTP ${response.status} for the policy PDF`)
+                        const error = new Error(`Policy document host returned HTTP ${response.status}`)
                         error.status = 502
                         throw error
                     }
@@ -430,7 +512,7 @@ module.exports = {
     SYSTEM_INSTRUCTION,
     MAX_MESSAGE_LENGTH,
     MAX_PDF_BYTES,
-    CLOUDINARY_FETCH_TIMEOUT_MS,
+    PDF_FETCH_TIMEOUT_MS,
     GEMINI_REQUEST_TIMEOUT_MS,
     GEMINI_503_RETRIES,
     GEMINI_RETRY_DELAY_MS,

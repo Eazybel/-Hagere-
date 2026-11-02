@@ -23,9 +23,6 @@ const envSchema = z.object({
         value => value.startsWith("mongodb://") || value.startsWith("mongodb+srv://"),
         "must be a MongoDB connection string"
     ),
-    CLOUDINARY_CLOUD_NAME: z.string().min(1),
-    CLOUDINARY_KEY: z.string().min(1),
-    CLOUDINARY_SECRET: z.string().min(1),
     FIREBASE_API: z.string().min(1),
     GEMINI_API_KEY: z.string().trim().min(1).optional(),
     SERVICE_ACCOUNT: z.string().min(1),

@@ -4,9 +4,6 @@ const assert = require("node:assert/strict")
 process.env.NODE_ENV = "test"
 process.env.PORT = "3000"
 process.env.CONNECTION_STRING = "mongodb://127.0.0.1:27017/hagere-test"
-process.env.CLOUDINARY_CLOUD_NAME = "test-cloud"
-process.env.CLOUDINARY_KEY = "test-key"
-process.env.CLOUDINARY_SECRET = "test-secret"
 process.env.FIREBASE_API = "test-api-key"
 process.env.SERVICE_ACCOUNT = JSON.stringify({
     type: "service_account",
@@ -102,7 +99,8 @@ test("policy publishing rejects missing or invalid fields and reports database e
     })
     for (const body of [
         {},
-        { title: "Title", category: "Economy", description: "Summary", documentUrl: "javascript:alert(1)" }
+        { title: "Title", category: "Economy", description: "Summary", documentUrl: "javascript:alert(1)" },
+        { title: "Title", category: "Economy", description: "Summary", documentUrl: "http://documents.example/policy.pdf" }
     ]) {
         const response = makeResponse()
         await shouldNotSave({ body }, response)

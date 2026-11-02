@@ -24,7 +24,7 @@ const { createAuthorizeRoles } = require("../middleware/auth")
 
 const CITIZEN_PROJECT_ID = "test-citizen-project"
 const ADMIN_PROJECT_ID = "test-admin-project"
-const POLICY_PDF_URL = "https://res.cloudinary.com/test-cloud/raw/upload/policy.pdf"
+const POLICY_PDF_URL = "https://documents.example.test/policy.pdf"
 const NEWS_IMAGE_URL = "https://images.example.test/policy-news.jpg"
 const PDF_BYTES = Buffer.from("%PDF-1.7\nHagere test policy")
 
@@ -222,6 +222,7 @@ function makeTestApp({ fetchImpl, sleep, chatTimeoutMs } = {}) {
         Policy,
         apiKey: "test-gemini-api-key",
         fetchImpl,
+        lookupImpl: async () => [{ address: "93.184.216.34", family: 4 }],
         sleep,
         timeoutMs: chatTimeoutMs
     })

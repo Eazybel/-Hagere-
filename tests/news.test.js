@@ -7,7 +7,7 @@ const News = require("../models/News")
 const newsId = new mongoose.Types.ObjectId()
 const userId = new mongoose.Types.ObjectId()
 const policyId = new mongoose.Types.ObjectId()
-const policyImageUrl = "https://res.cloudinary.com/hagere/image/upload/v1/news.jpg"
+const policyImageUrl = "https://images.example.test/news.jpg"
 
 function makeResponse() {
     return {
