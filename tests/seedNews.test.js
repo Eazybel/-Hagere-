@@ -56,7 +56,7 @@ test("news seeder upserts ten policy news posts with linked policies and closes 
     assert.equal(operations[0].updateOne.filter.title, NEWS_SEED_DATA[0].title)
     assert.equal(operations[0].updateOne.update.$set.relatedPolicy, policyId)
     assert.equal(operations[0].updateOne.update.$set.imageUrl, NEWS_SEED_DATA[0].imageUrl)
-    assert.match(NEWS_SEED_DATA[0].imageUrl, /^https:\/\/(?:upload|thumb)\.wikimedia\.org\//)
+    assert.ok(NEWS_SEED_DATA.every(entry => entry.imageUrl.includes("/960px-")))
     assert.equal(operations[0].updateOne.update.$set.imageSource, NEWS_SEED_DATA[0].imageSource)
     assert.equal(operations[0].updateOne.update.$set.imageCredit, NEWS_SEED_DATA[0].imageCredit)
     assert.equal(new Set(NEWS_SEED_DATA.map(entry => entry.imageUrl)).size, 10)

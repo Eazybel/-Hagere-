@@ -43,14 +43,19 @@ function renderComment(comment) {
     return item
 }
 
-function renderNewsPost(post, user) {
+function renderNewsPost(post, user, index) {
     post.comments = Array.isArray(post.comments) ? post.comments : []
     const card = makeElement("article", "overflow-hidden rounded-lg border border-antique-border bg-antique-card")
     const image = document.createElement("img")
     image.className = "h-56 w-full bg-antique-bg object-cover"
     image.src = post.imageUrl
     image.alt = post.title
-    image.loading = "lazy"
+    image.loading = index < 2 ? "eager" : "lazy"
+    image.decoding = "async"
+    image.fetchPriority = index < 2 ? "high" : "low"
+    image.width = 640
+    image.height = 360
+    image.sizes = "(min-width: 768px) 50vw, 100vw"
     image.referrerPolicy = "no-referrer"
     image.addEventListener("error", () => {
         image.removeAttribute("src")
@@ -190,7 +195,7 @@ async function loadNews(user) {
             showFeedMessage("No policy news published yet.")
             return
         }
-        newsFeed.replaceChildren(...posts.map(post => renderNewsPost(post, user)))
+        newsFeed.replaceChildren(...posts.map((post, index) => renderNewsPost(post, user, index)))
     } catch (error) {
         console.error("News feed request failed:", error)
         showFeedMessage("Unable to load policy news. Please try again later.", true)
