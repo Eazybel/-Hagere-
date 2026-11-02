@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Technical, API, and deployment documentation for the Hagere Civic Platform.">
+    <title>Documentation | Hagere (ሀገሬ)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./header.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        antique: {
+                            bg: '#F7F5F0',
+                            card: '#FBFBFA',
+                            border: '#D6CEC2',
+                            text: '#1E293B',
+                            muted: '#57534E',
+                            accent: '#92400E',
+                            accentHover: '#78350F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-antique-bg font-serif text-antique-text antialiased">
+    <header class="site-header sticky top-0 z-30 border-b">
+        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+            <a href="index.html" class="text-xl font-bold tracking-tight text-white">ሀገሬ (Hagere)</a>
+            <nav aria-label="Main navigation" class="flex items-center gap-5 font-sans text-sm">
+                <a href="feed.html" class="hover:underline">Policies</a>
+                <a href="news.html" class="hover:underline">Policy News</a>
+                <a href="docs.html" aria-current="page" class="font-semibold underline">Documentation</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="mx-auto max-w-7xl px-4 py-8 md:py-12">
+        <div class="mb-8 max-w-3xl">
+            <p class="mb-2 font-sans text-xs font-semibold uppercase tracking-widest text-antique-accent">Hagere Civic Platform · Version 1</p>
+            <h1 class="text-3xl font-normal tracking-tight md:text-4xl">Platform documentation</h1>
+            <p class="mt-3 font-sans leading-relaxed text-antique-muted">
+                An operator and developer guide to the platform's purpose, architecture, API, and deployment.
+            </p>
+        </div>
+
+        <div class="mb-6 md:hidden">
+            <label for="docsSectionSelect" class="mb-2 block font-sans text-sm font-medium">Jump to a section</label>
+            <select id="docsSectionSelect" class="w-full rounded-md border border-antique-border bg-antique-card px-3 py-2.5 font-sans text-sm">
+                <option value="#overview">Executive overview &amp; V1 status</option>
+                <option value="#architecture">Technical architecture &amp; data flow</option>
+                <option value="#structure">Project directory</option>
+                <option value="#api">API endpoint reference</option>
+                <option value="#deployment">Deployment &amp; environment</option>
+            </select>
+        </div>
+
+        <div class="grid gap-8 md:grid-cols-[15rem_minmax(0,1fr)]">
+            <aside class="hidden md:block">
+                <nav aria-label="Documentation sections" class="sticky top-24 rounded-lg border border-antique-border bg-antique-card p-4 font-sans">
+                    <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-antique-muted">On this page</h2>
+                    <ul class="space-y-1 text-sm">
+                        <li><a href="#overview" class="block rounded px-2 py-2 hover:bg-antique-bg hover:text-antique-accent">Overview &amp; V1 status</a></li>
+                        <li><a href="#architecture" class="block rounded px-2 py-2 hover:bg-antique-bg hover:text-antique-accent">Architecture &amp; data flow</a></li>
+                        <li><a href="#structure" class="block rounded px-2 py-2 hover:bg-antique-bg hover:text-antique-accent">Project directory</a></li>
+                        <li><a href="#api" class="block rounded px-2 py-2 hover:bg-antique-bg hover:text-antique-accent">API reference</a></li>
+                        <li><a href="#deployment" class="block rounded px-2 py-2 hover:bg-antique-bg hover:text-antique-accent">Deployment</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <main class="min-w-0 space-y-6">
+                <section id="overview" aria-labelledby="overview-heading" class="scroll-mt-24 rounded-lg border border-antique-border bg-antique-card p-5 md:p-8">
+                    <p class="font-sans text-xs font-semibold uppercase tracking-wider text-antique-accent">01 · Purpose and status</p>
+                    <h2 id="overview-heading" class="mt-2 text-2xl font-semibold">Executive overview &amp; V1 status</h2>
+                    <p class="mt-4 leading-relaxed text-antique-muted">
+                        Hagere empowers Ethiopian civic engagement by making public policies easier to discover, understand, and discuss. The platform brings policy documents, public discussion, and policy-related news into one accessible civic space.
+                    </p>
+                    <div class="mt-5 grid gap-4 sm:grid-cols-2">
+                        <div class="rounded-md border border-antique-border bg-antique-bg p-4">
+                            <h3 class="font-semibold">Version 1 platform</h3>
+                            <p class="mt-2 font-sans text-sm leading-relaxed text-antique-muted">
+                                Node.js and Express serve the static frontend and REST API; MongoDB Atlas stores platform data; Firebase Authentication supports user identity; Cloudinary is configured for asset handling; and Gemini powers policy-document question answering.
+                            </p>
+                        </div>
+                        <div class="rounded-md border border-antique-border bg-antique-bg p-4">
+                            <h3 class="font-semibold">Verification</h3>
+                            <p class="mt-2 font-sans text-sm leading-relaxed text-antique-muted">
+                                The V1 baseline was 61/61 tests passing; the latest verification on this checkout passed 63/63. Run <code class="rounded bg-antique-card px-1.5 py-0.5">npm test</code> after changes for the current result.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="architecture" aria-labelledby="architecture-heading" class="scroll-mt-24 rounded-lg border border-antique-border bg-antique-card p-5 md:p-8">
+                    <p class="font-sans text-xs font-semibold uppercase tracking-wider text-antique-accent">02 · System design</p>
+                    <h2 id="architecture-heading" class="mt-2 text-2xl font-semibold">Technical architecture &amp; data flow</h2>
+                    <div class="mt-5 space-y-5 font-sans text-sm leading-relaxed text-antique-muted">
+                        <div>
+                            <h3 class="font-semibold text-antique-text">Client and server</h3>
+                            <p class="mt-1">Express serves static HTML, CSS, and JavaScript from <code>public/</code>. Browser pages call RESTful Express routes, which validate requests, enforce role-based authorization where required, and read or update MongoDB through Mongoose.</p>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-antique-text">AI policy assistant (RAG)</h3>
+                            <p class="mt-1">The policy chat endpoint loads a policy's PDF, sends its content and the user's prompt to the Gemini API, and returns an Amharic answer grounded in the document. The current implementation uses <code>gemini-3.1-flash-lite</code>, validates Cloudinary PDF URLs, and applies abort-controller timeouts to document retrieval and model requests.</p>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-antique-text">Database and seed data</h3>
+                            <p class="mt-1">Mongoose models represent <code>Policy</code>, <code>News</code>, and <code>User</code> records. The seed scripts use repeatable upserts and retry transient MongoDB Atlas DNS SRV and connection failures.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="structure" aria-labelledby="structure-heading" class="scroll-mt-24 rounded-lg border border-antique-border bg-antique-card p-5 md:p-8">
+                    <p class="font-sans text-xs font-semibold uppercase tracking-wider text-antique-accent">03 · Repository map</p>
+                    <h2 id="structure-heading" class="mt-2 text-2xl font-semibold">Project directory &amp; codebase structure</h2>
+                    <p class="mt-3 font-sans text-sm leading-relaxed text-antique-muted">The repository uses both <code>controller/</code> and <code>controllers/</code> for request-handling modules. Environment and integration helpers live in <code>utils/</code>.</p>
+                    <pre class="mt-4 overflow-x-auto rounded-md border border-antique-border bg-antique-bg p-4 font-mono text-xs leading-6 text-antique-text"><code>.
+├── controller/       # Core policy, auth, chat, and analytics controllers
+├── controllers/      # News request handlers
+├── middleware/       # Authentication, authorization, and error handling
+├── models/           # Mongoose schemas (Policy, News, User)
+├── public/           # HTML, browser JavaScript, and shared styles/assets
+├── routes/           # Express REST API routes
+├── scripts/          # Idempotent seed and maintenance scripts
+├── test/             # Node test-runner unit and asset tests
+├── tests/            # Jest/Supertest integration and E2E tests
+├── utils/            # Environment, database, and Cloudinary helpers
+└── server.js         # Express app and route initialization</code></pre>
+                </section>
+
+                <section id="api" aria-labelledby="api-heading" class="scroll-mt-24 rounded-lg border border-antique-border bg-antique-card p-5 md:p-8">
+                    <p class="font-sans text-xs font-semibold uppercase tracking-wider text-antique-accent">04 · HTTP interface</p>
+                    <h2 id="api-heading" class="mt-2 text-2xl font-semibold">API endpoint reference</h2>
+                    <div class="mt-4 overflow-x-auto">
+                        <table class="w-full min-w-[38rem] border-collapse text-left font-sans text-sm">
+                            <thead>
+                                <tr class="border-b border-antique-border text-xs uppercase tracking-wide text-antique-muted">
+                                    <th scope="col" class="px-3 py-3">Method</th>
+                                    <th scope="col" class="px-3 py-3">Endpoint</th>
+                                    <th scope="col" class="px-3 py-3">Purpose and access</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-antique-border">
+                                <tr><td class="px-3 py-3 font-mono">GET</td><td class="px-3 py-3 font-mono">/api/policies</td><td class="px-3 py-3">List policies; public access, optional authenticated context.</td></tr>
+                                <tr><td class="px-3 py-3 font-mono">POST</td><td class="px-3 py-3 font-mono">/api/policies/:id/chat</td><td class="px-3 py-3">Ask the AI assistant about a policy document.</td></tr>
+                                <tr><td class="px-3 py-3 font-mono">GET</td><td class="px-3 py-3 font-mono">/api/news</td><td class="px-3 py-3">Read the news feed; public access.</td></tr>
+                                <tr><td class="px-3 py-3 font-mono">POST</td><td class="px-3 py-3 font-mono">/api/news/:id/like</td><td class="px-3 py-3">Toggle a citizen's like on a news item; citizen authentication required.</td></tr>
+                                <tr><td class="px-3 py-3 font-mono">POST</td><td class="px-3 py-3 font-mono">/api/news/:id/comment</td><td class="px-3 py-3">Add a comment to a news item; citizen authentication required.</td></tr>
+                                <tr><td class="px-3 py-3 font-mono">DELETE</td><td class="px-3 py-3 font-mono">/api/policies/:id</td><td class="px-3 py-3">Delete a policy; admin authentication required.</td></tr>
+                                <tr><td class="px-3 py-3 font-mono">DELETE</td><td class="px-3 py-3 font-mono">/api/news/:id</td><td class="px-3 py-3">Delete a news item; admin authentication required.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="mt-4 font-sans text-xs leading-relaxed text-antique-muted">Authenticated calls use the Firebase ID token in the <code>Authorization: Bearer &lt;token&gt;</code> header. Request bodies should be JSON where applicable.</p>
+                </section>
+
+                <section id="deployment" aria-labelledby="deployment-heading" class="scroll-mt-24 rounded-lg border border-antique-border bg-antique-card p-5 md:p-8">
+                    <p class="font-sans text-xs font-semibold uppercase tracking-wider text-antique-accent">05 · Operations</p>
+                    <h2 id="deployment-heading" class="mt-2 text-2xl font-semibold">Deployment &amp; environment operations</h2>
+                    <ol class="mt-5 list-decimal space-y-4 pl-5 font-sans text-sm leading-relaxed text-antique-muted">
+                        <li><strong class="text-antique-text">Create a Render Web Service.</strong> Connect the repository, use the Node runtime, set the build command to <code>npm install</code>, and the start command to <code>npm start</code>. Configure the service to use the repository's Node.js version and monitor deploy logs and health.</li>
+                        <li><strong class="text-antique-text">Configure environment variables.</strong> The app currently reads <code>CONNECTION_STRING</code> for MongoDB (not <code>MONGODB_URI</code>), plus <code>PORT</code>, <code>NODE_ENV</code>, <code>GEMINI_API_KEY</code>, <code>FIREBASE_API</code>, <code>SERVICE_ACCOUNT</code>, <code>ADMIN_FIREBASE_PROJECT_ID</code>, <code>ADMIN_SERVICE_ACCOUNT</code>, <code>ADMIN_UIDS</code>, and <code>CLOUDINARY_CLOUD_NAME</code>, <code>CLOUDINARY_KEY</code>, <code>CLOUDINARY_SECRET</code>. Store credentials only in the hosting provider's secret environment settings, never in source control.</li>
+                        <li><strong class="text-antique-text">Set up MongoDB Atlas access.</strong> Create a database user with only the permissions the app needs, set <code>CONNECTION_STRING</code> to its SRV connection string, and allow the Render service's outbound IP addresses in Atlas Network Access. Avoid broad public IP access in production.</li>
+                        <li><strong class="text-antique-text">Configure Firebase Authentication.</strong> Enable the sign-in providers used by the app and add the deployed Render hostname to Firebase Authentication's Authorized domains. Ensure the client Firebase configuration and server service-account credentials belong to their intended projects; configure the admin project and allowlisted admin UIDs separately.</li>
+                        <li><strong class="text-antique-text">Verify the deployment.</strong> Confirm the service starts, static pages load, database connection succeeds, authentication callbacks return to an authorized domain, and policy chat has a valid Gemini API key. Run <code>npm test</code> before deploying changes.</li>
+                    </ol>
+                    <p class="mt-5 rounded-md border border-antique-border bg-antique-bg p-4 font-sans text-xs leading-relaxed text-antique-muted">
+                        Environment variable names above follow the current application configuration. Firebase web API configuration is not a substitute for protecting server credentials; never publish service-account private keys or Cloudinary secrets.
+                    </p>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <footer class="mt-8 border-t border-antique-border bg-antique-card py-6 font-sans text-xs text-antique-muted">
+        <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 sm:flex-row">
+            <p>&copy; 2026 Hagere Civic Platform.</p>
+            <a href="docs.html" class="hover:text-amber-700 underline transition-colors">Documentation</a>
+        </div>
+    </footer>
+    <script>
+        document.getElementById("docsSectionSelect").addEventListener("change", event => {
+            window.location.hash = event.currentTarget.value
+        })
+    </script>
+</body>
+</html>
