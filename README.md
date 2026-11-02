@@ -2,12 +2,14 @@
 
 > **Empowering Every Ethiopian Voice Through Transparent Civic Engagement.**
 
-![Status](https://img.shields.io/badge/Status-Under%20Development-orange?style=for-the-badge)
-![Version](https://img.shields.io/badge/Version-Pre--Alpha-blue?style=for-the-badge)
-![Made With](https://img.shields.io/badge/Made%20With-MERN%20Stack-success?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Version%201%20Ready-success?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-1-blue?style=for-the-badge)
+![Made With](https://img.shields.io/badge/Made%20With-Node.js%20%7C%20Express%20%7C%20MongoDB-success?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-Coming%20Soon-lightgrey?style=for-the-badge)
 
 ---
+
+> **Platform documentation:** [Open the documentation page](public/docs.html) for the architecture, API reference, project structure, and deployment guide.
 
 ## 🌍 About Hagere
 
@@ -21,23 +23,28 @@ Our goal is to encourage informed participation, respectful discussions, and gre
 
 ---
 
-# 🚧 Project Status
+# 🚀 Version 1 Status
 
-## ⚠️ Under Active Development
+Hagere V1 provides a responsive civic platform for discovering public policies, reading policy-related news, engaging with content, and asking questions about policy documents. The current implementation is a Node.js/Express application that serves static HTML, CSS, and JavaScript pages, exposes REST API endpoints, and persists data in MongoDB through Mongoose.
 
-Hagere is currently in its **Pre-Alpha Development Phase**.
+Authentication is handled with Firebase Authentication. Policy-document question answering uses Google Gemini and document context; Cloudinary is configured for asset handling. Admin-only publishing and deletion operations are protected by role-based authorization.
 
-Our team is actively designing, developing, and refining every aspect of the platform—from user experience to backend infrastructure—to ensure it meets high standards of performance, security, scalability, and usability.
+The test suites were verified at **63/63 Node tests** and **9/9 V1 Jest integration/E2E tests** when the documentation page was added. Run the commands below to verify the current checkout.
 
-At this stage, the repository primarily contains ongoing development work, experimental features, and architectural planning.
+### Main application areas
 
-Features and documentation will continue evolving as development progresses.
+- **Policy directory and feed:** browse policies and open their source documents.
+- **Policy assistant:** ask policy-document questions; the assistant is designed to respond in Amharic.
+- **Policy news:** browse the news feed, with authenticated citizen likes and comments.
+- **Citizen dashboard and analytics:** view engagement activity and aggregate metrics.
+- **Admin tools:** publish and manage policies and news.
+- **Documentation:** [Architecture, API, and deployment guide](public/docs.html).
 
 ---
 
 # Database Seed Data
 
-Set `CONNECTION_STRING` (or `MONGODB_URI`) in the environment, then run:
+Configure the required environment variables described in [Environment configuration](#environment-configuration), then run:
 
 ```sh
 npm run seed:policies
@@ -45,6 +52,63 @@ npm run seed:news
 ```
 
 Both seeders upsert their records by title and preserve existing policy engagement and news comments. News records link to matching seeded policies when available.
+
+---
+
+# 🧰 Local Development
+
+Requirements: a supported Node.js version, npm, and access to configured MongoDB, Firebase, and Cloudinary projects.
+
+```sh
+npm install
+npm start
+```
+
+The server serves the frontend and API on the configured `PORT`. For development with automatic restarts, use `npm run dev`.
+
+## Environment configuration
+
+The application validates its environment on startup. Set these values in your local environment or hosting provider's secret settings; never commit credentials or service-account private keys.
+
+| Variable | Purpose |
+| --- | --- |
+| `PORT` | HTTP port |
+| `NODE_ENV` | Runtime environment (`development`, `test`, or `production`) |
+| `CONNECTION_STRING` | MongoDB connection string (including `mongodb+srv://` for Atlas); this app does not read `MONGODB_URI` |
+| `GEMINI_API_KEY` | Gemini API key for policy chat |
+| `FIREBASE_API` | Firebase web API configuration used by the app |
+| `SERVICE_ACCOUNT` | JSON service-account credentials for the primary Firebase project |
+| `ADMIN_FIREBASE_PROJECT_ID` | Separate Firebase project ID used for admin authentication |
+| `ADMIN_SERVICE_ACCOUNT` | JSON service-account credentials for the admin Firebase project |
+| `ADMIN_UIDS` | Comma-separated allowlist of admin user IDs |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
+| `CLOUDINARY_KEY` | Cloudinary API key |
+| `CLOUDINARY_SECRET` | Cloudinary API secret |
+
+For production, add the Render service's outbound IP addresses to MongoDB Atlas Network Access, use least-privilege database credentials, and add the deployed hostname to Firebase Authentication's Authorized domains. See the [deployment guide](public/docs.html#deployment) for operational details.
+
+## Tests
+
+```sh
+npm test
+npm run test:v1:e2e
+```
+
+`npm test` runs the Node test suite. `npm run test:v1:e2e` runs the V1 Jest/Supertest integration and end-to-end tests.
+
+## API overview
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| `GET` | `/api/policies` | List policies |
+| `POST` | `/api/policies/:id/chat` | Ask a question about a policy document |
+| `GET` | `/api/news` | Read the public news feed |
+| `POST` | `/api/news/:id/like` | Toggle a citizen's news like |
+| `POST` | `/api/news/:id/comment` | Add a citizen comment |
+| `DELETE` | `/api/policies/:id` | Delete a policy (admin only) |
+| `DELETE` | `/api/news/:id` | Delete a news item (admin only) |
+
+Authenticated API calls include a Firebase ID token in the `Authorization` request header. See the [full API reference](public/docs.html#api) for access details.
 
 ---
 
@@ -177,9 +241,11 @@ The policy-specific document assistant uses Google Gemini. Set `GEMINI_API_KEY` 
 
 ---
 
-# 🛣 Development Roadmap
+# 🛣 Future Development Roadmap
 
-## Phase 1
+The following items are roadmap concepts and should not be read as a description of current V1 functionality.
+
+## Future phase 1
 
 - Authentication
 - User Profiles
@@ -192,7 +258,7 @@ The policy-specific document assistant uses Google Gemini. Set `GEMINI_API_KEY` 
 
 ---
 
-## Phase 2
+## Future phase 2
 
 - Communities
 - Notifications
@@ -204,7 +270,7 @@ The policy-specific document assistant uses Google Gemini. Set `GEMINI_API_KEY` 
 
 ---
 
-## Phase 3
+## Future phase 3
 
 - AI Features
 - Government Verified Accounts
@@ -220,37 +286,30 @@ The policy-specific document assistant uses Google Gemini. Set `GEMINI_API_KEY` 
 
 ### Frontend
 
-- React
-- Vite
-- Tailwind CSS
+- Static HTML, CSS, and browser JavaScript served by Express
+- Tailwind CSS utilities
 
 ### Backend
 
 - Node.js
-- Express.js
+- Express.js REST API
 
 ### Database
 
-- MongoDB
+- MongoDB Atlas with Mongoose models
 
 ### Authentication
 
-- JWT
-- OAuth
+- Firebase Authentication
+- Firebase ID-token verification and role-based authorization
 
 ### Cloud Storage
 
-- Cloudinary
+- Cloudinary asset handling
 
-### Realtime Communication *(Planned)*
+### AI
 
-- Socket.IO
-
-### AI Integrations *(Planned)*
-
-- OpenAI API
-- AI Moderation
-- AI Summaries
+- Google Gemini policy-document assistant with document context and timeout safety
 
 ---
 
@@ -268,11 +327,7 @@ Every design decision is made with Ethiopian users in mind, ensuring the platfor
 
 # 🤝 Contributing
 
-At the moment, Hagere is under active internal development.
-
-Once the first stable release is available, contribution guidelines, issue templates, coding standards, and documentation will be published for developers interested in contributing to the project.
-
-We look forward to collaborating with the open-source community in the future.
+Hagere V1 and its [platform documentation](public/docs.html) are available in this repository. Contributions should include focused changes and relevant tests; please open an issue to discuss substantial feature proposals before starting work.
 
 ---
 
