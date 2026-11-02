@@ -118,10 +118,9 @@
                 <section id="structure" aria-labelledby="structure-heading" class="scroll-mt-24 rounded-lg border border-antique-border bg-antique-card p-5 md:p-8">
                     <p class="font-sans text-xs font-semibold uppercase tracking-wider text-antique-accent">03 · Repository map</p>
                     <h2 id="structure-heading" class="mt-2 text-2xl font-semibold">Project directory &amp; codebase structure</h2>
-                    <p class="mt-3 font-sans text-sm leading-relaxed text-antique-muted">The repository uses both <code>controller/</code> and <code>controllers/</code> for request-handling modules. Environment and integration helpers live in <code>utils/</code>.</p>
+                    <p class="mt-3 font-sans text-sm leading-relaxed text-antique-muted">                    All request-handling modules are consolidated under <code>controllers/</code>. Environment and integration helpers live in <code>utils/</code>.</p>
                     <pre class="mt-4 overflow-x-auto rounded-md border border-antique-border bg-antique-bg p-4 font-mono text-xs leading-6 text-antique-text"><code>.
-├── controller/       # Core policy, auth, chat, and analytics controllers
-├── controllers/      # News request handlers
+├── controllers/      # Policy, news, auth, chat, analytics, and rate-limit handlers
 ├── middleware/       # Authentication, authorization, and error handling
 ├── models/           # Mongoose schemas (Policy, News, User)
 ├── public/           # HTML, browser JavaScript, and shared styles/assets

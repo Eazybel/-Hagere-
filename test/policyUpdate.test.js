@@ -29,7 +29,7 @@ const {
     createPolicyUpdateController,
     createPolicyListController,
     createPolicyFetchController
-} = require("../controller/policyController")
+} = require("../controllers/policyController")
 
 function makeResponse() {
     return {

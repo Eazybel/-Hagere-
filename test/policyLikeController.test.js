@@ -1,7 +1,7 @@
 const test = require("node:test")
 const assert = require("node:assert/strict")
 const mongoose = require("mongoose")
-const { createPolicyLikeController } = require("../controller/policyLikeController")
+const { createPolicyLikeController } = require("../controllers/policyLikeController")
 
 const policyId = "507f1f77bcf86cd799439011"
 const userId = new mongoose.Types.ObjectId()

@@ -12,7 +12,7 @@ const mongoose=require("mongoose")
 const cors=require("cors")
 const admin=require("firebase-admin")
 var {cert,initializeApp} = require("firebase-admin/app");
-const {authRateLimit, voteRateLimit, policyWriteRateLimit, policyChatRateLimit, policyChatPollRateLimit}=require("./controller/rateLimitController")
+const {authRateLimit, voteRateLimit, policyWriteRateLimit, policyChatRateLimit, policyChatPollRateLimit}=require("./controllers/rateLimitController")
 const {notFoundHandler, errorHandler}=require("./middleware/errorHandler")
 
 // var serviceAccount = require("./serviceAccount.json");
@@ -26,21 +26,21 @@ initializeApp({
 },"admin-auth")
 // CONTROLLER ROUTE
 // --- STEP 1: LOAD ROUTE HANDLERS AND SECURITY MIDDLEWARE ---
-const {userController, userFetch, profileActivity}=require("./controller/userController")
+const {userController, userFetch, profileActivity}=require("./controllers/userController")
 const {
     policyUpdate,
     policyFetch,
     policyList,
     policyCount,
     createPolicyDeleteController
-}=require("./controller/policyController")
-const {createPolicyChatController}=require("./controller/policyChatController")
-const policyComment=require("./controller/commentController")
-const feedBack=require("./controller/feedBackController")
-const {createAnalyticsController}=require("./controller/analyticsController")
+}=require("./controllers/policyController")
+const {createPolicyChatController}=require("./controllers/policyChatController")
+const policyComment=require("./controllers/commentController")
+const feedBack=require("./controllers/feedBackController")
+const {createAnalyticsController}=require("./controllers/analyticsController")
 const {authorizeRoles}=require("./middleware/auth")
 const newsRoutes=require("./routes/newsRoutes")
-const {createPolicyLikeController}=require("./controller/policyLikeController")
+const {createPolicyLikeController}=require("./controllers/policyLikeController")
 // Package initiation
 // --- STEP 2: CONFIGURE STATIC ASSETS, BODY PARSERS, AND CORS ---
 const app=express()

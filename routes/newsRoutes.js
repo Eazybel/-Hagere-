@@ -7,7 +7,7 @@
 const express = require("express")
 const { createNewsController } = require("../controllers/newsController")
 const { authorizeRoles } = require("../middleware/auth")
-const { voteRateLimit, policyWriteRateLimit } = require("../controller/rateLimitController")
+const { voteRateLimit, policyWriteRateLimit } = require("../controllers/rateLimitController")
 const News = require("../models/News")
 const User = require("../models/User")
 const Policy = require("../models/Policy")

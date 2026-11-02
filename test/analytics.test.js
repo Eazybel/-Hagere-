@@ -1,6 +1,6 @@
 const test = require("node:test")
 const assert = require("node:assert/strict")
-const { buildAnalyticsPipeline, createAnalyticsController } = require("../controller/analyticsController")
+const { buildAnalyticsPipeline, createAnalyticsController } = require("../controllers/analyticsController")
 
 function makeResponse() {
     return {

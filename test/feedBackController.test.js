@@ -25,7 +25,7 @@ process.env.ADMIN_SERVICE_ACCOUNT = JSON.stringify({
 })
 process.env.ADMIN_UIDS = "approved-admin"
 
-const { createFeedBackController } = require("../controller/feedBackController")
+const { createFeedBackController } = require("../controllers/feedBackController")
 
 const policyId = "507f1f77bcf86cd799439011"
 

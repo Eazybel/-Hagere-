@@ -1,6 +1,6 @@
 const test = require("node:test")
 const assert = require("node:assert/strict")
-const { createPolicyCommentController } = require("../controller/commentController")
+const { createPolicyCommentController } = require("../controllers/commentController")
 
 const policyId = "507f1f77bcf86cd799439011"
 

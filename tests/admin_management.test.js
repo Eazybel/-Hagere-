@@ -4,7 +4,7 @@ const request = require("supertest")
 const {
     createPolicyUpdateController,
     createPolicyDeleteController
-} = require("../controller/policyController")
+} = require("../controllers/policyController")
 const { createNewsController } = require("../controllers/newsController")
 
 function makeAdminApp() {

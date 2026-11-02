@@ -2,7 +2,7 @@ const test = require("node:test")
 const assert = require("node:assert/strict")
 const express = require("express")
 const { once } = require("node:events")
-const { authRateLimit } = require("../controller/rateLimitController")
+const { authRateLimit } = require("../controllers/rateLimitController")
 
 test("authentication limiter blocks requests over its configured limit", async t => {
     const app = express()

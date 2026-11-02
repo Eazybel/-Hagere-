@@ -3,7 +3,7 @@ const assert=require("node:assert/strict")
 const path=require("node:path")
 const express=require("express")
 const request=require("supertest")
-const {createUserController}=require("../controller/userController")
+const {createUserController}=require("../controllers/userController")
 
 function createRegistrationApp(decodedToken){
     const savedUsers=[]

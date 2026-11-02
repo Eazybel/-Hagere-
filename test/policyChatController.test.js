@@ -33,7 +33,7 @@ const {
     GEMINI_MODEL,
     GEMINI_503_RETRIES,
     GEMINI_RETRY_DELAY_MS
-} = require("../controller/policyChatController")
+} = require("../controllers/policyChatController")
 
 const policyId = "507f1f77bcf86cd799439011"
 const policyUrl = "https://res.cloudinary.com/hagere/raw/upload/policy.pdf"

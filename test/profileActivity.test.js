@@ -1,6 +1,6 @@
 const test = require("node:test")
 const assert = require("node:assert/strict")
-const { createProfileActivityController } = require("../controller/userController")
+const { createProfileActivityController } = require("../controllers/userController")
 
 function makeResponse() {
     return {

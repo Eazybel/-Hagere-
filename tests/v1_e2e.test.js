@@ -13,12 +13,12 @@ const {
     createPolicyUpdateController,
     createPolicyDeleteController,
     createPolicyListController
-} = require("../controller/policyController")
+} = require("../controllers/policyController")
 const {
     createPolicyChatController,
     GEMINI_MODEL,
     GEMINI_RETRY_DELAY_MS
-} = require("../controller/policyChatController")
+} = require("../controllers/policyChatController")
 const { createNewsController } = require("../controllers/newsController")
 const { createAuthorizeRoles } = require("../middleware/auth")
 
@@ -335,6 +335,51 @@ describe("Hagere v1 HTTP integration flows", () => {
             documentUrl: POLICY_PDF_URL,
             pdfUrl: POLICY_PDF_URL
         })])
+    })
+
+    test("guests can read public catalogs while protected deletion and engagement routes reject unauthenticated requests", async () => {
+        const { app, state, adminToken } = makeTestApp()
+        const policy = await request(app)
+            .post("/api/policies")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send({
+                title: "Guest-readable policy",
+                category: "Public services",
+                description: "Public policy summary.",
+                documentUrl: POLICY_PDF_URL
+            })
+        const news = await request(app)
+            .post("/api/news")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send({
+                title: "Guest-readable news",
+                content: "Public news content.",
+                imageUrl: NEWS_IMAGE_URL
+            })
+
+        expect(policy.status).toBe(201)
+        expect(news.status).toBe(201)
+
+        const [policyFeed, newsFeed] = await Promise.all([
+            request(app).get("/api/policies"),
+            request(app).get("/api/news")
+        ])
+        expect(policyFeed.status).toBe(200)
+        expect(policyFeed.body[0].title).toBe("Guest-readable policy")
+        expect(newsFeed.status).toBe(200)
+        expect(newsFeed.body[0].title).toBe("Guest-readable news")
+
+        const policyId = policy.body.policyId
+        const newsId = news.body.news._id
+        const responses = await Promise.all([
+            request(app).delete(`/api/policies/${policyId}`),
+            request(app).delete(`/api/news/${newsId}`),
+            request(app).post(`/api/news/${newsId}/like`).send({}),
+            request(app).post(`/api/news/${newsId}/comment`).send({ comment: "Guest comment" })
+        ])
+        expect(responses.map(response => response.status)).toEqual([401, 401, 401, 401])
+        expect(state.policies.has(policyId)).toBe(true)
+        expect(state.news.has(newsId)).toBe(true)
     })
 
     test("policy chat downloads and encodes the PDF, sends an abort signal, and returns Amharic", async () => {
