@@ -93,6 +93,17 @@
             </div>
         </section>
 
+        <section class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2 font-sans">
+            <div class="rounded-lg border border-antique-border bg-antique-card p-6">
+                <h2 class="text-lg font-semibold">Policies</h2>
+                <div id="adminPolicyList" class="mt-4 space-y-3" aria-live="polite"></div>
+            </div>
+            <div class="rounded-lg border border-antique-border bg-antique-card p-6">
+                <h2 class="text-lg font-semibold">Policy News</h2>
+                <div id="adminNewsList" class="mt-4 space-y-3" aria-live="polite"></div>
+            </div>
+        </section>
+
         <section class="mb-8 rounded-lg border border-antique-border bg-antique-card p-6 font-sans">
             <div class="mb-5">
                 <h2 class="text-xl font-semibold">Publish Policy News</h2>
@@ -134,7 +145,7 @@
 
     </main>
 
-    <!-- Pure CSS Target Modal with PDF Upload Input -->
+    <!-- Pure CSS Target Modal -->
     <div id="publishModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs items-center justify-center p-4 z-50 hidden target:flex">
     <div class="bg-antique-card border border-antique-border rounded-lg max-w-lg w-full p-6 shadow-xl font-sans relative max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-4 pb-2 border-b border-antique-border">
@@ -180,8 +191,8 @@
                 <textarea name="description" rows="3" required placeholder="Outline the main objectives and civic impacts..." class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none resize-none"></textarea>
             </div>
             <div>
-                <label for="file" class="block font-medium text-antique-muted mb-1">Upload Policy Document (PDF)</label>
-                <input name="file" id="file" type="file" accept="application/pdf" required class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-antique-accent file:text-white hover:file:bg-antique-accentHover">
+                <label for="documentUrl" class="block font-medium text-antique-muted mb-1">Document/File URL</label>
+                <input name="documentUrl" id="documentUrl" type="url" required placeholder="https://..." class="w-full px-3 py-2 bg-antique-bg border border-antique-border rounded text-antique-text focus:outline-none">
             </div>
             <p id="publishMessage" role="alert" class="hidden"></p>
 

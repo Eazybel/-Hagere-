@@ -6,7 +6,6 @@ const mongoose=require("mongoose")
 const cors=require("cors")
 const admin=require("firebase-admin")
 var {cert,initializeApp} = require("firebase-admin/app");
-const {cloudinary, upload}=require("./utils/cloudinary")
 const {authRateLimit, voteRateLimit, policyWriteRateLimit, policyChatRateLimit, policyChatPollRateLimit}=require("./controller/rateLimitController")
 const {notFoundHandler, errorHandler}=require("./middleware/errorHandler")
 
@@ -21,7 +20,13 @@ initializeApp({
 },"admin-auth")
 // CONTROLLER ROUTE
 const {userController, userFetch, profileActivity}=require("./controller/userController")
-const {policyUpdate,policyFetch,policyList,policyCount}=require("./controller/policyController")
+const {
+    policyUpdate,
+    policyFetch,
+    policyList,
+    policyCount,
+    createPolicyDeleteController
+}=require("./controller/policyController")
 const {createPolicyChatController}=require("./controller/policyChatController")
 const policyComment=require("./controller/commentController")
 const feedBack=require("./controller/feedBackController")
@@ -49,13 +54,17 @@ app.get("/admin",(req,res)=>{
     res.sendFile(path.join(__dirname,"/admin.html"))
 })
 //ROUTE INITIALIZATION
-app.post("/policyUpdate",policyWriteRateLimit,authorizeRoles("admin"),upload.single("file"),policyUpdate)
 app.post("/newUserRegister",authRateLimit,userController)
 const optionalPolicyFeedAuth=(req,res,next)=>{
     if(!req.get("authorization")) return next()
     return authorizeRoles("citizen","admin")(req,res,next)
 }
 app.get("/api/policies",optionalPolicyFeedAuth,policyList)
+app.post("/api/policies",policyWriteRateLimit,authorizeRoles("admin"),policyUpdate)
+app.delete("/api/policies/:id",authorizeRoles("admin"),createPolicyDeleteController({
+    Policy:require("./models/Policy"),
+    News:require("./models/News")
+}))
 app.post("/api/policies/:id/like",voteRateLimit,authorizeRoles("citizen"),createPolicyLikeController({
     Policy:require("./models/Policy"),
     User:require("./models/User")

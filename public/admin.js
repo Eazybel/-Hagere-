@@ -43,10 +43,19 @@ submitBtn.onclick=async(e)=>{
   try{
     const form=new FormData(publishForm)
     const token=await auth.currentUser.getIdToken()
-    const res=await fetch("/policyUpdate",{
+    const res=await fetch("/api/policies",{
       method:"POST",
-      headers:{"Authorization":`Bearer ${token}`},
-      body:form
+      headers:{
+        "Authorization":`Bearer ${token}`,
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        title:form.get("title"),
+        category:form.get("sector"),
+        description:form.get("description"),
+        status:form.get("status"),
+        documentUrl:form.get("documentUrl")
+      })
     })
     const data=await res.json().catch(()=>({}))
     if(!res.ok) throw new Error(data.error || data.message || "Policy publishing failed")
@@ -54,6 +63,7 @@ submitBtn.onclick=async(e)=>{
     publishMessage.className="text-green-700"
     console.log(data)
     adminDataFetcher().catch(error=>console.error("Admin metrics refresh failed:",error))
+    refreshAdminLists().catch(error=>console.error("Admin content refresh failed:",error))
   }catch(error){
     publishMessage.textContent=error.message || "Policy publishing failed"
     publishMessage.className="text-red-700"
@@ -128,6 +138,7 @@ newsPublishForm.addEventListener("submit",async event=>{
     newsPublishForm.reset()
     newsPublishMessage.textContent="Policy news published successfully."
     newsPublishMessage.className="text-sm text-green-700"
+    refreshAdminLists().catch(error=>console.error("Admin content refresh failed:",error))
   }catch(error){
     console.error("News publishing failed:",error)
     newsPublishMessage.textContent=error.message || "News publishing failed."
@@ -153,7 +164,87 @@ const adminDataFetcher=async()=>{
   document.querySelector(".activePolicy").innerText=policyData.count
   document.querySelector(".activeCitizens").innerText=userData.count
 }
+const policyList=document.getElementById("adminPolicyList")
+const newsList=document.getElementById("adminNewsList")
+const makeDeleteButton=(label,endpoint,card)=>{
+  const button=document.createElement("button")
+  button.type="button"
+  button.textContent="Delete"
+  button.className="rounded border border-red-300 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:opacity-60"
+  button.setAttribute("aria-label",`Delete ${label}`)
+  button.addEventListener("click",async()=>{
+    if(!window.confirm(`Delete this ${label}? This action cannot be undone.`)) return
+    button.disabled=true
+    try{
+      const token=await user.getIdToken()
+      const response=await fetch(endpoint,{
+        method:"DELETE",
+        headers:{"Authorization":`Bearer ${token}`}
+      })
+      const result=await response.json().catch(()=>({}))
+      if(!response.ok || result.success!==true){
+        throw new Error(result.error || `Unable to delete ${label}`)
+      }
+      card.remove()
+      adminDataFetcher().catch(error=>console.error("Admin metrics refresh failed:",error))
+    }catch(error){
+      console.error(`Admin ${label} deletion failed:`,error)
+      window.alert(error.message || `Unable to delete ${label}`)
+      button.disabled=false
+    }
+  })
+  return button
+}
+const makeAdminCard=(titleText,detailText,label,endpoint)=>{
+  const card=document.createElement("article")
+  card.className="flex items-center justify-between gap-4 rounded border border-antique-border p-3"
+  const content=document.createElement("div")
+  const title=document.createElement("p")
+  title.className="font-medium"
+  title.textContent=titleText || "Untitled"
+  const detail=document.createElement("p")
+  detail.className="mt-1 text-xs text-antique-muted"
+  detail.textContent=detailText || ""
+  content.append(title,detail)
+  card.append(content,makeDeleteButton(label,endpoint,card))
+  return card
+}
+const refreshAdminLists=async()=>{
+  const [policyResponse,newsResponse]=await Promise.all([
+    fetch("/api/policies",{cache:"no-store"}),
+    fetch("/api/news",{cache:"no-store"})
+  ])
+  const [policies,news]=await Promise.all([
+    policyResponse.json().catch(()=>null),
+    newsResponse.json().catch(()=>null)
+  ])
+  if(!policyResponse.ok || !Array.isArray(policies)){
+    throw new Error(policies?.error || "Unable to load policies")
+  }
+  if(!newsResponse.ok || !Array.isArray(news)){
+    throw new Error(news?.error || "Unable to load policy news")
+  }
+  policyList.replaceChildren(...policies.map(policy=>makeAdminCard(
+    policy.title,
+    policy.category,
+    "policy",
+    `/api/policies/${encodeURIComponent(policy._id)}`
+  )))
+  newsList.replaceChildren(...news.map(post=>makeAdminCard(
+    post.title,
+    post.createdAt ? new Date(post.createdAt).toLocaleDateString() : "",
+    "news post",
+    `/api/news/${encodeURIComponent(post._id)}`
+  )))
+  if(!policies.length) policyList.textContent="No policies have been published."
+  if(!news.length) newsList.textContent="No policy news has been published."
+}
 adminDataFetcher().catch(error=>console.error(error))
+refreshAdminLists().catch(error=>{
+  console.error("Admin content load failed:",error)
+  policyList.textContent="Unable to load policies."
+  newsList.textContent="Unable to load policy news."
+})
     const uid = user.uid;
     // ...
   } else {

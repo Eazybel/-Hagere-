@@ -189,7 +189,24 @@ function createNewsController({ News, User, Policy }) {
         }
     }
 
-    return { create, list, toggleLike, addComment }
+    async function remove(req, res) {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ success: false, error: "A valid news ID is required" })
+        }
+
+        try {
+            const news = await News.findByIdAndDelete(req.params.id)
+            if (!news) {
+                return res.status(404).json({ success: false, error: "News post not found" })
+            }
+            return res.status(200).json({ success: true })
+        } catch (error) {
+            console.error("News deletion failed:", error.stack || error)
+            return res.status(500).json({ success: false, error: "Unable to delete news right now" })
+        }
+    }
+
+    return { create, list, toggleLike, addComment, remove }
 }
 
 module.exports = { createNewsController, isValidImageUrl }

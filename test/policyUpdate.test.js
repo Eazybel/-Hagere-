@@ -1,6 +1,5 @@
 const test = require("node:test")
 const assert = require("node:assert/strict")
-const { EventEmitter } = require("node:events")
 
 process.env.NODE_ENV = "test"
 process.env.PORT = "3000"
@@ -47,32 +46,9 @@ function makeResponse() {
     }
 }
 
-function createUpload(result, error) {
-    let options
-    let fileBuffer
-    return {
-        cloudinary: {
-            uploader: {
-                upload_stream(uploadOptions, callback) {
-                    options = uploadOptions
-                    const stream = new EventEmitter()
-                    stream.end = buffer => {
-                        fileBuffer = buffer
-                        callback(error, result)
-                    }
-                    return stream
-                }
-            }
-        },
-        getOptions: () => options,
-        getFileBuffer: () => fileBuffer
-    }
-}
-
-test("policy publishing uploads the document and maps form fields to the schema", async () => {
+test("policy publishing stores a direct document URL and maps JSON fields to the schema", async () => {
     let policyData
     let saved = false
-    const upload = createUpload({ url: "http://cloudinary/policy.pdf", secure_url: "https://cloudinary/policy.pdf" })
     class Policy {
         constructor(data) {
             policyData = data
@@ -82,21 +58,24 @@ test("policy publishing uploads the document and maps form fields to the schema"
             saved = true
         }
     }
-    const controller = createPolicyUpdateController({ Policy, cloudinary: upload.cloudinary })
+    const controller = createPolicyUpdateController({ Policy })
     const res = makeResponse()
 
     await controller({
-        body: { title: "  Policy title  ", sector: "  Economy  ", description: "  Summary  ", status: "active" },
-        file: { buffer: Buffer.from("pdf") }
+        body: {
+            title: "  Policy title  ",
+            category: "  Economy  ",
+            description: "  Summary  ",
+            documentUrl: " https://documents.example/policy.pdf ",
+            status: "active"
+        }
     }, res)
 
-    assert.deepEqual(upload.getOptions(), { folder: "policyFiles", resource_type: "auto" })
-    assert.equal(upload.getFileBuffer().toString(), "pdf")
     assert.deepEqual(policyData, {
         title: "Policy title",
         category: "Economy",
         summary: "Summary",
-        pdfUrl: "http://cloudinary/policy.pdf",
+        documentUrl: "https://documents.example/policy.pdf",
         status: "active",
         totalVotes: 0,
         viewCount: 0,
@@ -113,41 +92,23 @@ test("policy publishing uploads the document and maps form fields to the schema"
     assert.equal(res.statusCode, 201)
     assert.deepEqual(res.body, {
         policyId: "policy-id",
-        pdfUrl: "https://cloudinary/policy.pdf"
+        documentUrl: "https://documents.example/policy.pdf"
     })
 })
 
-test("policy publishing returns JSON errors for missing input, failed uploads, and failed saves", async () => {
-    const upload = createUpload({ url: "http://cloudinary/policy.pdf" })
+test("policy publishing rejects missing or invalid fields and reports database errors", async () => {
     const shouldNotSave = createPolicyUpdateController({
-        Policy: { save: () => assert.fail("Invalid policy should not be saved") },
-        cloudinary: upload.cloudinary
+        Policy: { save: () => assert.fail("Invalid policy should not be saved") }
     })
-    const missingFileResponse = makeResponse()
-    await shouldNotSave({ body: {} }, missingFileResponse)
-    assert.equal(missingFileResponse.statusCode, 400)
-    assert.equal(typeof missingFileResponse.body.error, "string")
-
-    const missingFieldsResponse = makeResponse()
-    await shouldNotSave({
-        body: { title: "Title", sector: "", description: "Summary" },
-        file: { buffer: Buffer.from("pdf") }
-    }, missingFieldsResponse)
-    assert.equal(missingFieldsResponse.statusCode, 400)
-    assert.equal(typeof missingFieldsResponse.body.error, "string")
-
-    const failedUpload = createUpload(null, new Error("upload failed"))
-    const uploadFailureController = createPolicyUpdateController({
-        Policy: { save: () => assert.fail("Failed upload should not save a policy") },
-        cloudinary: failedUpload.cloudinary
-    })
-    const uploadFailureResponse = makeResponse()
-    await uploadFailureController({
-        body: { title: "Title", sector: "Economy", description: "Summary" },
-        file: { buffer: Buffer.from("pdf") }
-    }, uploadFailureResponse)
-    assert.equal(uploadFailureResponse.statusCode, 502)
-    assert.deepEqual(uploadFailureResponse.body, { error: "Policy document upload failed" })
+    for (const body of [
+        {},
+        { title: "Title", category: "Economy", description: "Summary", documentUrl: "javascript:alert(1)" }
+    ]) {
+        const response = makeResponse()
+        await shouldNotSave({ body }, response)
+        assert.equal(response.statusCode, 400)
+        assert.equal(typeof response.body.error, "string")
+    }
 
     class FailingPolicy {
         constructor() {
@@ -157,14 +118,15 @@ test("policy publishing returns JSON errors for missing input, failed uploads, a
             throw new Error("database unavailable")
         }
     }
-    const saveFailureController = createPolicyUpdateController({
-        Policy: FailingPolicy,
-        cloudinary: upload.cloudinary
-    })
+    const saveFailureController = createPolicyUpdateController({ Policy: FailingPolicy })
     const saveFailureResponse = makeResponse()
     await saveFailureController({
-        body: { title: "Title", sector: "Economy", description: "Summary" },
-        file: { buffer: Buffer.from("pdf") }
+        body: {
+            title: "Title",
+            category: "Economy",
+            description: "Summary",
+            documentUrl: "https://documents.example/policy.pdf"
+        }
     }, saveFailureResponse)
     assert.equal(saveFailureResponse.statusCode, 500)
     assert.deepEqual(saveFailureResponse.body, { error: "Policy could not be saved" })

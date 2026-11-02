@@ -62,7 +62,7 @@ function makePolicyModel(policy = { pdfUrl: policyUrl }) {
             assert.equal(id, policyId)
             return {
                 select(fields) {
-                    assert.equal(fields, "pdfUrl")
+                    assert.equal(fields, "documentUrl pdfUrl")
                     return Promise.resolve(policy)
                 }
             }

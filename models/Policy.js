@@ -18,6 +18,11 @@ const PolicySchema = new Schema(
       required: true,
       trim: true,
     },
+    documentUrl: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     pdfUrl: {
       type: String,
       default: "",

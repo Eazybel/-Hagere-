@@ -1,9 +1,3 @@
-const { PassThrough } = require("node:stream")
-
-jest.mock("../utils/cloudinary", () => ({
-    cloudinary: {},
-    upload: {}
-}))
 jest.mock("../utils/env", () => ({
     SERVICE_ACCOUNT: { project_id: "citizen-project" },
     ADMIN_FIREBASE_PROJECT_ID: "admin-project",
@@ -13,11 +7,11 @@ jest.mock("firebase-admin/auth", () => ({ getAuth: jest.fn() }))
 jest.mock("firebase-admin/app", () => ({ getApp: jest.fn() }))
 
 const express = require("express")
-const multer = require("multer")
 const mongoose = require("mongoose")
 const request = require("supertest")
 const {
     createPolicyUpdateController,
+    createPolicyDeleteController,
     createPolicyListController
 } = require("../controller/policyController")
 const {
@@ -60,8 +54,6 @@ function makeTestApp({ fetchImpl, sleep, chatTimeoutMs } = {}) {
         policies: new Map(),
         news: new Map(),
         users: new Map(),
-        upload: null,
-        uploadOptions: null,
         databaseFailure: null
     }
 
@@ -108,8 +100,17 @@ function makeTestApp({ fetchImpl, sleep, chatTimeoutMs } = {}) {
                         throw state.databaseFailure.error
                     }
                     return state.policies.get(String(id)) || null
+                },
+                then(resolve, reject) {
+                    return this.select().then(resolve, reject)
                 }
             }
+        }
+
+        static async findByIdAndDelete(id) {
+            const policy = state.policies.get(String(id)) || null
+            if (policy) state.policies.delete(String(id))
+            return policy
         }
 
         static async exists({ _id }) {
@@ -164,6 +165,23 @@ function makeTestApp({ fetchImpl, sleep, chatTimeoutMs } = {}) {
                     : { likes: post.likes }
             }
         }
+
+        static async findByIdAndDelete(id) {
+            const post = state.news.get(String(id)) || null
+            if (post) state.news.delete(String(id))
+            return post
+        }
+
+        static async updateMany(filter, update) {
+            let modifiedCount = 0
+            for (const post of state.news.values()) {
+                if (post.relatedPolicy?.toString() === String(filter.relatedPolicy)) {
+                    post.relatedPolicy = update.$set.relatedPolicy
+                    modifiedCount++
+                }
+            }
+            return { modifiedCount }
+        }
     }
 
     const User = {
@@ -187,35 +205,11 @@ function makeTestApp({ fetchImpl, sleep, chatTimeoutMs } = {}) {
         })
     })
 
-    const cloudinary = {
-        uploader: {
-            upload_stream(options, callback) {
-                state.uploadOptions = options
-                const stream = new PassThrough()
-                stream.on("finish", () => {
-                    state.upload = {
-                        secure_url: POLICY_PDF_URL,
-                        public_id: "policyFiles/test-policy",
-                        resource_type: "raw",
-                        format: "pdf",
-                        bytes: PDF_BYTES.length
-                    }
-                    callback(null, state.upload)
-                })
-                return stream
-            }
-        }
-    }
-
     const app = express()
     app.use(express.json())
 
-    app.post(
-        "/policyUpdate",
-        authorizeRoles("admin"),
-        multer({ storage: multer.memoryStorage() }).single("file"),
-        createPolicyUpdateController({ Policy, cloudinary })
-    )
+    app.post("/api/policies", authorizeRoles("admin"), createPolicyUpdateController({ Policy }))
+    app.delete("/api/policies/:id", authorizeRoles("admin"), createPolicyDeleteController({ Policy, News }))
     app.get(
         "/api/policies",
         (req, res, next) => req.get("authorization")
@@ -238,6 +232,7 @@ function makeTestApp({ fetchImpl, sleep, chatTimeoutMs } = {}) {
         ? authorizeRoles("citizen")(req, res, next)
         : next(), newsController.list)
     app.post("/api/news", authorizeRoles("admin"), newsController.create)
+    app.delete("/api/news/:id", authorizeRoles("admin"), newsController.remove)
     app.post("/api/news/:id/like", authorizeRoles("citizen"), newsController.toggleLike)
     app.post("/api/news/:id/comment", authorizeRoles("citizen"), newsController.addComment)
 
@@ -289,55 +284,55 @@ describe("Hagere v1 HTTP integration flows", () => {
         const { app, citizenToken, adminToken, state } = makeTestApp()
 
         const denied = await request(app)
-            .post("/policyUpdate")
+            .post("/api/policies")
             .set("Authorization", `Bearer ${citizenToken}`)
-            .field("title", "Test policy")
-            .field("sector", "Public services")
-            .field("description", "A test summary")
-            .attach("file", PDF_BYTES, { filename: "policy.pdf", contentType: "application/pdf" })
+            .send({
+                title: "Test policy",
+                category: "Public services",
+                description: "A test summary",
+                documentUrl: POLICY_PDF_URL
+            })
 
         expect(denied.status).toBe(403)
         expect(state.policies.size).toBe(0)
 
         const created = await request(app)
-            .post("/policyUpdate")
+            .post("/api/policies")
             .set("Authorization", `Bearer ${adminToken}`)
-            .field("title", "Test policy")
-            .field("sector", "Public services")
-            .field("description", "A test summary")
-            .field("status", "Active")
-            .attach("file", PDF_BYTES, { filename: "policy.pdf", contentType: "application/pdf" })
+            .send({
+                title: "Test policy",
+                category: "Public services",
+                description: "A test summary",
+                documentUrl: POLICY_PDF_URL,
+                status: "Active"
+            })
 
         expect(created.status).toBe(201)
         expect(state.policies.size).toBe(1)
     })
 
-    test("admin uploads a policy PDF and policy feed exposes its attachment URL", async () => {
+    test("admin publishes a document URL and policy feed exposes it", async () => {
         const { app, state, adminToken } = makeTestApp()
 
-        const uploaded = await request(app)
-            .post("/policyUpdate")
+        const created = await request(app)
+            .post("/api/policies")
             .set("Authorization", `Bearer ${adminToken}`)
-            .field("title", "Digital Services Policy")
-            .field("sector", "Technology")
-            .field("description", "A policy document for integration testing.")
-            .field("status", "Active")
-            .attach("file", PDF_BYTES, { filename: "policy.pdf", contentType: "application/pdf" })
+            .send({
+                title: "Digital Services Policy",
+                category: "Technology",
+                description: "A policy document for integration testing.",
+                documentUrl: POLICY_PDF_URL,
+                status: "Active"
+            })
 
-        expect(uploaded.status).toBe(201)
-        expect(state.uploadOptions).toEqual({ folder: "policyFiles", resource_type: "auto" })
-        expect(state.upload).toMatchObject({
-            secure_url: POLICY_PDF_URL,
-            public_id: "policyFiles/test-policy",
-            format: "pdf",
-            bytes: PDF_BYTES.length
-        })
-        expect(state.policies.get(uploaded.body.policyId).pdfUrl).toBe(POLICY_PDF_URL)
+        expect(created.status).toBe(201)
+        expect(state.policies.get(created.body.policyId).documentUrl).toBe(POLICY_PDF_URL)
 
         const feed = await request(app).get("/api/policies")
         expect(feed.status).toBe(200)
         expect(feed.body).toEqual([expect.objectContaining({
             title: "Digital Services Policy",
+            documentUrl: POLICY_PDF_URL,
             pdfUrl: POLICY_PDF_URL
         })])
     })

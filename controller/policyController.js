@@ -1,5 +1,5 @@
 // Policy CRUD, search, and filtering logic
-const {cloudinary, upload}=require("../utils/cloudinary")
+const mongoose=require("mongoose")
 const policyModel=require("../models/Policy")
 const userModel=require("../models/User")
 
@@ -17,7 +17,8 @@ const toPublicPolicy=(policy,currentUserId=null)=>{
         title:data.title,
         category:data.category,
         summary:data.summary,
-        pdfUrl:data.pdfUrl,
+        documentUrl:data.documentUrl || data.pdfUrl || "",
+        pdfUrl:data.documentUrl || data.pdfUrl || "",
         status:data.status,
         totalVotes:data.totalVotes,
         viewCount:data.viewCount || 0,
@@ -38,48 +39,38 @@ const toPublicPolicy=(policy,currentUserId=null)=>{
     }
 }
 
-const createPolicyUpdateController=({Policy, cloudinary})=>async(req,res)=>{
-    const {title, sector, description, status} = req.body || {}
-    if(!req.file){
-        return res.status(400).json({error:"Policy document file is required"})
-    }
-    if(typeof title!=="string" || !title.trim()
-        || typeof sector!=="string" || !sector.trim()
-        || typeof description!=="string" || !description.trim()){
-        return res.status(400).json({error:"Policy title, category, and summary are required"})
-    }
-
-    let result
+const isValidDocumentUrl=value=>{
     try{
-        result=await new Promise((resolve,reject)=>{
-            const uploadStream=cloudinary.uploader.upload_stream({
-                folder:"policyFiles",
-                resource_type:"auto"
-            },(error,uploaded)=>{
-                if(error) return reject(error)
-                if(!uploaded) return reject(new Error("Policy document upload returned no result"))
-                return resolve(uploaded)
-            })
-            uploadStream.on("error",reject)
-            uploadStream.end(req.file.buffer)
-        })
-    }catch(error){
-        console.error("Policy document upload failed:",error)
-        return res.status(502).json({error:"Policy document upload failed"})
+        const url=new URL(value)
+        return ["http:","https:"].includes(url.protocol) && !url.username && !url.password
+    }catch{
+        return false
     }
+}
 
-    const pdfUrl=result.url || result.secure_url
-    if(!pdfUrl){
-        return res.status(502).json({error:"Policy document upload returned no URL"})
+const createPolicyUpdateController=({Policy})=>async(req,res)=>{
+    const body=req.body || {}
+    const title=typeof body.title==="string" ? body.title.trim() : ""
+    const category=typeof body.category==="string" ? body.category.trim()
+        : typeof body.sector==="string" ? body.sector.trim() : ""
+    const summary=typeof body.description==="string" ? body.description.trim()
+        : typeof body.summary==="string" ? body.summary.trim() : ""
+    const documentUrl=typeof body.documentUrl==="string" ? body.documentUrl.trim()
+        : typeof body.pdfUrl==="string" ? body.pdfUrl.trim() : ""
+
+    if(!title || !category || !summary || !isValidDocumentUrl(documentUrl)){
+        return res.status(400).json({
+            error:"Policy title, category, description, and a valid documentUrl are required"
+        })
     }
 
     try{
         const newPolicy=new Policy({
-            title:title.trim(),
-            category:sector.trim(),
-            summary:description.trim(),
-            pdfUrl,
-            status,
+            title,
+            category,
+            summary,
+            documentUrl,
+            status:typeof body.status==="string" ? body.status : "",
             totalVotes:0,
             viewCount:0,
             interactions:{
@@ -94,7 +85,7 @@ const createPolicyUpdateController=({Policy, cloudinary})=>async(req,res)=>{
         await newPolicy.save()
         return res.status(201).json({
             policyId:newPolicy.id || newPolicy._id,
-            pdfUrl:result.secure_url || result.url
+            documentUrl
         })
     }catch(error){
         console.error("Policy could not be saved:",error)
@@ -102,7 +93,27 @@ const createPolicyUpdateController=({Policy, cloudinary})=>async(req,res)=>{
     }
 }
 
-const policyUpdate=createPolicyUpdateController({Policy:policyModel,cloudinary})
+const policyUpdate=createPolicyUpdateController({Policy:policyModel})
+const createPolicyDeleteController=({Policy,News})=>async(req,res)=>{
+    if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+        return res.status(400).json({success:false,error:"A valid policy ID is required"})
+    }
+
+    try{
+        const policy=await Policy.findById(req.params.id)
+        if(!policy) return res.status(404).json({success:false,error:"Policy not found"})
+
+        await News.updateMany(
+            {relatedPolicy:policy._id},
+            {$set:{relatedPolicy:null}}
+        )
+        await Policy.findByIdAndDelete(req.params.id)
+        return res.status(200).json({success:true})
+    }catch(error){
+        console.error("Policy deletion failed:",error.stack || error)
+        return res.status(500).json({success:false,error:"Unable to delete policy right now"})
+    }
+}
 const createPolicyListController=({Policy,User})=>async(req,res,next)=>{
     try{
         let currentUserId=null
@@ -165,6 +176,7 @@ module.exports={
     policyList,
     policyCount,
     createPolicyUpdateController,
+    createPolicyDeleteController,
     createPolicyListController,
     createPolicyFetchController
 }

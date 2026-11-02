@@ -223,7 +223,7 @@ function createPolicyChatController({
 
             let policy
             try {
-                policy = await Policy.findById(req.params.id).select("pdfUrl")
+                policy = await Policy.findById(req.params.id).select("documentUrl pdfUrl")
             } catch (error) {
                 console.error("Policy chat database lookup failed:", error.stack || error)
                 return res.status(500).json({ success: false, error: "Unable to load this policy" })
@@ -232,7 +232,7 @@ function createPolicyChatController({
                 return res.status(404).json({ success: false, error: "Policy not found" })
             }
 
-            const pdfBuffer = await fetchPdfBuffer(policy.pdfUrl)
+            const pdfBuffer = await fetchPdfBuffer(policy.documentUrl || policy.pdfUrl)
             const pdfBase64 = Buffer.from(pdfBuffer).toString("base64")
             operation = "Gemini policy chat request"
             const abortController = new AbortController()

@@ -16,7 +16,7 @@
   "main": "server.js",
   "scripts": {
     "test": "node --test \"test/**/*.test.js\" \"tests/news.test.js\" \"tests/seedNews.test.js\"",
-    "test:v1:e2e": "jest --runInBand tests/v1_e2e.test.js",
+    "test:v1:e2e": "jest --runInBand tests/v1_e2e.test.js tests/admin_management.test.js",
     "start": "node server.js",
     "dev": "nodemon server.js",
     "cleanup:dummy-policies": "node scripts/cleanupDummyPolicies.js",

@@ -15,6 +15,7 @@ const optionalCitizenAuth = (req, res, next) => {
 
 router.get("/", optionalCitizenAuth, newsController.list)
 router.post("/", policyWriteRateLimit, authorizeRoles("admin"), newsController.create)
+router.delete("/:id", authorizeRoles("admin"), newsController.remove)
 router.post("/:id/like", voteRateLimit, authorizeRoles("citizen"), newsController.toggleLike)
 router.post("/:id/comment", voteRateLimit, authorizeRoles("citizen"), newsController.addComment)
 
