@@ -71,7 +71,7 @@ const NEWS_SEED_DATA = [
         imageSource: "https://commons.wikimedia.org/wiki/File:Omo_Gibe_III,_Wolayita_3.jpg",
         imageCredit: "Mimi Abebayehu, CC BY-SA 4.0",
         author: "Ministry of Water and Energy",
-        relatedPolicyTitle: "National Energy Policy of Ethiopia",
+        relatedPolicyTitle: "National Energy Policy (English)",
         comments: [
             {
                 userName: "Ephrem Yilma",
@@ -105,7 +105,7 @@ const NEWS_SEED_DATA = [
         imageSource: "https://commons.wikimedia.org/wiki/File:School_in_Semien_Mountains,_Ethiopia.jpg",
         imageCredit: "Zelalemgizachew, CC BY-SA 4.0",
         author: "Ministry of Education",
-        relatedPolicyTitle: "Education and Training Policy",
+        relatedPolicyTitle: "Education and Training Policy of Ethiopia - Amharic version - 2023",
         comments: [
             {
                 userName: "Henok Alemu",
@@ -120,7 +120,7 @@ const NEWS_SEED_DATA = [
         imageSource: "https://commons.wikimedia.org/wiki/File:Bete_Giyorgis_03.jpg",
         imageCredit: "Bernard Gagnon, CC BY-SA 3.0",
         author: "Ministry of Tourism",
-        relatedPolicyTitle: "National Tourism Development Policy",
+        relatedPolicyTitle: "Tourism Development Policy (English)",
         comments: [
             {
                 userName: "Selamawit Tadesse",
@@ -135,7 +135,7 @@ const NEWS_SEED_DATA = [
         imageSource: "https://commons.wikimedia.org/wiki/File:ET_Afar_asv2018-01_img48_Dallol.jpg",
         imageCredit: "A.Savin, Free Art License",
         author: "Ministry of Water and Energy",
-        relatedPolicyTitle: "Water Resources Management Policy",
+        relatedPolicyTitle: "Water Policy (English)",
         comments: [
             {
                 userName: "Tewodros Mulu",

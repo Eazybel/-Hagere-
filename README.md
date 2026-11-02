@@ -51,7 +51,7 @@ npm run seed:policies
 npm run seed:news
 ```
 
-`npm run seed:policies` deletes every existing policy and replaces the catalog with the ten official policy records, resetting all policy engagement data. Run it only when this full replacement is intended. `npm run seed:news` upserts its news records by title and preserves existing news comments; news links are attached only when their related policy titles exist.
+`npm run seed:policies` deletes every existing policy and replaces the catalog with five custom-hosted policy documents, resetting all policy engagement data. Run it only when this full replacement is intended. `npm run seed:news` upserts its news records by title and preserves existing news comments; news links are attached only when their related policy titles exist.
 
 ---
 
