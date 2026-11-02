@@ -51,7 +51,7 @@ npm run seed:policies
 npm run seed:news
 ```
 
-Both seeders upsert their records by title and preserve existing policy engagement and news comments. News records link to matching seeded policies when available.
+`npm run seed:policies` deletes every existing policy and replaces the catalog with the ten official policy records, resetting all policy engagement data. Run it only when this full replacement is intended. `npm run seed:news` upserts its news records by title and preserves existing news comments; news links are attached only when their related policy titles exist.
 
 ---
 

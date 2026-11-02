@@ -22,7 +22,7 @@ const NEWS_SEED_DATA = [
         imageSource: "https://commons.wikimedia.org/wiki/File:Addis_Mercato,_Ad%C3%ADs_Abeba,_Etiop%C3%ADa,_2024-01-19,_DD_26.jpg",
         imageCredit: "Diego Delso, CC BY-SA 4.0",
         author: "Ministry of Finance",
-        relatedPolicyTitle: "Citizens' Budget (EFY 2018 / 2025–2026)",
+        relatedPolicyTitle: "Citizens' Budget of EFY 2018 (2025/2026)",
         comments: [
             {
                 userName: "Abebe Tadesse",
