@@ -1,3 +1,9 @@
+/**
+ * @file analytics.js
+ * @description Loads protected admin engagement metrics and renders totals, vote proportions, and top policies.
+ * @module Client/AdminAnalytics
+ * @requires Firebase App and Auth browser SDKs
+ */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js"
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js"
 
@@ -10,6 +16,7 @@ const firebaseConfig = {
     appId: "1:907064312662:web:e716e0df19627c4a5dccf7"
 }
 
+// Shared client state: authenticated admin context, loading/error regions, and one-time initial-load tracking.
 const auth = getAuth(initializeApp(firebaseConfig))
 const numberFormatter = new Intl.NumberFormat()
 const refreshButton = document.getElementById("refreshAnalytics")
@@ -20,10 +27,12 @@ const errorMessage = document.getElementById("analyticsErrorMessage")
 const analyticsContent = document.getElementById("analyticsContent")
 let hasLoaded = false
 
+/** Formats a numeric metric into its designated text-only DOM node. */
 function setNumber(elementId, value) {
     document.getElementById(elementId).textContent = numberFormatter.format(value)
 }
 
+/** Renders aggregate metrics and the top-policy ranking from the analytics API payload. */
 function renderAnalytics(data) {
     const { overview } = data
     const voteTotal = overview.agreeVotes + overview.neutralVotes + overview.disagreeVotes
@@ -78,6 +87,12 @@ function renderAnalytics(data) {
     }
 }
 
+/**
+ * Fetches admin-only analytics with Firebase ID-token authorization and explicit loading state.
+ * @param {import("firebase/auth").User} user Authenticated administrator.
+ * @returns {Promise<void>} Resolves when metrics render.
+ * @throws {Error} Network, authorization, or API errors after showing the error state.
+ */
 async function loadAnalytics(user) {
     refreshButton.disabled = true
     retryButton.disabled = true
@@ -89,6 +104,7 @@ async function loadAnalytics(user) {
     }
 
     try {
+        // ID token is verified by admin authorization middleware; secrets are never sent from the client.
         const token = await user.getIdToken()
         const response = await fetch("/admin/analytics", {
             headers: { Authorization: `Bearer ${token}` }
@@ -119,6 +135,7 @@ async function loadAnalytics(user) {
     }
 }
 
+// Redirect unauthenticated visitors to the admin sign-in view before fetching protected metrics.
 onAuthStateChanged(auth, user => {
     if (!user) {
         window.location.replace("./adminAuth.html")
@@ -133,6 +150,7 @@ onAuthStateChanged(auth, user => {
     console.error(error)
 })
 
+/** Runs a user-initiated retry/refresh when an admin session remains available. */
 async function refreshAnalytics() {
     if (auth.currentUser) {
         try {
@@ -143,5 +161,7 @@ async function refreshAnalytics() {
     }
 }
 
+/** @listens click Refresh button repeats the authenticated analytics request. */
 refreshButton.addEventListener("click", refreshAnalytics)
+/** @listens click Retry button uses the same loading/error lifecycle as manual refresh. */
 retryButton.addEventListener("click", refreshAnalytics)

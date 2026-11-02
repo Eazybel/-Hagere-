@@ -1,3 +1,9 @@
+/**
+ * @file admin.js
+ * @description Drives administrator policy/news publishing, deletion, list refresh, and dashboard metric updates.
+ * @module Client/Admin
+ * @requires Firebase App and Auth browser SDKs
+ */
  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
  import { getAuth, signInWithPopup, GoogleAuthProvider , onAuthStateChanged, signOut }  from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
   const firebaseConfig = {
@@ -8,6 +14,8 @@
   messagingSenderId: "907064312662",
   appId: "1:907064312662:web:e716e0df19627c4a5dccf7"
   };
+// Module state: authenticated admin context and references for publish forms, feedback, and list containers.
+// Firebase ID tokens are attached to every privileged API request; the server enforces the admin allowlist.
 //VARIABLE AND FIREBASE INITIATER
   const app = initializeApp(firebaseConfig);
   const auth=getAuth(app)
@@ -19,19 +27,24 @@
   const submitBtnText=document.getElementById("submitBtnText")
   const publishForm=document.getElementById("publishForm")
   const publishMessage=document.getElementById("publishMessage")
+  // Do not initialize admin actions until Firebase has resolved the signed-in administrator.
   onAuthStateChanged(auth, (user) => {
   if (user) {
     // MODAL OOPENER AND CLOSER
+ /** @listens click Opens the policy publishing view. */
  publishBtn.onclick=async()=>{
     publishModal.classList.remove("hidden")
     document.querySelector("main").classList.add("hidden")
   }
+  /** @listens click Closes the publishing view and returns to the admin page. */
   cancelBtn.onclick=()=>{
     document.querySelector("main").classList.remove("hidden")
     window.location.href=("./admin.html")
 
   }
+// --- STEP 1: VALIDATE FORM STATE, PUBLISH JSON, AND SHOW BUTTON PROGRESS ---
 // SUBMIT HANDLER
+/** @listens click Publishes a policy JSON payload, temporarily disabling the button and showing its spinner. */
 submitBtn.onclick=async(e)=>{
   e.preventDefault()
   if(submitBtn.disabled) return
@@ -76,6 +89,7 @@ submitBtn.onclick=async(e)=>{
   }
   publishMessage.classList.remove("hidden")
 }
+// News publishing form state and controls.
 const newsPublishForm=document.getElementById("newsPublishForm")
 const newsRelatedPolicy=document.getElementById("newsRelatedPolicy")
 const newsPublishMessage=document.getElementById("newsPublishMessage")
@@ -83,6 +97,7 @@ const newsSubmitButton=document.getElementById("newsSubmitButton")
 const newsSubmitText=document.getElementById("newsSubmitText")
 const newsPublishSpinner=document.getElementById("newsPublishSpinner")
 
+/** Loads policy choices for linking a new news post. */
 async function loadRelatedPolicies(){
   const response=await fetch("/api/policies",{cache:"no-store"})
   const policies=await response.json().catch(()=>null)
@@ -97,6 +112,7 @@ async function loadRelatedPolicies(){
   }
 }
 
+// Fill the relationship selector before a publisher chooses a policy relation.
 loadRelatedPolicies().catch(error=>{
   console.error("Related policy list failed:",error)
   const option=document.createElement("option")
@@ -106,6 +122,7 @@ loadRelatedPolicies().catch(error=>{
   newsRelatedPolicy.append(option)
 })
 
+/** @listens submit Publishes a news item as JSON and restores form controls after success or failure. */
 newsPublishForm.addEventListener("submit",async event=>{
   event.preventDefault()
   if(newsSubmitButton.disabled) return
@@ -151,7 +168,9 @@ newsPublishForm.addEventListener("submit",async event=>{
     newsPublishMessage.classList.remove("hidden")
   }
 })
+// --- STEP 2: REFRESH ADMIN METRICS AND CONTENT LISTS ---
 // POLICY NUMBER UPDATE
+/** Retrieves admin-only policy and user counts with the current Firebase ID token. */
 const adminDataFetcher=async()=>{
   const token=await user.getIdToken()
   const headers={"Authorization":`Bearer ${token}`}
@@ -166,6 +185,13 @@ const adminDataFetcher=async()=>{
 }
 const policyList=document.getElementById("adminPolicyList")
 const newsList=document.getElementById("adminNewsList")
+/**
+ * Creates a confirmed deletion action with accessible pending state.
+ * @param {string} label Item label used for confirmation and errors.
+ * @param {string} endpoint Admin DELETE API URL.
+ * @param {HTMLElement} card Card removed from the list after successful deletion.
+ * @returns {HTMLButtonElement} Delete control.
+ */
 const makeDeleteButton=(label,endpoint,card)=>{
   const button=document.createElement("button")
   button.type="button"
@@ -177,6 +203,7 @@ const makeDeleteButton=(label,endpoint,card)=>{
   const text=document.createElement("span")
   text.textContent="Delete"
   button.append(spinner,text)
+  /** @listens click Confirms, sends the authorized DELETE request, and removes only a successfully deleted card. */
   button.addEventListener("click",async()=>{
     if(!window.confirm(`Delete this ${label}? This action cannot be undone.`)) return
     button.disabled=true
@@ -206,6 +233,7 @@ const makeDeleteButton=(label,endpoint,card)=>{
   })
   return button
 }
+/** Builds a text-safe policy/news card and attaches its delete control. */
 const makeAdminCard=(titleText,detailText,label,endpoint)=>{
   const card=document.createElement("article")
   card.className="flex items-center justify-between gap-4 rounded border border-antique-border p-3"
@@ -220,6 +248,7 @@ const makeAdminCard=(titleText,detailText,label,endpoint)=>{
   card.append(content,makeDeleteButton(label,endpoint,card))
   return card
 }
+/** Reloads public policy/news data and replaces both admin list contents. */
 const refreshAdminLists=async()=>{
   const [policyResponse,newsResponse]=await Promise.all([
     fetch("/api/policies",{cache:"no-store"}),

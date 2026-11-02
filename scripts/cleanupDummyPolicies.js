@@ -1,8 +1,19 @@
+/**
+ * @file cleanupDummyPolicies.js
+ * @description Previews selected policy records and deletes them only after explicit ID and confirmation arguments.
+ * @module Scripts/PolicyCleanup
+ * @requires mongoose, dotenv, and the Policy model
+ */
 require("dotenv").config({ quiet: true })
 
 const mongoose = require("mongoose")
 const Policy = require("../models/Policy")
 
+/**
+ * Validates exact policy IDs, previews matching records, and optionally deletes them.
+ * @returns {Promise<void>} Resolves after preview/deletion and database disconnection.
+ * @throws {Error} If arguments, confirmation, environment, or database operations are invalid.
+ */
 async function main() {
     const idsArgument = process.argv.find(argument => argument.startsWith("--ids="))
     const ids = idsArgument
@@ -25,6 +36,7 @@ async function main() {
         throw new Error("CONNECTION_STRING is required")
     }
 
+    // --- STEP 1: CONNECT, PREVIEW ONLY THE EXPLICITLY SELECTED RECORDS, THEN REQUIRE CONFIRMATION ---
     await mongoose.connect(process.env.CONNECTION_STRING)
     try {
         const selectedPolicies = await Policy.find({
@@ -37,6 +49,7 @@ async function main() {
             return
         }
 
+        // Delete only the records that appeared in the explicit-ID preview above.
         const result = await Policy.deleteMany({
             _id: { $in: selectedPolicies.map(policy => policy._id) }
         })

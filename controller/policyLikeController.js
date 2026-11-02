@@ -1,6 +1,25 @@
+/**
+ * @file policyLikeController.js
+ * @description Creates the policy like toggle handler for registered citizens.
+ * @module Controllers/PolicyLikes
+ * @requires mongoose and injected Policy and User models
+ */
 const mongoose = require("mongoose")
 
+/**
+ * Builds the policy like toggle handler.
+ * @param {object} dependencies Mongoose model dependencies.
+ * @param {import("mongoose").Model} dependencies.Policy Policy model.
+ * @param {import("mongoose").Model} dependencies.User User model.
+ * @returns {import("express").RequestHandler} Handler for POST /api/policies/:id/like.
+ */
 function createPolicyLikeController({ Policy, User }) {
+    /**
+     * @route POST /api/policies/:id/like
+     * @param {import("express").Request} req Policy ObjectId in params and verified account email in auth.
+     * @param {import("express").Response} res Express response.
+     * @returns {Promise<import("express").Response>} 200 {success, liked, likesCount}; failures use 400/403/404/500.
+     */
     return async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             return res.status(400).json({ success: false, error: "A valid policy ID is required" })

@@ -1,7 +1,15 @@
+/**
+ * @file news.js
+ * @description Loads the public news feed and renders image-attributed posts, likes, and comments based on optional Firebase auth.
+ * @module Client/News
+ * @requires Firebase Auth browser SDK and local firebaseInit.js
+ */
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js"
 import { auth } from "./firebaseInit.js"
+/** Root element into which feed loading, error, and post states are rendered. */
 const newsFeed = document.getElementById("newsFeed")
 
+/** Replaces feed content with a readable loading, empty, or error state. */
 function showFeedMessage(message, isError = false) {
     const state = document.createElement("p")
     state.className = `col-span-full py-12 text-center text-sm bg-antique-card border border-antique-border rounded-lg font-sans ${isError ? "text-rose-700" : "text-antique-muted"}`
@@ -9,6 +17,7 @@ function showFeedMessage(message, isError = false) {
     newsFeed.replaceChildren(state)
 }
 
+/** Creates an element using textContent for untrusted dynamic text. */
 function makeElement(tag, className, text) {
     const element = document.createElement(tag)
     if (className) element.className = className
@@ -16,6 +25,15 @@ function makeElement(tag, className, text) {
     return element
 }
 
+/**
+ * Sends an authenticated news mutation with the Firebase ID token and JSON response validation.
+ * @param {string} url API endpoint.
+ * @param {string} method HTTP method.
+ * @param {object} body JSON mutation payload.
+ * @param {import("firebase/auth").User} user Authenticated Firebase user.
+ * @returns {Promise<object>} Parsed successful response.
+ * @throws {Error} When authentication, network, or API response fails.
+ */
 async function authenticatedRequest(url, method, body, user) {
     const token = await user.getIdToken()
     const response = await fetch(url, {
@@ -33,6 +51,7 @@ async function authenticatedRequest(url, method, body, user) {
     return result
 }
 
+/** Builds a safe text-based comment list item. */
 function renderComment(comment) {
     const item = makeElement("li", "rounded border border-antique-border bg-antique-bg p-3")
     item.append(
@@ -43,6 +62,13 @@ function renderComment(comment) {
     return item
 }
 
+/**
+ * Renders one post, showing engagement controls only to authenticated visitors.
+ * @param {object} post Public news API record.
+ * @param {?import("firebase/auth").User} user Optional signed-in citizen.
+ * @param {number} index Position used to prioritize the first visible images.
+ * @returns {HTMLElement} News article card.
+ */
 function renderNewsPost(post, user, index) {
     post.comments = Array.isArray(post.comments) ? post.comments : []
     const card = makeElement("article", "overflow-hidden rounded-lg border border-antique-border bg-antique-card")
@@ -57,6 +83,7 @@ function renderNewsPost(post, user, index) {
     image.height = 360
     image.sizes = "(min-width: 768px) 50vw, 100vw"
     image.referrerPolicy = "no-referrer"
+    /** Replaces a broken remote asset with a stable accessible fallback. */
     image.addEventListener("error", () => {
         image.removeAttribute("src")
         image.alt = "News image unavailable"
@@ -84,6 +111,7 @@ function renderNewsPost(post, user, index) {
         const policyLink = makeElement("a", "mt-3 inline-block text-sm font-medium text-antique-accent hover:underline", `Related policy: ${policyTitle}`)
         if (typeof post.relatedPolicy === "object" && post.relatedPolicy._id) {
             policyLink.href = "./policy.html"
+            /** Persists the related policy ID for the subsequent detail-page navigation. */
             policyLink.addEventListener("click", () => {
                 localStorage.setItem("policyID", post.relatedPolicy._id)
             })
@@ -113,6 +141,7 @@ function renderNewsPost(post, user, index) {
     const commentButton = makeElement("button", "rounded bg-antique-accent px-4 py-2 text-sm font-medium text-white hover:bg-antique-accentHover disabled:opacity-60", "Comment")
     commentButton.type = "submit"
     commentForm.append(commentInput, commentButton)
+    // Comment submission obtains a Firebase ID token, disables the button, and appends the returned comment in place.
     commentForm.addEventListener("submit", async event => {
         event.preventDefault()
         commentButton.disabled = true
@@ -144,6 +173,7 @@ function renderNewsPost(post, user, index) {
             `${post.liked ? "Unlike" : "Like"} · ${post.likesCount ?? 0}`
         )
         likeButton.type = "button"
+        // Like toggles update their own label/count after the authenticated API confirms the change.
         likeButton.addEventListener("click", async () => {
             likeButton.disabled = true
             likeButton.textContent = "Updating…"
@@ -163,6 +193,7 @@ function renderNewsPost(post, user, index) {
         actions.append(likeButton)
     }
 
+    // Keep reading public while gating only interactive controls on authentication.
     actions.append(commentsHeading, commentsList)
     if (user) {
         actions.append(commentForm)
@@ -182,9 +213,11 @@ function renderNewsPost(post, user, index) {
     return card
 }
 
+/** Fetches the public feed, optionally attaching auth for per-user like state. */
 async function loadNews(user) {
     showFeedMessage("Loading policy news…")
     try {
+        // The feed remains public; a Firebase token is optional and only personalizes engagement state.
         const headers = user ? { "Authorization": `Bearer ${await user.getIdToken()}` } : {}
         const response = await fetch("/api/news", { headers, cache: "no-store" })
         const posts = await response.json()
@@ -202,6 +235,8 @@ async function loadNews(user) {
     }
 }
 
+// Guest visibility is preserved: auth only controls interactive actions and account links.
+/** Synchronizes sign-in controls and reloads the feed for guest or authenticated visibility. */
 onAuthStateChanged(auth, user => {
     const signInLink = document.getElementById("newsSignIn")
     const accountControls = document.getElementById("newsAccountControls")
@@ -211,6 +246,7 @@ onAuthStateChanged(auth, user => {
     loadNews(user)
 })
 
+/** Signs out the current Firebase user and returns to the public landing page. */
 document.getElementById("signOutButton").addEventListener("click", async () => {
     try {
         await signOut(auth)

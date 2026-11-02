@@ -1,9 +1,20 @@
+/**
+ * @file newsController.js
+ * @description Implements news publishing, public feed serialization, citizen engagement, and admin deletion.
+ * @module Controllers/News
+ * @requires mongoose and News, User, and Policy models injected by the route module
+ */
 const mongoose = require("mongoose")
 
 const MAX_TITLE_LENGTH = 200
 const MAX_CONTENT_LENGTH = 20_000
 const MAX_COMMENT_LENGTH = 2_000
 
+/**
+ * Accepts credential-free HTTP(S) URLs for externally hosted news images.
+ * @param {string} value Candidate URL.
+ * @returns {boolean} Whether the image URL passes protocol and credential checks.
+ */
 function isValidImageUrl(value) {
     try {
         const url = new URL(value)
@@ -13,8 +24,24 @@ function isValidImageUrl(value) {
     }
 }
 
+/**
+ * Creates news handlers using injected models to support focused controller tests.
+ * @param {object} dependencies Mongoose model dependencies.
+ * @param {import("mongoose").Model} dependencies.News News model.
+ * @param {import("mongoose").Model} dependencies.User User model.
+ * @param {import("mongoose").Model} dependencies.Policy Policy model.
+ * @returns {{create: import("express").RequestHandler, list: import("express").RequestHandler, toggleLike: import("express").RequestHandler, addComment: import("express").RequestHandler, remove: import("express").RequestHandler}} News route handlers.
+ */
 function createNewsController({ News, User, Policy }) {
+    /**
+     * Publishes a validated news post and optional policy relation.
+     * @route POST /api/news
+     * @param {import("express").Request} req JSON body with title, content, imageUrl, and optional relatedPolicy.
+     * @param {import("express").Response} res Express response.
+     * @returns {Promise<import("express").Response>} 201 {success, news}, or a structured error response.
+     */
     async function create(req, res) {
+        // --- STEP 1: NORMALIZE AND VALIDATE USER-CONTROLLED CONTENT BEFORE MODEL CREATION ---
         const title = typeof req.body?.title === "string" ? req.body.title.trim() : ""
         const content = typeof req.body?.content === "string" ? req.body.content.trim() : ""
         const imageUrl = typeof req.body?.imageUrl === "string" ? req.body.imageUrl.trim() : ""
@@ -41,6 +68,7 @@ function createNewsController({ News, User, Policy }) {
             return res.status(400).json({ success: false, error: "A valid relatedPolicy ID is required" })
         }
 
+        // --- STEP 1: CHECK RELATED POLICY AND PERSIST THE NORMALIZED NEWS POST ---
         try {
             if (relatedPolicyValue && !(await Policy.exists({ _id: relatedPolicyValue }))) {
                 return res.status(404).json({ success: false, error: "Related policy not found" })
@@ -60,8 +88,17 @@ function createNewsController({ News, User, Policy }) {
         }
     }
 
+    /**
+     * Lists newest-first posts and strips raw liker IDs from the public response.
+     * Guest visitors still receive the complete readable feed; authenticated visitors also receive their own like state.
+     * @route GET /api/news
+     * @param {import("express").Request} req Request with optional authenticated email.
+     * @param {import("express").Response} res Express response.
+     * @returns {Promise<import("express").Response>} 200 with an array of serialized news posts.
+     */
     async function list(req, res) {
         try {
+            // --- STEP 1: FETCH NEWEST POSTS AND POPULATE DISPLAY-ONLY REFERENCES ---
             let currentUserId = null
             if (req.auth?.email) {
                 const user = await User.findOne({ email: req.auth.email })
@@ -87,6 +124,12 @@ function createNewsController({ News, User, Policy }) {
         }
     }
 
+    /**
+     * Resolves the authenticated citizen to a registered local user record.
+     * @param {import("express").Request} req Authenticated request.
+     * @param {import("express").Response} res Response used for missing-account errors.
+     * @returns {Promise<object|null>} User document or null after responding.
+     */
     async function getRegisteredUser(req, res) {
         if (!req.auth?.email) {
             res.status(403).json({ success: false, error: "A registered citizen account is required" })
@@ -101,11 +144,19 @@ function createNewsController({ News, User, Policy }) {
         return user
     }
 
+    /**
+     * Toggles a registered citizen's like for a news post.
+     * @route POST /api/news/:id/like
+     * @param {import("express").Request} req News ObjectId in params and authenticated user in auth.
+     * @param {import("express").Response} res Express response.
+     * @returns {Promise<import("express").Response>} 200 {success, liked, likesCount}; errors use 400/403/404/500.
+     */
     async function toggleLike(req, res) {
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             return res.status(400).json({ success: false, error: "A valid news ID is required" })
         }
 
+        // --- STEP 1: TOGGLE WITH ATOMIC ADD/REMOVE OPERATIONS TO AVOID DUPLICATE LIKES ---
         try {
             const user = await getRegisteredUser(req, res)
             if (!user) return
@@ -144,6 +195,13 @@ function createNewsController({ News, User, Policy }) {
         }
     }
 
+    /**
+     * Adds a validated comment to a news post for a registered citizen.
+     * @route POST /api/news/:id/comment
+     * @param {import("express").Request} req News ObjectId in params and JSON comment in body.
+     * @param {import("express").Response} res Express response.
+     * @returns {Promise<import("express").Response>} 201 {success, comment}; errors use 400/403/404/500.
+     */
     async function addComment(req, res) {
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             return res.status(400).json({ success: false, error: "A valid news ID is required" })
@@ -156,6 +214,7 @@ function createNewsController({ News, User, Policy }) {
             })
         }
 
+        // --- STEP 1: RESOLVE THE REGISTERED AUTHOR, APPEND, AND RETURN THE STORED COMMENT ---
         try {
             const user = await getRegisteredUser(req, res)
             if (!user) return
@@ -189,6 +248,13 @@ function createNewsController({ News, User, Policy }) {
         }
     }
 
+    /**
+     * Deletes a news post; route-level middleware restricts this handler to administrators.
+     * @route DELETE /api/news/:id
+     * @param {import("express").Request} req News ObjectId in params.
+     * @param {import("express").Response} res Express response.
+     * @returns {Promise<import("express").Response>} 200 {success}; errors use 400/404/500.
+     */
     async function remove(req, res) {
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             return res.status(400).json({ success: false, error: "A valid news ID is required" })

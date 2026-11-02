@@ -1,5 +1,12 @@
+/**
+* @file feed.js
+* @description Renders the authenticated citizen policy feed, locale translations, voting likes/comments, and catalog filters.
+* @module Client/PolicyFeed
+* @requires Firebase App and Auth browser SDKs and translation API for dynamic text
+*/
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
  import { getAuth, signInWithPopup, GoogleAuthProvider , onAuthStateChanged, signOut }  from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+// Translation dictionaries hold static UI text; dynamic policy strings are cached separately.
 const translations = {
   en: {
     translate: "Translate", policiesFeed: "Policies Feed", myDashboard: "My Dashboard", signOut: "Sign Out",
@@ -35,8 +42,10 @@ const translations = {
   }
 };
 
+/** Current selected interface language, persisted across page visits. */
 let currentLanguage = localStorage.getItem("hagereLanguage") || "en";
 
+/** Applies local dictionary strings and placeholders to the current document. */
 function applyTranslation(language) {
   const dictionary = translations[language] || translations.en;
   document.documentElement.lang = language;
@@ -53,6 +62,7 @@ function applyTranslation(language) {
 const dynamicTranslationCache = new Map();
 const translationLanguageCodes = { am: "am", om: "om", ti: "ti" };
 
+/** Translates a dynamic string, reusing cached values and retaining source text on provider failure. */
 async function translateDynamicText(text, language) {
   if (!text || language === "en") return text;
   const languageCode = translationLanguageCodes[language];
@@ -74,6 +84,7 @@ async function translateDynamicText(text, language) {
   }
 }
 
+/** Translates marked policy content concurrently while retaining the original text for language switches. */
 async function translateDynamicContent(language) {
   const dynamicElements = [...document.querySelectorAll("[data-dynamic-translation]")];
   await Promise.all(dynamicElements.map(async (element) => {
@@ -82,6 +93,7 @@ async function translateDynamicContent(language) {
   }));
 }
 
+// A language selection updates persisted preference, static labels, and dynamically loaded policy text.
 document.querySelectorAll("[data-language]").forEach((languageButton) => {
   languageButton.addEventListener("click", async () => {
     currentLanguage = languageButton.dataset.language;
@@ -106,6 +118,7 @@ const signOutButton=document.getElementById("signOutButton")
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const auth=getAuth(app)
+  /** Constructs a safe text-based policy comment node. */
   function createPolicyComment(comment) {
     const item=document.createElement("li")
     item.className="rounded border border-antique-border bg-antique-bg p-3"
@@ -119,6 +132,12 @@ const signOutButton=document.getElementById("signOutButton")
     return item
   }
 
+  /**
+   * Builds citizen-only like and comment controls for one policy card.
+   * @param {object} policy Public policy record and engagement state.
+   * @param {import("firebase/auth").User} user Authenticated Firebase user.
+   * @returns {HTMLElement} Engagement section with listeners and controls.
+   */
   function createPolicyEngagement(policy,user) {
     const section=document.createElement("section")
     section.className="mt-4 border-t border-antique-border pt-4 font-sans"
@@ -126,6 +145,8 @@ const signOutButton=document.getElementById("signOutButton")
     likeButton.type="button"
     likeButton.className="rounded border border-antique-border px-3 py-2 text-sm hover:bg-antique-bg"
     likeButton.textContent=`${policy.liked ? "Unlike" : "Like"} · ${policy.likesCount ?? 0}`
+    // The Firebase ID token authenticates this mutation; disable the control until the API responds.
+    /** @listens click Toggles the citizen's policy like through the authenticated API. */
     likeButton.addEventListener("click",async()=>{
       likeButton.disabled=true
       try{
@@ -175,6 +196,8 @@ const signOutButton=document.getElementById("signOutButton")
     submit.className="rounded bg-antique-accent px-4 py-2 text-sm font-medium text-white hover:bg-antique-accentHover disabled:opacity-60"
     submit.textContent="Comment"
     form.append(input,submit)
+    // Submit an authenticated JSON comment and update this card only after server confirmation.
+    /** @listens submit Posts the citizen's policy comment and updates current DOM state. */
     form.addEventListener("submit",async event=>{
       event.preventDefault()
       submit.disabled=true
@@ -208,10 +231,13 @@ const signOutButton=document.getElementById("signOutButton")
     section.append(likeButton,heading,list,form)
     return section
   }
+  // Engagement requires a session; anonymous visitors are served the read-only catalog by script.js.
+  /** Loads personalized engagement and the citizen feed after Firebase resolves authentication. */
   onAuthStateChanged(auth, (user) => {
     if (user) {
       const uid = user.uid;
   localStorage.setItem("userEmail",user.email)
+  // Fetch personalized policy data with the Firebase token so like state is scoped to this user.
   user.getIdToken().then(token=>fetch("/api/policies",{
     cache:"no-store",
     headers:{"Authorization":`Bearer ${token}`}
@@ -288,8 +314,10 @@ return data
 }
 
 ).then(async ()=>{
+  // --- STEP 1: APPLY TITLE/CATEGORY FILTERS, THEN RESTORE THE SELECTED LANGUAGE ---
   // TITLE FILTERING SECTION
   const titleFilter=document.getElementById("titleFilter")
+/** Filters visible policy cards by title as the citizen types. */
 titleFilter.onkeydown=(e)=>{
     const target=e.target.value.toLowerCase()
     let titleText=document.querySelectorAll(".title")
@@ -308,6 +336,7 @@ titleFilter.onkeydown=(e)=>{
 const policySection=document.getElementById("policySection")
 const catagoryFilter=document.getElementById("policy-category")
 const categoryLabel=document.querySelectorAll(".category")
+/** Shows only policies matching the selected category. */
 catagoryFilter.addEventListener("change",(e)=>{
   const targetValue=e.target.value.toLowerCase()
 categoryLabel.forEach(label=>{
@@ -328,6 +357,7 @@ await translateDynamicContent(currentLanguage)
 // POLICY REDIRECT SECTION
 const policyRedirectBtn=document.querySelectorAll(".policyRedirectBtn")
 policyRedirectBtn.forEach(redirect=>{
+    /** Stores the selected policy ID before opening its detail view. */
     redirect.onclick=()=>{
        const idLabel=redirect.parentElement.querySelector(".idLabel").innerText
       localStorage.setItem("policyID",idLabel)
@@ -347,6 +377,8 @@ policyRedirectBtn.forEach(redirect=>{
 window.location.href="./index.html"
   }
 });
+/** Signs out the citizen and returns to the public landing page. */
+/** @listens click Signs out and returns the visitor to the public landing page. */
 signOutButton.onclick=()=>{
   signOut(auth).then(() => {
     window.location.href("./index.html")

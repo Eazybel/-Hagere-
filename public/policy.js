@@ -1,7 +1,14 @@
+/**
+* @file policy.js
+* @description Loads public or citizen-specific policy details and manages policy chat, comments, likes, and voting.
+* @module Client/PolicyDetail
+* @requires Firebase App/Auth browser SDKs and local voteState.mjs
+*/
 import { applyOptimisticVote } from "./voteState.mjs"
 
  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
  import { getAuth, signInWithPopup, GoogleAuthProvider , onAuthStateChanged, signOut }  from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+ // Module state: Firebase identity, policy comment DOM targets, and the current rendered-comment cache.
  const firebaseConfig = {
     apiKey: "AIzaSyAXviVipDAJZl-xyiQE4JfACkcl1xt_CqM",
     authDomain: "hagere-c6abc.firebaseapp.com",
@@ -19,6 +26,7 @@ import { applyOptimisticVote } from "./voteState.mjs"
   const commentStatus=document.getElementById("commentStatus")
   let renderedComments=[]
 
+  /** Replaces a failed policy detail view with a visible error state. */
   function showPolicyLoadError(policyArticle,error) {
     console.error("Policy detail request failed:",error)
     const errorState=document.createElement("p")
@@ -27,6 +35,11 @@ import { applyOptimisticVote } from "./voteState.mjs"
     policyArticle.replaceChildren(errorState)
   }
 
+  /**
+   * Attaches the policy assistant submit/poll flow to a policy page.
+   * @param {string} policyId Policy ObjectId for the chat API.
+   * @returns {void} Installs the form listener.
+   */
   function enablePolicyChat(policyId) {
     const form=document.getElementById("policyChatForm")
     const input=document.getElementById("policyChatMessage")
@@ -34,12 +47,15 @@ import { applyOptimisticVote } from "./voteState.mjs"
     const status=document.getElementById("policyChatStatus")
     const reply=document.getElementById("policyChatReply")
 
+    /** Parses a JSON chat response and reports proxy/server non-JSON responses clearly. */
     async function readChatResponse(response) {
       const result=await response.json().catch(()=>null)
       if(result && typeof result==="object") return result
       throw new Error(`The policy chat server returned a non-JSON response (HTTP ${response.status}). Check the server or proxy logs.`)
     }
 
+    // Submit JSON policy question, show pending status, poll long-running Gemini interactions, then render the answer.
+    /** @listens submit Sends a policy question and polls Gemini until completion or client deadline. */
     form.addEventListener("submit",async event=>{
       event.preventDefault()
       if(submitButton.disabled) return
@@ -97,6 +113,7 @@ import { applyOptimisticVote } from "./voteState.mjs"
     })
   }
 
+  /** Replaces the comment thread with safe text nodes and updates its count. */
   function renderComments(policy) {
     renderedComments=Array.isArray(policy.interactions?.comments)
       ? policy.interactions.comments
@@ -132,7 +149,15 @@ import { applyOptimisticVote } from "./voteState.mjs"
     })
   }
 
+  /**
+   * Installs authenticated policy-comment submission for a citizen.
+   * @param {import("firebase/auth").User} user Firebase-authenticated citizen.
+   * @param {string} policyId Policy ObjectId.
+   * @returns {void} Installs the comment form listener.
+   */
   function enableCommentSubmission(user, policyId) {
+    // Use a Firebase ID token and update the thread only after the backend confirms persistence.
+    /** @listens submit Posts a citizen comment using a Firebase token and updates the rendered thread. */
     commentPostSection.addEventListener("submit",async event=>{
       event.preventDefault()
       const input=document.getElementById("new-comment")
@@ -175,10 +200,13 @@ import { applyOptimisticVote } from "./voteState.mjs"
     })
   }
 
+  // Authenticated users get voting state and controls; guests still get policy content and read-only comments.
+  /** Chooses personalized or guest-readable policy loading based on Firebase authentication state. */
   onAuthStateChanged(auth, async (user) => {
   if (user) {
     const uid = user.uid;
     const idToken = await user.getIdToken()
+    // --- STEP 1: FETCH PERSONALIZED POLICY DETAIL, RENDER ENGAGEMENT, AND ENABLE AUTHENTICATED ACTIONS ---
     // POLICY ARTICLE RENDERING SECTION
       const policyArticle=document.getElementById("policyArticle")
 fetch("/policyFetch",{method:"POST",headers:{"Authorization":`Bearer ${idToken}`},body:JSON.stringify({"requestType":"singlePolicyFetch","policyID":localStorage.getItem("policyID")})}).then(res=>{return res.json()}).then(data=>
@@ -307,6 +335,7 @@ policyArticle.insertAdjacentHTML("beforeend",
 }
 return data
 }).then((data)=>{  
+    // --- STEP 2: SUBMIT A ONE-TIME VOTE WITH OPTIMISTIC COUNTS AND ROLLBACK ON FAILURE ---
     // INTERACTION UPDATION CODE BLOCK
 
     
@@ -327,6 +356,8 @@ if(data.userVoted[0]==false){
         document.getElementById("disagreeVoteCount").textContent=counts.disagree
     }
 
+    /** Validates the selected stance, optimistically updates counts, and rolls back if the API rejects the vote. */
+    /** @listens click Sends an authenticated vote with optimistic UI and explicit rollback. */
     submitBtn.onclick=async(event)=>{
         event.preventDefault()
         if(submitBtn.disabled) return
@@ -382,6 +413,7 @@ if(data.userVoted[0]==false){
 .catch(error=>showPolicyLoadError(policyArticle,error))
 
 } else {
+    // Guest flow omits vote/comment controls while still loading policy content and public comments.
     // POLICY ARTICLE RENDERING SECTION FOR NON USERS
       const policyArticle=document.getElementById("policyArticle")
       commentPostSection.style.display="none"

@@ -1,3 +1,9 @@
+/**
+ * @file userController.js
+ * @description Verifies Firebase user registration, exposes admin user counts, and serves citizen profile activity.
+ * @module Controllers/Users
+ * @requires mongoose, firebase-admin, User and Policy models
+ */
 // Profile management and activity metrics
 const mongoose=require("mongoose")
 const userModel=require("../models/User")
@@ -13,10 +19,22 @@ const invalidTokenErrorCodes=new Set([
     "auth/user-not-found"
 ])
 
+/**
+ * Creates the Firebase-backed citizen registration handler.
+ * @param {object} options User model and an injectable ID-token verifier.
+ * @returns {import("express").RequestHandler} Handler for POST /newUserRegister.
+ */
 function createUserController({
     User,
     verifyIdToken=token=>getAuth().verifyIdToken(token,true)
 }) {
+    /**
+     * @route POST /newUserRegister
+     * @param {import("express").Request} req Bearer Firebase ID token and optional profile name/avatar body.
+     * @param {import("express").Response} res Express response.
+     * @param {import("express").NextFunction} next Forwards unexpected verifier/database errors.
+     * @returns {Promise<void>} Responds with 200/201 profile, 400 validation, 401 invalid credentials, or 403 unverified email.
+     */
     return async(req,res,next)=>{
         const authorization=req.get?.("authorization") || req.headers?.authorization
         const match=typeof authorization==="string"
@@ -94,14 +112,36 @@ function createUserController({
     }
 }
 
+/** @route POST /newUserRegister @description Production Firebase-backed citizen registration handler. */
 const userController=createUserController({User:userModel})
-// USER FETCHER ROUTE
+/**
+ * Returns the registered-user count for authorized admin dashboards.
+ * @route POST /userFetch
+ * @param {import("express").Request} req Admin request.
+ * @param {import("express").Response} res Express response.
+ * @returns {Promise<import("express").Response>} 200 JSON {count}.
+ */
 const userFetch=(async(req,res)=>{
 const userNumber=await userModel.countDocuments()
 return res.status(200).json({count:userNumber})
 })
 
+/**
+ * Creates the citizen activity endpoint handler.
+ * @param {object} dependencies Mongoose models.
+ * @param {import("mongoose").Model} dependencies.User User model.
+ * @param {import("mongoose").Model} dependencies.Policy Policy model.
+ * @returns {import("express").RequestHandler} Handler for GET /profile/activity.
+ */
 const createProfileActivityController=({User,Policy})=>async(req,res,next)=>{
+    /**
+     * Returns the current citizen profile and their 20 most recent recorded votes.
+     * @route GET /profile/activity
+     * @param {import("express").Request} req Verified citizen email in req.auth.
+     * @param {import("express").Response} res Express response.
+     * @param {import("express").NextFunction} next Forwards database failures.
+     * @returns {Promise<import("express").Response>} 200 profile, totalVotes, and activity; missing identity/profile returns 403/404.
+     */
     try {
         if(!req.auth?.email){
             return res.status(403).json({error:"Authenticated account email required"})
@@ -147,6 +187,7 @@ const createProfileActivityController=({User,Policy})=>async(req,res,next)=>{
     }
 }
 
+/** @route GET /profile/activity @description Production citizen profile activity handler. */
 const profileActivity=createProfileActivityController({User:userModel,Policy:policyModel})
 
 module.exports={userController, userFetch, profileActivity, createProfileActivityController, createUserController}

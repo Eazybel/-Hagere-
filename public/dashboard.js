@@ -1,3 +1,9 @@
+/**
+ * @file dashboard.js
+ * @description Authenticates citizen dashboard access and renders the user's recent policy voting activity.
+ * @module Client/CitizenDashboard
+ * @requires Firebase App and Auth browser SDKs
+ */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js"
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js"
 
@@ -10,6 +16,7 @@ const firebaseConfig = {
     appId: "1:272791886594:web:05b9f9fd6fc98cdca3c01b"
 }
 
+// Module state: DOM targets and a guard that prevents auth callbacks redirecting during sign-out.
 const signOutButton=document.getElementById("signOutButton")
 const auth=getAuth(initializeApp(firebaseConfig))
 const activityFeed=document.getElementById("activityFeed")
@@ -20,12 +27,14 @@ const profileErrorMessage=document.getElementById("profileErrorMessage")
 const numberFormatter=new Intl.NumberFormat()
 let isSigningOut=false
 
+/** Switches the profile view from loading to a visible error message. */
 function showProfileError(message) {
     profileLoading.classList.add("hidden")
     profileErrorMessage.textContent=message
     profileError.classList.remove("hidden")
 }
 
+/** Builds the profile summary and recent vote cards from the activity API response. */
 function renderActivity(data) {
     document.getElementById("profileName").textContent=data.profile.name || "Citizen Profile & Activity"
     const memberSince=data.profile.memberSince
@@ -78,6 +87,7 @@ function renderActivity(data) {
         link.className="text-antique-accent font-medium hover:underline"
         link.href="./policy.html"
         link.textContent="View Policy →"
+        // Preserve the selected policy ID for the policy detail page.
         link.addEventListener("click",()=>localStorage.setItem("policyID",entry.policyId))
         footer.append(stance,link)
 
@@ -86,11 +96,17 @@ function renderActivity(data) {
     }
 }
 
+/**
+ * Loads authenticated profile activity and updates loading/error states.
+ * @param {import("firebase/auth").User} user Signed-in citizen.
+ * @returns {Promise<void>} Resolves after UI is updated.
+ */
 async function loadProfile(user) {
     profileError.classList.add("hidden")
     profileLoading.classList.remove("hidden")
     document.getElementById("activityFeed").setAttribute("aria-busy","true")
     try {
+        // Firebase ID token is sent to the citizen-only profile activity endpoint.
         const token=await user.getIdToken()
         const response=await fetch("/profile/activity",{
             headers:{Authorization:`Bearer ${token}`}
@@ -117,6 +133,7 @@ async function loadProfile(user) {
     }
 }
 
+// Require a Firebase session before exposing private activity.
 onAuthStateChanged(auth,user=>{
     if(!user){
         if(!isSigningOut) window.location.replace("./login.html")
@@ -130,10 +147,12 @@ onAuthStateChanged(auth,user=>{
     console.error(error)
 })
 
+/** @listens click Retries profile loading after a recoverable API failure. */
 document.getElementById("retryProfile").addEventListener("click",()=>{
     if(auth.currentUser) loadProfile(auth.currentUser)
 })
 
+/** @listens click Signs out the citizen and returns to the landing page. */
 signOutButton.addEventListener("click",async()=>{
     isSigningOut=true
     try {

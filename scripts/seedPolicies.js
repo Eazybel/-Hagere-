@@ -1,3 +1,9 @@
+/**
+ * @file seedPolicies.js
+ * @description Idempotently upserts the Ethiopian policy catalog and retries transient MongoDB DNS/network failures.
+ * @module Scripts/PolicySeeder
+ * @requires mongoose, dotenv, Policy model, and connectivity classifiers from seedNews
+ */
 require("dotenv").config({ quiet: true })
 
 const mongoose = require("mongoose")
@@ -77,6 +83,12 @@ const POLICY_SEED_DATA = [
     }
 ]
 
+/**
+ * Upserts seeded policies by title, initializes engagement only on insert, and closes its database connection.
+ * @param {object} [options] Injectable Mongoose instance, model, URI, logger, and sleep function.
+ * @returns {Promise<object[]>} Bulk-write operations after successful seeding.
+ * @throws {Error} For persistent DNS/network or database write failures.
+ */
 async function seedPolicies({
     mongoose: mongooseInstance = mongoose,
     Policy: PolicyModel = Policy,
@@ -88,6 +100,7 @@ async function seedPolicies({
 } = {}) {
     let connected = false
     try {
+        // Atlas SRV DNS and network failures are retried; permanent failures are surfaced with remediation guidance.
         for (let attempt = 0; ; attempt += 1) {
             try {
                 await mongooseInstance.connect(mongoUri, {
@@ -116,6 +129,7 @@ async function seedPolicies({
         }
         connected = true
 
+        // --- STEP 1: UPSERT BY TITLE AND INITIALIZE ENGAGEMENT ONLY FOR NEW POLICY DOCUMENTS ---
         const operations = POLICY_SEED_DATA.map(({ title, category, description, documentUrl }) => ({
             updateOne: {
                 filter: { title },

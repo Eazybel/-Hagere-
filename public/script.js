@@ -1,5 +1,12 @@
+/**
+* @file script.js
+* @description Loads and renders the anonymous policy catalog, search/filter controls, and policy-detail navigation.
+* @module Client/PublicPolicyCatalog
+* @requires Firebase App and Auth browser SDKs
+*/
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
  import { getAuth, signInWithPopup, GoogleAuthProvider , onAuthStateChanged }  from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+  // Module state is intentionally limited to the public Firebase client and Auth instance.
   const firebaseConfig = {
     apiKey: "AIzaSyAXviVipDAJZl-xyiQE4JfACkcl1xt_CqM",
     authDomain: "hagere-c6abc.firebaseapp.com",
@@ -9,9 +16,11 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/fireba
     appId: "1:272791886594:web:05b9f9fd6fc98cdca3c01b"
   };
 
+  // Firebase Auth is used to redirect existing sessions; anonymous visitors can browse the catalog.
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const auth=getAuth(app)
+// Existing signed-in visitors use the citizen feed; guests receive the public catalog below.
 onAuthStateChanged(auth, (user) => {
   if (user) {
   window.location.replace("/feed.html")
@@ -19,6 +28,7 @@ onAuthStateChanged(auth, (user) => {
     // ...
   } else {
 
+        // --- STEP 1: FETCH THE PUBLIC POLICY CATALOG AND RENDER EMPTY/CONTENT STATES ---
         // POLICY POST UPDATER
 fetch("/api/policies",{
   cache:"no-store"
@@ -93,6 +103,7 @@ return data
 ).then((data)=>{
         // FILTERING SECTION CODE BLOCK
   const titleFilter=document.getElementById("titleFilter")
+/** Filters visible policy cards by title as the visitor types. */
 titleFilter.onkeydown=(e)=>{
     const target=e.target.value.toLowerCase()
     let titleText=document.querySelectorAll(".title")
@@ -113,6 +124,7 @@ titleFilter.onkeydown=(e)=>{
 const policySection=document.getElementById("policySection")
 const catagoryFilter=document.getElementById("policy-category")
 const categoryLabel=document.querySelectorAll(".category")
+/** Shows only policies matching the selected category. */
 catagoryFilter.addEventListener("change",(e)=>{
   const targetValue=e.target.value.toLowerCase()
 categoryLabel.forEach(label=>{
@@ -131,6 +143,7 @@ label.closest("article").style.display="none"
 // POLICY REDIRECT SECTION
 const policyRedirectBtn=document.querySelectorAll(".policyRedirectBtn")
 policyRedirectBtn.forEach(redirect=>{
+    /** Stores the selected policy ID before opening its detail view. */
     redirect.onclick=()=>{
        const idLabel=redirect.parentElement.querySelector(".idLabel").innerText
       localStorage.setItem("policyID",idLabel)

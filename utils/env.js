@@ -1,3 +1,9 @@
+/**
+ * @file env.js
+ * @description Loads and validates server environment variables and parses Firebase service-account JSON before application startup.
+ * @module Utils/Environment
+ * @requires dotenv and zod
+ */
 require("dotenv").config({ quiet: true })
 
 const { z } = require("zod")
@@ -30,6 +36,7 @@ const envSchema = z.object({
     )]).refine(uids => uids.length > 0, "must contain at least one UID")
 })
 
+// Fail fast at startup so the server never runs with a partial or mispaired Firebase configuration.
 const result = envSchema.safeParse(process.env)
 
 if (!result.success) {
@@ -40,6 +47,13 @@ if (!result.success) {
     process.exit(1)
 }
 
+/**
+ * Parses and validates a Firebase service account without logging credential values.
+ * @param {string} value JSON string from the environment.
+ * @param {string} variableName Environment variable label used in validation diagnostics.
+ * @returns {object} Validated credential object with normalized private-key newlines.
+ * @throws {never} Invalid input terminates startup after a redacted diagnostic.
+ */
 function parseServiceAccount(value, variableName) {
     let serviceAccountJson
     try {

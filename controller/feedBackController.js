@@ -1,9 +1,28 @@
+/**
+ * @file feedBackController.js
+ * @description Records a citizen's one-time agree, neutral, or disagree vote on a policy.
+ * @module Controllers/PolicyVotes
+ * @requires mongoose and User and Policy models
+ */
 // Support/Oppose/Neutral vote processing
 const mongoose=require("mongoose")
 const userModel=require("../models/User")
 const policyModal=require("../models/Policy")
 
+/**
+ * Builds a validated policy voting handler.
+ * @param {object} dependencies Database models.
+ * @param {import("mongoose").Model} dependencies.User User model.
+ * @param {import("mongoose").Model} dependencies.Policy Policy model.
+ * @returns {import("express").RequestHandler} Handler for POST /feedBack.
+ */
 function createFeedBackController({User, Policy}) {
+    /**
+     * @route POST /feedBack
+     * @param {import("express").Request} req JSON {policyId, requestType} and verified account email in auth.
+     * @param {import("express").Response} res Express response.
+     * @returns {Promise<import("express").Response>} 200 {success, totalVotes}; invalid, duplicate, unauthenticated, and missing records use 400/403/404/409.
+     */
     return async(req,res)=>{
         let requestBody=req.body
         if(typeof requestBody==="string"){
@@ -27,6 +46,7 @@ function createFeedBackController({User, Policy}) {
         const user=await User.findOne({email:req.auth.email})
         if(!user) return res.status(404).json({error:"Registered citizen not found"})
 
+        // --- STEP 1: ATOMICALLY RECORD ONE STANCE, THEN MIRROR IT IN THE USER ACTIVITY ---
         const stance=requestBody.requestType
         const votePath=`interactions.votes.${stance}`
         const voterId=user.id

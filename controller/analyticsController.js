@@ -1,3 +1,13 @@
+/**
+ * @file analyticsController.js
+ * @description Aggregates policy votes, comments, and active-citizen totals for the admin analytics view.
+ * @module Controllers/AdminAnalytics
+ * @requires injected Policy and User Mongoose models
+ */
+/**
+ * Constructs the aggregation pipeline used to summarize policy engagement.
+ * @returns {object[]} MongoDB aggregation stages for overview totals and top policies.
+ */
 function buildAnalyticsPipeline() {
     const voteCounts = {
         agree: { $ifNull: ["$interactions.votes.agree.count", 0] },
@@ -53,7 +63,22 @@ function buildAnalyticsPipeline() {
     ]
 }
 
+/**
+ * Creates the administrator analytics request handler.
+ * @param {object} dependencies Mongoose model dependencies.
+ * @param {import("mongoose").Model} dependencies.Policy Policy model.
+ * @param {import("mongoose").Model} dependencies.User User model.
+ * @returns {import("express").RequestHandler} Handler for GET /admin/analytics.
+ */
 function createAnalyticsController({ Policy, User }) {
+    /**
+     * @route GET /admin/analytics
+     * @param {import("express").Request} req Authenticated admin request.
+     * @param {import("express").Response} res Express response.
+     * @param {import("express").NextFunction} next Express error middleware.
+     * @returns {Promise<import("express").Response>} 200 with generatedAt, overview, and topPolicies.
+     * @throws {Error} Aggregation failures are forwarded to Express error handling.
+     */
     return async (req, res, next) => {
         try {
             const [aggregation, activeCitizens] = await Promise.all([

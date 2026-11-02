@@ -1,7 +1,24 @@
+/**
+ * @file commentController.js
+ * @description Creates policy-comment handlers that validate citizen input and append comments to policy engagement data.
+ * @module Controllers/PolicyComments
+ * @requires mongoose and the Policy model
+ */
 const mongoose = require("mongoose")
 const policyModel = require("../models/Policy")
 
+/**
+ * Builds the policy comment request handler.
+ * @param {import("mongoose").Model} Policy Policy model.
+ * @returns {import("express").RequestHandler} Handler for POST /policyComment.
+ */
 function createPolicyCommentController(Policy) {
+    /**
+     * @route POST /policyComment
+     * @param {import("express").Request} req JSON {policyId, text}; authenticated uid in req.auth.
+     * @param {import("express").Response} res Express response.
+     * @returns {Promise<import("express").Response>} 201 {success, comment}; invalid input/identity/missing policy use 400/403/404.
+     */
     return async (req, res) => {
         const { policyId, text } = req.body || {}
         const normalizedText = typeof text === "string" ? text.trim() : ""

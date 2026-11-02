@@ -1,14 +1,32 @@
+/**
+ * @file policyController.js
+ * @description Validates policy payloads, serializes public policy data, and handles policy catalog, detail, publishing, deletion, and counts.
+ * @module Controllers/Policy
+ * @requires mongoose and Policy/User models
+ */
 // Policy CRUD, search, and filtering logic
 const mongoose=require("mongoose")
 const policyModel=require("../models/Policy")
 const userModel=require("../models/User")
 
+/**
+ * Normalizes Express JSON or text request bodies into an object.
+ * @param {import("express").Request} req Request with a possibly JSON-string body.
+ * @returns {object} Parsed request data or an empty object.
+ * @throws {SyntaxError} When a text request body is malformed JSON.
+ */
 const requestData=(req)=>{
     if(req.body && typeof req.body==="object") return req.body
     if(typeof req.body==="string") return JSON.parse(req.body)
     return {}
 }
 
+/**
+ * Removes private model data and formats policy engagement for browser clients.
+ * @param {object} policy Mongoose document or plain policy object.
+ * @param {?string} [currentUserId=null] Authenticated user's ID for their like state.
+ * @returns {object} Public policy representation.
+ */
 const toPublicPolicy=(policy,currentUserId=null)=>{
     const data=policy.toObject ? policy.toObject() : policy
     const likes=Array.isArray(data.likes) ? data.likes : []
@@ -39,6 +57,11 @@ const toPublicPolicy=(policy,currentUserId=null)=>{
     }
 }
 
+/**
+ * Validates that a document link uses HTTP(S) and contains no embedded credentials.
+ * @param {string} value Candidate document URL.
+ * @returns {boolean} Whether the URL is acceptable.
+ */
 const isValidDocumentUrl=value=>{
     try{
         const url=new URL(value)
@@ -48,6 +71,13 @@ const isValidDocumentUrl=value=>{
     }
 }
 
+/**
+ * Creates the admin policy publishing handler.
+ * @param {object} dependencies Mongoose model dependencies.
+ * @param {import("mongoose").Model} dependencies.Policy Policy model.
+ * @route POST /api/policies
+ * @returns {import("express").RequestHandler} Handler returning 201 {policyId,documentUrl}, or 400/500 errors.
+ */
 const createPolicyUpdateController=({Policy})=>async(req,res)=>{
     const body=req.body || {}
     const title=typeof body.title==="string" ? body.title.trim() : ""
@@ -64,6 +94,7 @@ const createPolicyUpdateController=({Policy})=>async(req,res)=>{
         })
     }
 
+    // --- STEP 1: VALIDATE AND NORMALIZE THE JSON PUBLISHING PAYLOAD ---
     try{
         const newPolicy=new Policy({
             title,
@@ -93,13 +124,23 @@ const createPolicyUpdateController=({Policy})=>async(req,res)=>{
     }
 }
 
+/** @route POST /api/policies @description Production policy publishing handler. */
 const policyUpdate=createPolicyUpdateController({Policy:policyModel})
+/**
+ * Creates the admin policy deletion handler.
+ * @route DELETE /api/policies/:id
+ * @param {object} dependencies Mongoose models.
+ * @param {import("mongoose").Model} dependencies.Policy Policy model.
+ * @param {import("mongoose").Model} dependencies.News News model whose relatedPolicy references are cleared.
+ * @returns {import("express").RequestHandler} Handler returning 200 {success} or 400/404/500 errors.
+ */
 const createPolicyDeleteController=({Policy,News})=>async(req,res)=>{
     if(!mongoose.Types.ObjectId.isValid(req.params.id)){
         return res.status(400).json({success:false,error:"A valid policy ID is required"})
     }
 
     try{
+        // Clear optional news references before deleting the policy to avoid stale relations.
         const policy=await Policy.findById(req.params.id)
         if(!policy) return res.status(404).json({success:false,error:"Policy not found"})
 
@@ -114,8 +155,18 @@ const createPolicyDeleteController=({Policy,News})=>async(req,res)=>{
         return res.status(500).json({success:false,error:"Unable to delete policy right now"})
     }
 }
+/**
+ * Creates the public policy catalog handler.
+ * @param {object} dependencies Database models.
+ * @param {import("mongoose").Model} dependencies.Policy Policy model.
+ * @param {import("mongoose").Model} dependencies.User User model used to calculate a viewer's like state.
+ * @route GET /api/policies
+ * @returns {import("express").RequestHandler} Handler returning 200 with a public policy array.
+ * @throws {Error} For database failures forwarded to Express error middleware.
+ */
 const createPolicyListController=({Policy,User})=>async(req,res,next)=>{
     try{
+        // Resolve viewer identity only when optional auth middleware attached a verified email.
         let currentUserId=null
         if(req.auth?.email && User){
             const user=await User.findOne({email:req.auth.email})
@@ -128,8 +179,18 @@ const createPolicyListController=({Policy,User})=>async(req,res,next)=>{
         return next(error)
     }
 }
+/** @route GET /api/policies @description Production public policy catalog handler. */
 const policyList=createPolicyListController({Policy:policyModel,User:userModel})
+/**
+ * Creates the legacy policy detail/count handler used by the browser policy views.
+ * @param {object} dependencies Database models.
+ * @param {import("mongoose").Model} dependencies.Policy Policy model.
+ * @param {import("mongoose").Model} dependencies.User User model.
+ * @route POST /policyFetch
+ * @returns {import("express").RequestHandler} Handler returning public/detail policy payloads or 400/403/404 errors.
+ */
 const createPolicyFetchController=({Policy,User})=>async(req,res)=>{
+    // Normalize legacy text bodies and branch by the page's explicit request type.
     const reqData=requestData(req)
     if(reqData.requestType==="policyDataFetch"){
         const allPolicies=await Policy.find().sort({createdAt:-1})
@@ -163,8 +224,17 @@ const createPolicyFetchController=({Policy,User})=>async(req,res)=>{
     }
     return res.status(400).json({error:"Unsupported policy request"})
 }
+/** @route POST /policyFetch @description Production legacy policy detail/catalog handler. */
 const policyFetch=createPolicyFetchController({Policy:policyModel,User:userModel})
 
+/**
+ * Returns the total number of policies to authorized administrators.
+ * @route GET /admin/policyCount
+ * @param {import("express").Request} req Authenticated admin request.
+ * @param {import("express").Response} res Express response.
+ * @returns {Promise<import("express").Response>} 200 with {count}.
+ * @throws {Error} Database errors are handled by Express error middleware.
+ */
 const policyCount=async(req,res)=>{
 const count=await policyModel.countDocuments()
 return res.status(200).json({count})

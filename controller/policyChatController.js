@@ -1,3 +1,9 @@
+/**
+ * @file policyChatController.js
+ * @description Retrieves bounded Cloudinary PDF content and sends policy-grounded questions to Gemini with timeout/retry handling.
+ * @module Controllers/PolicyChat
+ * @requires mongoose and Node.js fetch, Buffer, AbortController APIs
+ */
 const mongoose = require("mongoose")
 
 const SYSTEM_INSTRUCTION = "You are an expert AI civic assistant for Hagere. Read the attached policy document carefully, and answer the user's question accurately and thoroughly in Amharic (አማርኛ)."
@@ -10,6 +16,11 @@ const GEMINI_REQUEST_TIMEOUT_MS = 90_000
 const GEMINI_503_RETRIES = 2
 const GEMINI_RETRY_DELAY_MS = 2000
 
+/**
+ * Restricts policy document retrieval to credential-free Cloudinary URLs.
+ * @param {string} pdfUrl Stored policy document URL.
+ * @returns {?URL} HTTPS Cloudinary URL or null when outside the allowed URL shape.
+ */
 function getCloudinaryUrl(pdfUrl) {
     let url
     try {
@@ -30,6 +41,13 @@ function getCloudinaryUrl(pdfUrl) {
     return url
 }
 
+/**
+ * Races asynchronous work with an abort signal and unregisters its listener afterward.
+ * @param {Promise<*>} promise Asynchronous work to observe.
+ * @param {AbortSignal} signal Cancellation signal.
+ * @param {Function} [onAbort] Optional cancellation cleanup callback.
+ * @returns {Promise<*>} Result of work or abort rejection.
+ */
 function raceWithAbort(promise, signal, onAbort) {
     let abortListener
     const abortPromise = new Promise((_, reject) => {
@@ -45,6 +63,13 @@ function raceWithAbort(promise, signal, onAbort) {
     })
 }
 
+/**
+ * Reads a PDF response while enforcing a byte limit and abort handling.
+ * @param {Response} response Fetch response.
+ * @param {AbortSignal} signal Request timeout/cancellation signal.
+ * @returns {Promise<Buffer>} Validated-size PDF bytes.
+ * @throws {RangeError} If the document exceeds MAX_PDF_BYTES.
+ */
 async function readPdfBuffer(response, signal) {
     const contentLength = Number(response.headers.get("content-length"))
     if (Number.isFinite(contentLength) && contentLength > MAX_PDF_BYTES) {
@@ -77,6 +102,13 @@ async function readPdfBuffer(response, signal) {
     })
 }
 
+/**
+ * Parses Gemini JSON and turns HTTP failures into status-bearing errors.
+ * @param {Response} response Gemini fetch response.
+ * @param {string} operation Human-readable operation name for diagnostics.
+ * @returns {Promise<object>} Parsed Gemini result.
+ * @throws {Error} When Gemini returns a non-success status.
+ */
 async function parseGeminiResponse(response, operation) {
     const result = await response.json().catch(() => ({}))
     if (!response.ok) {
@@ -87,6 +119,7 @@ async function parseGeminiResponse(response, operation) {
     return result
 }
 
+/** @param {object} result Gemini generateContent response. @returns {string} Combined candidate text. */
 function getGenerateContentReply(result) {
     return result.candidates?.[0]?.content?.parts
         ?.map(part => typeof part.text === "string" ? part.text : "")
@@ -94,6 +127,7 @@ function getGenerateContentReply(result) {
         .trim() || ""
 }
 
+/** @param {Error & {status?: number}} error Gemini/network failure. @param {string} operation Operation label. @returns {{status:number,error:string}} Safe HTTP status and client-facing failure message. */
 function getGeminiFailure(error, operation) {
     if (error.status === 429) {
         return {
@@ -131,6 +165,7 @@ function getGeminiFailure(error, operation) {
     }
 }
 
+/** @param {object} interaction Gemini interaction resource. @returns {string} Combined response text or empty string. */
 function getInteractionReply(interaction) {
     if (typeof interaction.output_text === "string" && interaction.output_text.trim()) {
         return interaction.output_text.trim()
@@ -146,6 +181,11 @@ function getInteractionReply(interaction) {
         .trim()
 }
 
+/**
+ * Creates HTTP handlers for synchronous Gemini policy chat and interaction polling.
+ * @param {object} options Policy model, API key, fetch implementation, and timeout/retry dependencies.
+ * @returns {{create: import("express").RequestHandler, poll: import("express").RequestHandler}} Chat handlers.
+ */
 function createPolicyChatController({
     Policy,
     apiKey = process.env.GEMINI_API_KEY,
@@ -154,6 +194,12 @@ function createPolicyChatController({
     cloudinaryTimeoutMs = CLOUDINARY_FETCH_TIMEOUT_MS,
     sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds))
 }) {
+    /**
+     * Fetches a bounded PDF from Cloudinary. AbortController limits network resource use.
+     * @param {string} pdfUrl Policy document URL.
+     * @returns {Promise<Buffer>} PDF bytes.
+     * @throws {Error} For invalid/unavailable documents or fetch timeout.
+     */
     async function fetchPdfBuffer(pdfUrl) {
         const cloudinaryUrl = getCloudinaryUrl(pdfUrl)
         if (!cloudinaryUrl) {
@@ -203,6 +249,13 @@ function createPolicyChatController({
         }
     }
 
+    /**
+     * Retrieves policy context and requests a Gemini answer.
+     * @route POST /api/policies/:id/chat
+     * @param {import("express").Request} req Policy ObjectId in params and JSON {message} in body.
+     * @param {import("express").Response} res Express response.
+     * @returns {Promise<import("express").Response>} 200 {success, reply}; validation/provider/config/timeout errors use 400/413/502/503/504.
+     */
     async function create(req, res) {
         let operation = "policy document fetch"
         try {
@@ -232,6 +285,7 @@ function createPolicyChatController({
                 return res.status(404).json({ success: false, error: "Policy not found" })
             }
 
+            // --- STEP 1: LOAD POLICY CONTEXT, BOUND PDF SIZE, AND PREPARE THE MODEL REQUEST ---
             const pdfBuffer = await fetchPdfBuffer(policy.documentUrl || policy.pdfUrl)
             const pdfBase64 = Buffer.from(pdfBuffer).toString("base64")
             operation = "Gemini policy chat request"
@@ -267,6 +321,7 @@ function createPolicyChatController({
                     }),
                     signal: abortController.signal
                 }
+                // Retry only transient Gemini 503 responses; the same abort deadline bounds all attempts.
                 let response
                 for (let attempt = 0; attempt <= GEMINI_503_RETRIES; attempt += 1) {
                     response = await fetchImpl(url, options)
@@ -304,6 +359,13 @@ function createPolicyChatController({
         }
     }
 
+    /**
+     * Checks the status of an asynchronous Gemini interaction.
+     * @route GET /api/policies/:id/chat/:interactionId
+     * @param {import("express").Request} req Policy ID and Gemini interaction ID in route params.
+     * @param {import("express").Response} res Express response.
+     * @returns {Promise<import("express").Response>} 200 completed, 202 pending, or structured 400/502/503/504 errors.
+     */
     async function poll(req, res) {
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             return res.status(400).json({ success: false, error: "A valid policy ID is required" })

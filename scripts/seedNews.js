@@ -1,3 +1,9 @@
+/**
+ * @file seedNews.js
+ * @description Idempotently seeds Ethiopian policy news, resolves related policy references, and retries transient MongoDB connectivity failures.
+ * @module Scripts/NewsSeeder
+ * @requires mongoose, dotenv, and News and Policy models
+ */
 require("dotenv").config({ quiet: true })
 
 const mongoose = require("mongoose")
@@ -169,6 +175,12 @@ const NEWS_SEED_DATA = [
     }
 ]
 
+/**
+ * Upserts seeded posts while preserving existing comments and closing owned connections.
+ * @param {object} [options] Injectable models, connection URI, logger, and delay for tests/operations.
+ * @returns {Promise<object[]>} Bulk-write operation list after successful completion.
+ * @throws {Error} On persistent connection, policy lookup, or write failures.
+ */
 async function seedNews({
     mongoose: mongooseInstance = mongoose,
     News: NewsModel = News,
@@ -181,6 +193,7 @@ async function seedNews({
 } = {}) {
     let connected = false
     try {
+        // Retry transient Atlas DNS/network failures because these can be temporary in developer/host environments.
         for (let attempt = 0; ; attempt += 1) {
             try {
                 await mongooseInstance.connect(mongoUri, {
@@ -210,6 +223,7 @@ async function seedNews({
         }
         connected = true
 
+        // --- STEP 1: RESOLVE OPTIONAL POLICY RELATIONS, PRESERVE EXISTING COMMENTS, AND UPSERT POSTS ---
         const relatedTitles = [...new Set(NEWS_SEED_DATA.map(entry => entry.relatedPolicyTitle))]
         const policies = await PolicyModel.find({ title: { $in: relatedTitles } }).select("_id title")
         const policyIdsByTitle = new Map(policies.map(policy => [policy.title, policy._id]))
@@ -249,6 +263,7 @@ async function seedNews({
     }
 }
 
+/** @param {Error} error Error or nested cause from MongoDB. @returns {boolean} Whether it represents transient SRV DNS resolution. */
 function isTransientDnsSrvError(error) {
     for (let current = error; current; current = current.cause) {
         if (["ESERVFAIL", "ENOTFOUND", "EAI_AGAIN"].includes(current.code)) return true
@@ -260,6 +275,7 @@ function isTransientDnsSrvError(error) {
     return false
 }
 
+/** @param {Error} error Error or nested cause from MongoDB. @returns {boolean} Whether it represents a transient network/selection failure. */
 function isTransientMongoNetworkError(error) {
     for (let current = error; current; current = current.cause) {
         if (["ETIMEDOUT", "ECONNREFUSED", "EHOSTUNREACH", "ENETUNREACH", "ECONNRESET"].includes(current.code)) {
@@ -275,6 +291,7 @@ function isTransientMongoNetworkError(error) {
     return false
 }
 
+/** @param {Error} error MongoDB connection error. @returns {boolean} Whether retrying may recover. */
 function isTransientConnectionError(error) {
     return isTransientDnsSrvError(error) || isTransientMongoNetworkError(error)
 }
