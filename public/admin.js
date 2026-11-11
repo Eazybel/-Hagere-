@@ -206,7 +206,7 @@ const newsList=document.getElementById("adminNewsList")
 const makeDeleteButton=(label,endpoint,card)=>{
   const button=document.createElement("button")
   button.type="button"
-  button.className="inline-flex items-center gap-2 rounded border border-red-300 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+  button.className="inline-flex items-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-xs font-semibold text-red-700 transition-all duration-200 hover:border-red-300 hover:bg-red-50 focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-60"
   button.setAttribute("aria-label",`Delete ${label}`)
   const spinner=document.createElement("span")
   spinner.className="hidden h-3 w-3 animate-spin rounded-full border-2 border-red-300 border-t-red-700"
@@ -247,7 +247,7 @@ const makeDeleteButton=(label,endpoint,card)=>{
 /** Builds a text-safe policy/news card and attaches its delete control. */
 const makeAdminCard=(titleText,detailText,label,endpoint)=>{
   const card=document.createElement("article")
-  card.className="flex flex-col gap-3 rounded border border-antique-border p-3 sm:flex-row sm:items-center sm:justify-between"
+  card.className="flex flex-col gap-4 rounded-xl border border-antique-border bg-antique-card p-4 shadow-sm transition-all duration-200 hover:border-blue-200 sm:flex-row sm:items-center sm:justify-between"
   const content=document.createElement("div")
   const title=document.createElement("p")
   title.className="font-medium"

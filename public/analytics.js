@@ -72,7 +72,7 @@ function renderAnalytics(data) {
 
     for (const policy of data.topPolicies) {
         const item = document.createElement("li")
-        item.className = "flex items-center justify-between gap-3 p-2.5 bg-antique-bg border border-antique-border rounded"
+        item.className = "flex items-center justify-between gap-3 rounded-xl border border-antique-border bg-antique-bg p-3 transition-all duration-200 hover:border-blue-200"
 
         const title = document.createElement("span")
         title.className = "font-medium"

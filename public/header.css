@@ -1,12 +1,13 @@
 :root {
     color-scheme: light;
-    --hagere-ink: #1e293b;
-    --hagere-parchment: #f7f5f0;
-    --hagere-paper: #fbfbfa;
-    --hagere-border: #d6cec2;
-    --hagere-muted: #57534e;
-    --hagere-bronze: #92400e;
-    --hagere-bronze-hover: #78350f;
+    --hagere-ink: #0f172a;
+    --hagere-parchment: #f8fafc;
+    --hagere-paper: #ffffff;
+    --hagere-border: #e2e8f0;
+    --hagere-muted: #475569;
+    --hagere-bronze: #2563eb;
+    --hagere-bronze-hover: #1d4ed8;
+    --hagere-focus: rgb(37 99 235 / 20%);
 }
 
 *,
@@ -23,6 +24,27 @@ body {
     color: var(--hagere-ink);
     background-color: var(--hagere-parchment);
     overflow-wrap: anywhere;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    line-height: 1.6;
+}
+
+.font-serif,
+.font-sans {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+h1,
+h2,
+h3 {
+    color: var(--hagere-ink);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+h1.font-normal,
+h2.font-normal,
+h3.font-normal {
+    font-weight: 700;
 }
 
 .site-header {
@@ -32,7 +54,7 @@ body {
     color: var(--hagere-ink);
     background-color: var(--hagere-paper);
     border-color: var(--hagere-border);
-    box-shadow: 0 1px 2px rgb(30 41 59 / 6%);
+    box-shadow: 0 1px 3px rgb(15 23 42 / 5%);
 }
 
 .site-header > div {
@@ -108,7 +130,7 @@ body {
     min-height: 2.75rem;
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--hagere-border);
-    border-radius: 0.375rem;
+    border-radius: 0.75rem;
     background: var(--hagere-paper);
     cursor: pointer;
     list-style: none;
@@ -149,7 +171,7 @@ body {
     overflow-y: auto;
     padding: 0.5rem;
     border: 1px solid var(--hagere-border);
-    border-radius: 0.5rem;
+    border-radius: 1rem;
     background: var(--hagere-paper);
     box-shadow: 0 12px 28px rgb(30 41 59 / 16%);
 }
@@ -269,6 +291,136 @@ textarea {
 
 .hover\:bg-antique-border:hover {
     background-color: var(--hagere-border);
+}
+
+main > section.bg-antique-card,
+main > article.bg-antique-card,
+article.bg-antique-card,
+.bg-antique-card.border.rounded-lg,
+.bg-antique-card.border.rounded-xl {
+    border-color: var(--hagere-border);
+    border-radius: 1rem;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 4%), 0 8px 24px -16px rgb(15 23 42 / 18%);
+}
+
+.site-header-label,
+.category,
+.status,
+span.uppercase.tracking-wider {
+    border-radius: 9999px;
+    font-weight: 600;
+}
+
+.category,
+.site-header-label {
+    color: #1d4ed8;
+    background-color: #eff6ff;
+    border-color: #dbeafe;
+}
+
+.status {
+    color: #475569;
+    background-color: #f1f5f9;
+    border-color: #e2e8f0;
+}
+
+button,
+a[href],
+summary,
+input,
+select,
+textarea {
+    transition: color 200ms ease, background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+}
+
+button,
+input,
+select,
+textarea {
+    border-radius: 0.75rem;
+}
+
+button:not(:disabled):hover {
+    border-color: #bfdbfe;
+}
+
+button:focus-visible,
+a[href]:focus-visible,
+summary:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px var(--hagere-focus);
+}
+
+input,
+select,
+textarea {
+    border-color: var(--hagere-border);
+    background-color: #fff;
+    color: var(--hagere-ink);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #94a3b8;
+}
+
+.bg-antique-accent {
+    background-color: var(--hagere-bronze);
+}
+
+.bg-antique-accent:hover,
+.bg-antique-accentHover:hover {
+    background-color: var(--hagere-bronze-hover);
+}
+
+.text-antique-accent {
+    color: var(--hagere-bronze);
+}
+
+.text-antique-muted {
+    color: var(--hagere-muted);
+}
+
+.border-antique-border {
+    border-color: var(--hagere-border);
+}
+
+.shadow-sm {
+    box-shadow: 0 1px 2px rgb(15 23 42 / 5%), 0 4px 12px -8px rgb(15 23 42 / 18%);
+}
+
+.rounded,
+.rounded-md {
+    border-radius: 0.625rem;
+}
+
+.rounded-lg {
+    border-radius: 0.875rem;
+}
+
+.rounded-xl {
+    border-radius: 1rem;
+}
+
+.rounded-2xl {
+    border-radius: 1.25rem;
+}
+
+.responsive-table-wrap table tbody tr {
+    transition: background-color 200ms ease;
+}
+
+.responsive-table-wrap table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.responsive-table-wrap table thead th {
+    color: #475569;
+    font-weight: 700;
 }
 
 button:disabled {

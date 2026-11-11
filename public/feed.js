@@ -152,7 +152,7 @@ const signOutButton=document.getElementById("signOutButton")
   data.forEach(policy=>{
     policySection.insertAdjacentHTML("beforeend",
       `
-        <article data-policy-id="${policy._id}" class="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col justify-between">
+        <article data-policy-id="${policy._id}" class="bg-antique-card border border-antique-border rounded-xl p-6 shadow-sm flex flex-col justify-between">
     <div>
         <div class="flex items-center justify-between text-xs font-sans text-antique-muted mb-2">
             <div class="flex items-center space-x-2">

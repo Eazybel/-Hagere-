@@ -71,7 +71,7 @@ function renderComment(comment) {
  */
 function renderNewsPost(post, user, index) {
     post.comments = Array.isArray(post.comments) ? post.comments : []
-    const card = makeElement("article", "overflow-hidden rounded-lg border border-antique-border bg-antique-card")
+    const card = makeElement("article", "overflow-hidden rounded-xl border border-antique-border bg-antique-card shadow-sm")
     const image = document.createElement("img")
     image.className = "h-56 w-full bg-antique-bg object-cover"
     image.src = post.imageUrl
@@ -90,7 +90,7 @@ function renderNewsPost(post, user, index) {
         image.className = "h-56 w-full bg-antique-bg object-contain text-antique-muted"
     }, { once: true })
     if (post.imageSource && post.imageCredit) {
-        const attribution = makeElement("a", "block px-5 pt-2 text-right text-xs text-antique-muted hover:text-antique-accent")
+        const attribution = makeElement("a", "block px-6 pt-3 text-right text-xs text-antique-muted hover:text-antique-accent")
         attribution.href = post.imageSource
         attribution.target = "_blank"
         attribution.rel = "noopener noreferrer"
@@ -100,7 +100,7 @@ function renderNewsPost(post, user, index) {
         card.append(image)
     }
 
-    const body = makeElement("div", "p-5")
+    const body = makeElement("div", "p-6")
     body.append(
         makeElement("p", "text-xs text-antique-muted", `${post.author || "Government Communication Office"} · ${new Date(post.createdAt).toLocaleString()}`),
         makeElement("h2", "mt-2 text-xl font-semibold", post.title),

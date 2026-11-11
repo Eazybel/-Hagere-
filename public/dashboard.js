@@ -53,14 +53,14 @@ function renderActivity(data) {
     for(const entry of data.activity){
         const card=document.createElement("article")
         card.dataset.activityCard=""
-        card.className="bg-antique-card border border-antique-border rounded-lg p-6 flex flex-col justify-between"
+        card.className="bg-antique-card border border-antique-border rounded-xl p-6 shadow-sm flex flex-col justify-between"
 
         const details=document.createElement("div")
         const metadata=document.createElement("div")
         metadata.className="flex items-center justify-between gap-3 text-xs font-sans text-antique-muted mb-2"
 
         const category=document.createElement("span")
-        category.className="uppercase tracking-wider px-2 py-0.5 bg-antique-bg border border-antique-border rounded"
+        category.className="category uppercase tracking-wider px-3 py-1 bg-antique-bg border border-antique-border rounded-full text-xs font-semibold"
         category.textContent=entry.category || "Policy"
 
         const date=document.createElement("span")
@@ -81,7 +81,7 @@ function renderActivity(data) {
         const footer=document.createElement("div")
         footer.className="pt-4 border-t border-antique-border font-sans text-xs flex items-center justify-between"
         const stance=document.createElement("span")
-        stance.className="px-2.5 py-1 bg-antique-bg border border-antique-border rounded font-medium text-antique-accent"
+        stance.className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 font-semibold text-blue-700"
         stance.textContent=entry.stance || "Recorded"
         const link=document.createElement("a")
         link.className="text-antique-accent font-medium hover:underline"
