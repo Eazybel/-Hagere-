@@ -241,7 +241,7 @@ policyArticle.insertAdjacentHTML("beforeend",
 
         <!-- View Full Policy Document Link -->
         <div class="mb-8 font-sans">
-            <a href=" ${data.singlePolicy.pdfUrl}" target="_blank" class="inline-flex items-center space-x-2 px-4 py-2.5 bg-antique-bg border border-antique-border rounded-lg text-xs font-medium text-antique-accent hover:bg-antique-border transition-colors shadow-sm">
+            <a href=" ${data.singlePolicy.pdfUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex max-w-full flex-wrap items-center space-x-2 px-4 py-2.5 bg-antique-bg border border-antique-border rounded-lg text-xs font-medium text-antique-accent hover:bg-antique-border transition-colors shadow-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
@@ -285,7 +285,7 @@ policyArticle.insertAdjacentHTML("beforeend",
 
         <!-- View Full Policy Document Link -->
         <div class="mb-8 font-sans">
-            <a href=" ${data.singlePolicy.pdfUrl}" target="_blank" class="inline-flex items-center space-x-2 px-4 py-2.5 bg-antique-bg border border-antique-border rounded-lg text-xs font-medium text-antique-accent hover:bg-antique-border transition-colors shadow-sm">
+            <a href=" ${data.singlePolicy.pdfUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex max-w-full flex-wrap items-center space-x-2 px-4 py-2.5 bg-antique-bg border border-antique-border rounded-lg text-xs font-medium text-antique-accent hover:bg-antique-border transition-colors shadow-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
@@ -307,7 +307,7 @@ policyArticle.insertAdjacentHTML("beforeend",
         <form id="formData" class="pt-6 border-t border-antique-border font-sans flex flex-col gap-3">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div class="text-xs text-antique-muted font-medium uppercase tracking-wider">Cast Your Stance:</div>
-                <div class="flex items-center space-x-6 text-sm">
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
                     <label class="flex items-center space-x-1.5 cursor-pointer">
                         <input type="radio" name="policy-vote" value="agree" class="accent-antique-accent">
                         <span>Agree</span>
@@ -442,7 +442,7 @@ policyArticle.insertAdjacentHTML("beforeend",
 
             <!-- View Full Policy Document Link -->
             <div class="mb-8 font-sans">
-                <a href=" ${data.pdfUrl}" target="_blank" class="inline-flex items-center space-x-2 px-4 py-2.5 bg-antique-bg border border-antique-border rounded-lg text-xs font-medium text-antique-accent hover:bg-antique-border transition-colors shadow-sm">
+                <a href=" ${data.pdfUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex max-w-full flex-wrap items-center space-x-2 px-4 py-2.5 bg-antique-bg border border-antique-border rounded-lg text-xs font-medium text-antique-accent hover:bg-antique-border transition-colors shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>

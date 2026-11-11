@@ -31,7 +31,7 @@
     <header class="site-header sticky top-0 z-30 border-b">
         <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
             <a href="index.html" class="text-xl font-bold tracking-tight text-white">ሀገሬ (Hagere)</a>
-            <nav aria-label="Main navigation" class="flex items-center gap-5 font-sans text-sm">
+            <nav aria-label="Main navigation" class="site-desktop-navigation flex items-center gap-5 font-sans text-sm">
                 <a href="feed.html" class="hover:underline">Policies</a>
                 <a href="news.html" class="hover:underline">Policy News</a>
                 <a href="docs.html" aria-current="page" class="font-semibold underline">Documentation</a>
@@ -128,7 +128,7 @@
                     <p class="font-sans text-xs font-semibold uppercase tracking-wider text-antique-accent">03 · Repository map</p>
                     <h2 id="structure-heading" class="mt-2 text-2xl font-semibold">Project directory &amp; codebase structure</h2>
                     <p class="mt-3 font-sans text-sm leading-relaxed text-antique-muted">                    All request-handling modules are consolidated under <code>controllers/</code>. Environment and integration helpers live in <code>utils/</code>.</p>
-                    <pre class="mt-4 overflow-x-auto rounded-md border border-antique-border bg-antique-bg p-4 font-mono text-xs leading-6 text-antique-text"><code>.
+                    <pre class="responsive-scroll mt-4 rounded-md border border-antique-border bg-antique-bg p-4 font-mono text-xs leading-6 text-antique-text" role="region" aria-label="Scrollable project directory example" tabindex="0"><code>.
 ├── controllers/      # Policy, news, auth, chat, analytics, and rate-limit handlers
 ├── middleware/       # Authentication, authorization, and error handling
 ├── models/           # Mongoose schemas (Policy, News, User)
@@ -144,8 +144,8 @@
                 <section id="api" aria-labelledby="api-heading" class="scroll-mt-24 rounded-lg border border-antique-border bg-antique-card p-5 md:p-8">
                     <p class="font-sans text-xs font-semibold uppercase tracking-wider text-antique-accent">04 · HTTP interface</p>
                     <h2 id="api-heading" class="mt-2 text-2xl font-semibold">API endpoint reference</h2>
-                    <p class="responsive-table-hint" aria-hidden="true">Scroll horizontally to view all columns.</p>
-                    <div class="responsive-table-wrap mt-4" role="region" aria-label="Scrollable API endpoint reference table" tabindex="0">
+                    <p id="apiTableScrollHint" class="responsive-table-hint">Scroll horizontally to view all columns.</p>
+                    <div class="responsive-table-wrap mt-4" role="region" aria-label="Scrollable API endpoint reference table" aria-describedby="apiTableScrollHint" tabindex="0">
                         <table class="w-full min-w-[38rem] border-collapse text-left font-sans text-sm">
                             <thead>
                                 <tr class="border-b border-antique-border text-xs uppercase tracking-wide text-antique-muted">
