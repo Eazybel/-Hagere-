@@ -36,6 +36,15 @@
                 <a href="index.html" class="text-2xl font-bold tracking-tight text-antique-accent">ሀገሬ (Hagere)</a>
                 <span class="site-header-label px-2 py-0.5 border rounded text-[10px] font-sans uppercase tracking-wider font-semibold">Admin Panel</span>
             </div>
+            <details class="site-mobile-navigation">
+                <summary aria-label="Toggle site navigation"><span class="site-mobile-navigation-icon" aria-hidden="true"><span></span><span></span><span></span></span><span>Menu</span></summary>
+                <nav class="site-mobile-navigation-panel" aria-label="Mobile navigation">
+                    <a href="index.html">Home</a>
+                    <a href="feed.html">Policies</a>
+                    <a href="news.html">News</a>
+                    <a href="dashboard.html">Dashboard</a>
+                </nav>
+            </details>
             <div class="flex items-center gap-4">
                 <details class="relative">
                     <summary class="flex cursor-pointer list-none items-center gap-2 rounded border border-antique-border bg-antique-bg px-3 py-1.5 text-sm font-sans font-medium hover:bg-antique-border">
@@ -67,7 +76,7 @@
                     Publish policies and monitor platform activity metrics.
                 </p>
             </div>
-            <div class="flex items-center gap-3 font-sans text-xs">
+            <div class="flex flex-col items-stretch gap-3 font-sans text-xs sm:flex-row sm:items-center">
                 <a href="./analytics.html" class="px-4 py-2.5 bg-antique-bg border border-antique-border rounded font-medium hover:bg-antique-border transition-colors">
                     View Analytics
                 </a>
@@ -146,10 +155,10 @@
     </main>
 
     <!-- Pure CSS Target Modal -->
-    <div id="publishModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs items-center justify-center p-4 z-50 hidden target:flex">
-    <div class="bg-antique-card border border-antique-border rounded-lg max-w-lg w-full p-6 shadow-xl font-sans relative max-h-[90vh] overflow-y-auto">
+    <div id="publishModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs items-center justify-center p-4 z-50 hidden target:flex" role="dialog" aria-modal="true" aria-labelledby="publishModalTitle" tabindex="-1">
+    <div class="publish-modal-content bg-antique-card border border-antique-border rounded-lg max-w-lg w-full p-6 shadow-xl font-sans relative max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-4 pb-2 border-b border-antique-border">
-            <h2 class="text-lg font-bold text-antique-text font-serif">Publish New Policy Proposal</h2>
+            <h2 id="publishModalTitle" class="text-lg font-bold text-antique-text font-serif">Publish New Policy Proposal</h2>
         </div>
 
         <form id="publishForm" class="space-y-4 text-xs">

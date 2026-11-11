@@ -28,6 +28,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        @media (max-width: 480px) {
+            header {
+                flex-wrap: wrap;
+                gap: 0.75rem;
+                padding: 1rem !important;
+            }
+            header > div:last-child {
+                width: 100%;
+            }
+            main {
+                padding-right: 1rem !important;
+                padding-left: 1rem !important;
+            }
+            footer {
+                padding-right: 1rem !important;
+                padding-left: 1rem !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white relative overflow-x-hidden">

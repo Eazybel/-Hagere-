@@ -36,6 +36,15 @@
                 <a href="news.html" class="hover:underline">Policy News</a>
                 <a href="docs.html" aria-current="page" class="font-semibold underline">Documentation</a>
             </nav>
+            <details class="site-mobile-navigation">
+                <summary aria-label="Toggle site navigation"><span class="site-mobile-navigation-icon" aria-hidden="true"><span></span><span></span><span></span></span><span>Menu</span></summary>
+                <nav class="site-mobile-navigation-panel" aria-label="Mobile navigation">
+                    <a href="index.html">Home</a>
+                    <a href="feed.html">Policies</a>
+                    <a href="news.html">News</a>
+                    <a href="dashboard.html">Dashboard</a>
+                </nav>
+            </details>
         </div>
     </header>
 
@@ -135,7 +144,8 @@
                 <section id="api" aria-labelledby="api-heading" class="scroll-mt-24 rounded-lg border border-antique-border bg-antique-card p-5 md:p-8">
                     <p class="font-sans text-xs font-semibold uppercase tracking-wider text-antique-accent">04 · HTTP interface</p>
                     <h2 id="api-heading" class="mt-2 text-2xl font-semibold">API endpoint reference</h2>
-                    <div class="mt-4 overflow-x-auto">
+                    <p class="responsive-table-hint" aria-hidden="true">Scroll horizontally to view all columns.</p>
+                    <div class="responsive-table-wrap mt-4" role="region" aria-label="Scrollable API endpoint reference table" tabindex="0">
                         <table class="w-full min-w-[38rem] border-collapse text-left font-sans text-sm">
                             <thead>
                                 <tr class="border-b border-antique-border text-xs uppercase tracking-wide text-antique-muted">

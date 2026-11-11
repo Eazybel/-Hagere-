@@ -35,13 +35,24 @@
  publishBtn.onclick=async()=>{
     publishModal.classList.remove("hidden")
     document.querySelector("main").classList.add("hidden")
-  }
-  /** @listens click Closes the publishing view and returns to the admin page. */
-  cancelBtn.onclick=()=>{
-    document.querySelector("main").classList.remove("hidden")
-    window.location.href=("./admin.html")
+   publishModal.focus()
+ }
+ /** @listens click Closes the publishing view and returns to the admin page. */
+ const closePublishModal=()=>{
+   document.querySelector("main").classList.remove("hidden")
+   window.history.replaceState(null,"",`${window.location.pathname}${window.location.search}`)
+   publishBtn.focus()
+ }
+ cancelBtn.onclick=event=>{
+   event.preventDefault()
+   closePublishModal()
+ }
+ document.addEventListener("keydown",event=>{
+   if(event.key==="Escape" && window.location.hash==="#publishModal"){
+     closePublishModal()
+   }
 
-  }
+ })
 // --- STEP 1: VALIDATE FORM STATE, PUBLISH JSON, AND SHOW BUTTON PROGRESS ---
 // SUBMIT HANDLER
 /** @listens click Publishes a policy JSON payload, temporarily disabling the button and showing its spinner. */
@@ -236,7 +247,7 @@ const makeDeleteButton=(label,endpoint,card)=>{
 /** Builds a text-safe policy/news card and attaches its delete control. */
 const makeAdminCard=(titleText,detailText,label,endpoint)=>{
   const card=document.createElement("article")
-  card.className="flex items-center justify-between gap-4 rounded border border-antique-border p-3"
+  card.className="flex flex-col gap-3 rounded border border-antique-border p-3 sm:flex-row sm:items-center sm:justify-between"
   const content=document.createElement("div")
   const title=document.createElement("p")
   title.className="font-medium"
