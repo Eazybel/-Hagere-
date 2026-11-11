@@ -318,6 +318,13 @@ span.uppercase.tracking-wider {
     border-color: #dbeafe;
 }
 
+.category.rounded,
+.status.rounded,
+.site-header-label.rounded,
+span.uppercase.tracking-wider.rounded {
+    border-radius: 9999px;
+}
+
 .status {
     color: #475569;
     background-color: #f1f5f9;
