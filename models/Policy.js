@@ -1,7 +1,7 @@
 
 /**
  * @file Policy.js
- * @description Defines policy content, source links, view/like totals, and embedded citizen vote/comment records.
+ * @description Defines policy content, source links, view totals, and embedded citizen vote/comment records.
  * @module Models/Policy
  * @requires mongoose
  */
@@ -54,13 +54,6 @@ const PolicySchema = new Schema(
       type: Number,
       default: 0,
     },
-    // ObjectId references to User documents; array defaults to empty and stores policy likes.
-    likes: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
     // Date defaulted to now; schema timestamps also provide createdAt/updatedAt.
     createdAt: {
        type: Date,

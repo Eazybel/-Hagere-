@@ -33,7 +33,7 @@ The test suites were verified at **63/63 Node tests** and **9/9 V1 Jest integrat
 
 ### Main application areas
 
-- **Policy directory and feed:** browse policies and open their source documents.
+- **Policy directory and feed:** browse policies, open a policy's detail view before engagement, and submit verified-citizen stance votes and comments from that view.
 - **Policy assistant:** ask policy-document questions; the assistant is designed to respond in Amharic.
 - **Policy news:** browse the news feed, with authenticated citizen likes and comments.
 - **Citizen dashboard and analytics:** view engagement activity and aggregate metrics.

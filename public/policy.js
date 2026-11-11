@@ -1,6 +1,6 @@
 /**
 * @file policy.js
-* @description Loads public or citizen-specific policy details and manages policy chat, comments, likes, and voting.
+* @description Loads public or citizen-specific policy details and manages policy chat, comments, and voting.
 * @module Client/PolicyDetail
 * @requires Firebase App/Auth browser SDKs and local voteState.mjs
 */
@@ -24,6 +24,7 @@ import { applyOptimisticVote } from "./voteState.mjs"
   const commentThread=document.getElementById("commentThread")
   const commentCount=document.getElementById("commentCount")
   const commentStatus=document.getElementById("commentStatus")
+  const commentsSection=document.getElementById("comments")
   let renderedComments=[]
 
   /** Replaces a failed policy detail view with a visible error state. */
@@ -115,6 +116,7 @@ import { applyOptimisticVote } from "./voteState.mjs"
 
   /** Replaces the comment thread with safe text nodes and updates its count. */
   function renderComments(policy) {
+    commentsSection.classList.remove("hidden")
     renderedComments=Array.isArray(policy.interactions?.comments)
       ? policy.interactions.comments
       : []
@@ -216,6 +218,7 @@ console.log(data)
 renderComments(data.singlePolicy)
 enablePolicyChat(data.singlePolicy._id)
 enableCommentSubmission(user,data.singlePolicy._id)
+commentPostSection.classList.remove("hidden")
 if(data.userVoted[0]==true){
 policyArticle.insertAdjacentHTML("beforeend",
     `

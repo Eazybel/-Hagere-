@@ -40,7 +40,6 @@ const feedBack=require("./controllers/feedBackController")
 const {createAnalyticsController}=require("./controllers/analyticsController")
 const {authorizeRoles}=require("./middleware/auth")
 const newsRoutes=require("./routes/newsRoutes")
-const {createPolicyLikeController}=require("./controllers/policyLikeController")
 // Package initiation
 // --- STEP 2: CONFIGURE STATIC ASSETS, BODY PARSERS, AND CORS ---
 const app=express()
@@ -93,7 +92,7 @@ const optionalPolicyFeedAuth=(req,res,next)=>{
 }
 /**
  * @route GET /api/policies
- * @description Lists public policies with optional caller-specific like state.
+ * @description Lists public policies without detail-only engagement data.
  * @returns {200} Array of public policy objects; unexpected failures use Express error handling.
  */
 app.get("/api/policies",optionalPolicyFeedAuth,policyList)
@@ -113,16 +112,6 @@ app.post("/api/policies",policyWriteRateLimit,authorizeRoles("admin"),policyUpda
 app.delete("/api/policies/:id",authorizeRoles("admin"),createPolicyDeleteController({
     Policy:require("./models/Policy"),
     News:require("./models/News")
-}))
-/**
- * @route POST /api/policies/:id/like
- * @description Toggles the authenticated citizen's policy like.
- * @param {string} req.params.id Policy ObjectId.
- * @returns {200} JSON {success, liked, likesCount}; errors use 400/401/403/404/500.
- */
-app.post("/api/policies/:id/like",voteRateLimit,authorizeRoles("citizen"),createPolicyLikeController({
-    Policy:require("./models/Policy"),
-    User:require("./models/User")
 }))
 app.use("/api/news",newsRoutes)
 const policyChatController=createPolicyChatController({

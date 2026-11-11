@@ -215,7 +215,7 @@ function makeTestApp({ fetchImpl, sleep, chatTimeoutMs } = {}) {
         (req, res, next) => req.get("authorization")
             ? authorizeRoles("citizen", "admin")(req, res, next)
             : next(),
-        createPolicyListController({ Policy, User })
+        createPolicyListController({ Policy })
     )
 
     const chatController = createPolicyChatController({
@@ -340,9 +340,12 @@ describe("Hagere v1 HTTP integration flows", () => {
             documentUrl: POLICY_PDF_URL,
             pdfUrl: POLICY_PDF_URL
         })])
+        expect(feed.body[0]).not.toHaveProperty("interactions")
+        expect(feed.body[0]).not.toHaveProperty("likesCount")
+        expect(feed.body[0]).not.toHaveProperty("liked")
     })
 
-    test("guests can read public catalogs while protected deletion and engagement routes reject unauthenticated requests", async () => {
+    test("guests can read public catalogs while protected deletion and news engagement routes reject unauthenticated requests", async () => {
         const { app, state, adminToken } = makeTestApp()
         const policy = await request(app)
             .post("/api/policies")

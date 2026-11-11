@@ -22,15 +22,15 @@ const requestData=(req)=>{
 }
 
 /**
- * Removes private model data and formats policy engagement for browser clients.
+ * Removes private model data and formats policy data for browser clients.
  * @param {object} policy Mongoose document or plain policy object.
- * @param {?string} [currentUserId=null] Authenticated user's ID for their like state.
+ * @param {object} [options] Serialization options.
+ * @param {boolean} [options.includeInteractions=true] Whether to include vote totals and comments.
  * @returns {object} Public policy representation.
  */
-const toPublicPolicy=(policy,currentUserId=null)=>{
+const toPublicPolicy=(policy,{includeInteractions=true}={})=>{
     const data=policy.toObject ? policy.toObject() : policy
-    const likes=Array.isArray(data.likes) ? data.likes : []
-    return {
+    const publicPolicy={
         _id:data._id,
         title:data.title,
         category:data.category,
@@ -40,10 +40,10 @@ const toPublicPolicy=(policy,currentUserId=null)=>{
         status:data.status,
         totalVotes:data.totalVotes,
         viewCount:data.viewCount || 0,
-        likesCount:likes.length,
-        liked:Boolean(currentUserId && likes.some(userId=>userId.toString()===currentUserId)),
-        createdAt:data.createdAt,
-        interactions:{
+        createdAt:data.createdAt
+    }
+    if(includeInteractions){
+        publicPolicy.interactions={
             votes:{
                 agree:{count:data.interactions?.votes?.agree?.count || 0},
                 neutral:{count:data.interactions?.votes?.neutral?.count || 0},
@@ -55,6 +55,7 @@ const toPublicPolicy=(policy,currentUserId=null)=>{
             }))
         }
     }
+    return publicPolicy
 }
 
 /**
@@ -159,28 +160,21 @@ const createPolicyDeleteController=({Policy,News})=>async(req,res)=>{
  * Creates the public policy catalog handler.
  * @param {object} dependencies Database models.
  * @param {import("mongoose").Model} dependencies.Policy Policy model.
- * @param {import("mongoose").Model} dependencies.User User model used to calculate a viewer's like state.
  * @route GET /api/policies
  * @returns {import("express").RequestHandler} Handler returning 200 with a public policy array.
  * @throws {Error} For database failures forwarded to Express error middleware.
  */
-const createPolicyListController=({Policy,User})=>async(req,res,next)=>{
+const createPolicyListController=({Policy})=>async(req,res,next)=>{
     try{
-        // Resolve viewer identity only when optional auth middleware attached a verified email.
-        let currentUserId=null
-        if(req.auth?.email && User){
-            const user=await User.findOne({email:req.auth.email})
-            currentUserId=user?._id?.toString() || null
-        }
         const policies=await Policy.find().sort({createdAt:-1})
         res.set("Cache-Control","no-store")
-        return res.status(200).json(policies.map(policy=>toPublicPolicy(policy,currentUserId)))
+        return res.status(200).json(policies.map(policy=>toPublicPolicy(policy,{includeInteractions:false})))
     }catch(error){
         return next(error)
     }
 }
 /** @route GET /api/policies @description Production public policy catalog handler. */
-const policyList=createPolicyListController({Policy:policyModel,User:userModel})
+const policyList=createPolicyListController({Policy:policyModel})
 /**
  * Creates the legacy policy detail/count handler used by the browser policy views.
  * @param {object} dependencies Database models.
@@ -195,7 +189,7 @@ const createPolicyFetchController=({Policy,User})=>async(req,res)=>{
     if(reqData.requestType==="policyDataFetch"){
         const allPolicies=await Policy.find().sort({createdAt:-1})
         res.set("Cache-Control","no-store")
-        return res.status(200).json(allPolicies.map(toPublicPolicy))
+        return res.status(200).json(allPolicies.map(policy=>toPublicPolicy(policy,{includeInteractions:false})))
     }
     if(reqData.requestType==="singlePolicyFetch" || reqData.requestType==="singlePolicyFetchNon"){
         if(reqData.requestType==="singlePolicyFetch" && !req.auth?.email){

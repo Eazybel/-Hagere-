@@ -73,22 +73,15 @@ policySection.append(emptyState)
     </div>
 
     <div>
-        <!-- Vote Counts Breakdown Analytics -->
-        <div class="mb-4 pt-2 border-t border-antique-border font-sans text-xs flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center space-x-3 text-antique-muted">
-                <span>Agree: <strong class="text-antique-text">${policy.interactions?.votes?.agree?.count ?? 0}</strong></span>
-                <span>Neutral: <strong class="text-antique-text">${policy.interactions?.votes?.neutral?.count ?? 0}</strong></span>
-                <span>Disagree: <strong class="text-antique-text">${policy.interactions?.votes?.disagree?.count ?? 0}</strong></span>
-            </div>
+        <div class="mb-4 pt-2 border-t border-antique-border font-sans text-xs">
             <span class="text-antique-muted">Views: <strong class="text-antique-text">${policy.viewCount ?? 0}</strong></span>
-            <span class="text-antique-muted">Comments: <strong class="text-antique-text">${policy.interactions?.comments?.length ?? 0}</strong></span>
         </div>
 
-        <!-- Action Link to Vote, Read & Comment -->
+        <!-- Open the policy details before engaging with its content. -->
         <div class="pt-3 border-t border-antique-border font-sans flex items-center justify-between">
-            <span class="text-xs text-antique-muted">Explore full policy document & discussions</span>
+            <span class="text-xs text-antique-muted">Open the full policy details</span>
             <button type="button" class="px-4 py-2 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors shadow-sm inline-block policyRedirectBtn">
-                Read, Vote & Comment &rarr;
+                Read Policy &rarr;
             </button>
             <label class="hidden idLabel">${policy._id}</label>
         </div>

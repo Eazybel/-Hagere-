@@ -1,6 +1,6 @@
 /**
 * @file feed.js
-* @description Renders the authenticated citizen policy feed, locale translations, voting likes/comments, and catalog filters.
+* @description Renders the authenticated citizen policy feed, locale translations, and catalog filters.
 * @module Client/PolicyFeed
 * @requires Firebase App and Auth browser SDKs and translation API for dynamic text
 */
@@ -14,7 +14,7 @@ const translations = {
     searchPolicies: "Search policies by keyword or title...", filterSector: "Filter by Sector:", allSectors: "All Major Sectors",
     footerCopyright: "© 2026 Hagere Civic Platform. Open Source Initiative.", about: "About", privacy: "Privacy Policy", contribute: "Contribute", adminPortal: "Admin Portal",
     askAi: "Ask Hagere AI", assistant: "Hagere Assistant", assistantDescription: "Here to help you explore policies", assistantGreeting: "Hello. How can I help you understand a policy today?", askPolicy: "Ask about a policy...", send: "Send",
-    published: "Published", views: "Views", agree: "Agree", neutral: "Neutral", disagree: "Disagree", comments: "Comments", explore: "Explore full policy document & discussions", readVote: "Read, Vote & Comment →"
+    published: "Published", views: "Views", explore: "Open the full policy details", readVote: "Read Policy →"
   },
   am: {
     translate: "ተርጉም", policiesFeed: "የፖሊሲዎች መጋቢ", myDashboard: "የእኔ ዳሽቦርድ", signOut: "ውጣ",
@@ -22,7 +22,7 @@ const translations = {
     searchPolicies: "ፖሊሲዎችን በቁልፍ ቃል ወይም በርዕስ ይፈልጉ...", filterSector: "በዘርፍ ያጣሩ፦", allSectors: "ሁሉም ዋና ዘርፎች",
     footerCopyright: "© 2026 የሀገሬ የዜጎች መድረክ። ክፍት ምንጭ ተነሳሽነት።", about: "ስለ እኛ", privacy: "የግላዊነት ፖሊሲ", contribute: "አስተዋጽኦ ያድርጉ", adminPortal: "የአስተዳዳሪ መግቢያ",
     askAi: "ሀገሬ AIን ይጠይቁ", assistant: "የሀገሬ ረዳት", assistantDescription: "ፖሊሲዎችን እንዲያስሱ ለመርዳት እዚህ ነኝ", assistantGreeting: "ስለ ፖሊሲ እንዲረዱ እንዴት ልርዳዎት?", askPolicy: "ስለ ፖሊሲ ይጠይቁ...", send: "ላክ",
-    published: "የታተመበት", views: "እይታዎች", agree: "እስማማለሁ", neutral: "ገለልተኛ", disagree: "አልስማማም", comments: "አስተያየቶች", explore: "ሙሉ የፖሊሲ ሰነዱን እና ውይይቶችን ያስሱ", readVote: "ያንብቡ፣ ድምፅ ይስጡ እና ያስተያየቱ"
+    published: "የታተመበት", views: "እይታዎች", explore: "ሙሉ የፖሊሲ ዝርዝሮችን ይክፈቱ", readVote: "ፖሊሲውን ያንብቡ →"
   },
   om: {
     translate: "Hiiki", policiesFeed: "Tarreeffama Imaammataa", myDashboard: "Daashboordii Koo", signOut: "Ba'i",
@@ -30,7 +30,7 @@ const translations = {
     searchPolicies: "Imaammata jecha ijoo ykn mata-dureen barbaadi...", filterSector: "Kutaan ittiin calali:", allSectors: "Kutaalee Gurguddoo Hunda",
     footerCopyright: "© 2026 Waltajjii Lammii Hagere. Tattaaffii Madda Banaa.", about: "Waa'ee Keenya", privacy: "Imaammata Dhuunfaa", contribute: "Gumaachi", adminPortal: "Seensa Bulchaa",
     askAi: "Hagere AI gaafadhu", assistant: "Gargaaraa Hagere", assistantDescription: "Imaammata qorachuuf isin gargaaruuf as jira", assistantGreeting: "Har'a imaammata hubachuuf akkamitti isin gargaaruu danda'a?", askPolicy: "Waa'ee imaammataa gaafadhu...", send: "Ergi",
-    published: "Maxxanfame", views: "Ilaalcha", agree: "Nan waliigala", neutral: "Giddugaleessa", disagree: "Waliin hin galu", comments: "Yaada", explore: "Sanada imaammataa guutuu fi marii qoradhu", readVote: "Dubbisi, Sagalee kenni fi Yaada kenni"
+    published: "Maxxanfame", views: "Ilaalcha", explore: "Bal'ina imaammataa guutuu bani", readVote: "Imaammata dubbisi →"
   },
   ti: {
     translate: "ተርጉም", policiesFeed: "መግበሪ ፖሊሲታት", myDashboard: "ዳሽቦርደይ", signOut: "ውጻእ",
@@ -38,7 +38,7 @@ const translations = {
     searchPolicies: "ፖሊሲታት ብቐንዲ ቃል ወይ ብኣርእስቲ ድለዩ...", filterSector: "ብዘርፊ ምጽራይ፦", allSectors: "ኩሎም ዋና ዘርፍታት",
     footerCopyright: "© 2026 መድረኽ ዜጋታት ሀገሬ። ክፉት ምንጪ ተበግሶ።", about: "ብዛዕባና", privacy: "ፖሊሲ ምስጢራዊነት", contribute: "ኣበርክቱ", adminPortal: "መእተዊ ኣስተዳዳሪ",
     askAi: "ሀገሬ AI ሕተት", assistant: "ሓጋዚ ሀገሬ", assistantDescription: "ፖሊሲታት ንኽትድህስሱ ንምሕጋዝ ኣብዚ ኣለኹ", assistantGreeting: "ሎሚ ፖሊሲ ንኽትርድኡ ከመይ ክሕግዘኩም ይኽእል?", askPolicy: "ብዛዕባ ፖሊሲ ሕተት...", send: "ስደድ",
-    published: "ዝተሓትመ", views: "ርእይቶታት", agree: "እሰማማዕ", neutral: "ማእከላይ", disagree: "ኣይሰማማዕን", comments: "ርእይቶታት", explore: "ምሉእ ሰነድ ፖሊሲን ዘተታትን ድህሰሱ", readVote: "ኣንብብ፣ ድምጺ ሃብ እና ርእይቶ ሃብ"
+    published: "ዝተሓትመ", views: "ርእይቶታት", explore: "ምሉእ ዝርዝር ፖሊሲ ክፈት", readVote: "ፖሊሲ ኣንብብ →"
   }
 };
 
@@ -118,126 +118,13 @@ const signOutButton=document.getElementById("signOutButton")
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const auth=getAuth(app)
-  /** Constructs a safe text-based policy comment node. */
-  function createPolicyComment(comment) {
-    const item=document.createElement("li")
-    item.className="rounded border border-antique-border bg-antique-bg p-3"
-    const text=document.createElement("p")
-    text.className="whitespace-pre-wrap break-words text-sm"
-    text.textContent=comment.text
-    const date=document.createElement("time")
-    date.className="mt-1 block text-xs text-antique-muted"
-    date.textContent=new Date(comment.createdAt).toLocaleString()
-    item.append(text,date)
-    return item
-  }
-
-  /**
-   * Builds citizen-only like and comment controls for one policy card.
-   * @param {object} policy Public policy record and engagement state.
-   * @param {import("firebase/auth").User} user Authenticated Firebase user.
-   * @returns {HTMLElement} Engagement section with listeners and controls.
-   */
-  function createPolicyEngagement(policy,user) {
-    const section=document.createElement("section")
-    section.className="mt-4 border-t border-antique-border pt-4 font-sans"
-    const likeButton=document.createElement("button")
-    likeButton.type="button"
-    likeButton.className="rounded border border-antique-border px-3 py-2 text-sm hover:bg-antique-bg"
-    likeButton.textContent=`${policy.liked ? "Unlike" : "Like"} · ${policy.likesCount ?? 0}`
-    // The Firebase ID token authenticates this mutation; disable the control until the API responds.
-    /** @listens click Toggles the citizen's policy like through the authenticated API. */
-    likeButton.addEventListener("click",async()=>{
-      likeButton.disabled=true
-      try{
-        const token=await user.getIdToken()
-        const response=await fetch(`/api/policies/${encodeURIComponent(policy._id)}/like`,{
-          method:"POST",
-          headers:{"Authorization":`Bearer ${token}`}
-        })
-        const result=await response.json().catch(()=>({}))
-        if(!response.ok || result.success!==true) throw new Error(result.error || `Like request failed (${response.status})`)
-        policy.liked=result.liked
-        policy.likesCount=result.likesCount
-        likeButton.textContent=`${policy.liked ? "Unlike" : "Like"} · ${policy.likesCount}`
-      }catch(error){
-        console.error("Policy like failed:",error)
-        window.alert(error.message || "Unable to update policy like.")
-      }finally{
-        likeButton.disabled=false
-      }
-    })
-
-    const comments=Array.isArray(policy.interactions?.comments) ? policy.interactions.comments : []
-    const heading=document.createElement("h3")
-    heading.className="mb-2 mt-4 text-sm font-semibold"
-    heading.textContent=`Comments (${comments.length})`
-    const list=document.createElement("ul")
-    list.className="space-y-2"
-    for(const comment of comments) list.append(createPolicyComment(comment))
-    if(!comments.length){
-      const empty=document.createElement("li")
-      empty.className="text-sm text-antique-muted"
-      empty.textContent="No comments yet."
-      list.append(empty)
-    }
-
-    const form=document.createElement("form")
-    form.className="mt-3 flex flex-col gap-2 sm:flex-row"
-    const input=document.createElement("input")
-    input.type="text"
-    input.name="text"
-    input.maxLength=2000
-    input.required=true
-    input.placeholder="Write a comment…"
-    input.className="min-w-0 flex-1 rounded border border-antique-border bg-antique-bg px-3 py-2 text-sm"
-    const submit=document.createElement("button")
-    submit.type="submit"
-    submit.className="rounded bg-antique-accent px-4 py-2 text-sm font-medium text-white hover:bg-antique-accentHover disabled:opacity-60"
-    submit.textContent="Comment"
-    form.append(input,submit)
-    // Submit an authenticated JSON comment and update this card only after server confirmation.
-    /** @listens submit Posts the citizen's policy comment and updates current DOM state. */
-    form.addEventListener("submit",async event=>{
-      event.preventDefault()
-      submit.disabled=true
-      try{
-        const token=await user.getIdToken()
-        const response=await fetch("/policyComment",{
-          method:"POST",
-          headers:{
-            "Authorization":`Bearer ${token}`,
-            "Content-Type":"application/json"
-          },
-          body:JSON.stringify({policyId:policy._id,text:input.value})
-        })
-        const result=await response.json().catch(()=>({}))
-        if(!response.ok || result.success!==true) throw new Error(result.error || `Comment request failed (${response.status})`)
-        const empty=list.querySelector("li")
-        if(comments.length===0 && empty?.textContent==="No comments yet.") empty.remove()
-        comments.push(result.comment)
-        list.append(createPolicyComment(result.comment))
-        heading.textContent=`Comments (${comments.length})`
-        const count=section.closest("article")?.querySelector(".policyCommentCount")
-        if(count) count.textContent=String(comments.length)
-        form.reset()
-      }catch(error){
-        console.error("Policy comment failed:",error)
-        window.alert(error.message || "Unable to add policy comment.")
-      }finally{
-        submit.disabled=false
-      }
-    })
-    section.append(likeButton,heading,list,form)
-    return section
-  }
-  // Engagement requires a session; anonymous visitors are served the read-only catalog by script.js.
+  // Anonymous visitors are served the read-only catalog by script.js.
   /** Loads personalized engagement and the citizen feed after Firebase resolves authentication. */
   onAuthStateChanged(auth, (user) => {
     if (user) {
       const uid = user.uid;
   localStorage.setItem("userEmail",user.email)
-  // Fetch personalized policy data with the Firebase token so like state is scoped to this user.
+  // Fetch the policy catalog using the authenticated citizen's identity.
   user.getIdToken().then(token=>fetch("/api/policies",{
     cache:"no-store",
     headers:{"Authorization":`Bearer ${token}`}
@@ -283,22 +170,15 @@ const signOutButton=document.getElementById("signOutButton")
     </div>
 
     <div>
-        <!-- Vote Counts Breakdown Analytics -->
-        <div class="mb-4 pt-2 border-t border-antique-border font-sans text-xs flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center space-x-3 text-antique-muted">
-                <span><span data-i18n="agree">Agree</span>: <strong class="text-antique-text">${policy.interactions?.votes?.agree?.count ?? 0}</strong></span>
-                <span><span data-i18n="neutral">Neutral</span>: <strong class="text-antique-text">${policy.interactions?.votes?.neutral?.count ?? 0}</strong></span>
-                <span><span data-i18n="disagree">Disagree</span>: <strong class="text-antique-text">${policy.interactions?.votes?.disagree?.count ?? 0}</strong></span>
-            </div>
+        <div class="mb-4 pt-2 border-t border-antique-border font-sans text-xs">
             <span class="text-antique-muted"><span data-i18n="views">Views</span>: <strong class="text-antique-text">${policy.viewCount ?? 0}</strong></span>
-            <span class="text-antique-muted"><span data-i18n="comments">Comments</span>: <strong class="policyCommentCount text-antique-text">${policy.interactions?.comments?.length ?? 0}</strong></span>
         </div>
 
-        <!-- Action Link to Vote, Read & Comment -->
+        <!-- Open the policy details before engaging with its content. -->
         <div class="pt-3 border-t border-antique-border font-sans flex items-center justify-between">
-            <span data-i18n="explore" class="text-xs text-antique-muted">Explore full policy document & discussions</span>
+            <span data-i18n="explore" class="text-xs text-antique-muted">Open the full policy details</span>
             <button type="button" class="px-4 py-2 bg-antique-accent text-white rounded text-xs font-medium hover:bg-antique-accentHover transition-colors shadow-sm inline-block policyRedirectBtn">
-                <span data-i18n="readVote">Read, Vote & Comment →</span>
+                <span data-i18n="readVote">Read Policy →</span>
             </button>
             <label class="hidden idLabel">${policy._id}</label>
         </div>
@@ -306,7 +186,6 @@ const signOutButton=document.getElementById("signOutButton")
 </article>
       `
     )
-    policySection.lastElementChild.append(createPolicyEngagement(policy,user))
   })
 return data
     }

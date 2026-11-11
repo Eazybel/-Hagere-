@@ -1,5 +1,8 @@
 const test = require("node:test")
 const assert = require("node:assert/strict")
+const fs = require("node:fs")
+const path = require("node:path")
+const Policy = require("../models/Policy")
 
 process.env.NODE_ENV = "test"
 process.env.PORT = "3000"
@@ -155,13 +158,12 @@ test("policy publishing rejects missing or invalid fields and reports database e
 
 test("policy feed returns live database policies newest-first without caching", async () => {
     const policies = [
-        { _id: "newest", title: "Newest", likes: ["citizen-id"], interactions: {} },
+        { _id: "newest", title: "Newest", interactions: { votes: {}, comments: [] } },
         { _id: "older", title: "Older", interactions: {} }
     ]
     let sortCriteria
     let cacheControl
     const controller = createPolicyListController({
-        User: { findOne: async () => ({ _id: { toString: () => "citizen-id" } }) },
         Policy: {
             find: () => ({
                 sort(criteria) {
@@ -182,9 +184,19 @@ test("policy feed returns live database policies newest-first without caching", 
     assert.deepEqual(sortCriteria, { createdAt: -1 })
     assert.equal(cacheControl, "no-store")
     assert.deepEqual(res.body.map(policy => policy._id), ["newest", "older"])
-    assert.equal(res.body[0].likesCount, 1)
-    assert.equal(res.body[0].liked, true)
+    assert.equal("likesCount" in res.body[0], false)
+    assert.equal("liked" in res.body[0], false)
+    assert.equal("interactions" in res.body[0], false)
     assert.equal(res.statusCode, 200)
+})
+
+test("policy schema keeps voting and comments without a like field", () => {
+    assert.equal(Policy.schema.path("likes"), undefined)
+    assert.ok(Policy.schema.path("interactions.votes.agree.count"))
+    assert.ok(Policy.schema.path("interactions.comments"))
+
+    const server = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8")
+    assert.doesNotMatch(server, /\/api\/policies\/:id\/like/)
 })
 
 test("policy detail reads increment and return the persisted view count", async () => {
@@ -230,4 +242,12 @@ test("policy detail reads increment and return the persisted view count", async 
     assert.equal(cacheControl, "no-store")
     assert.equal(res.statusCode, 200)
     assert.equal(res.body.viewCount, 4)
+    assert.deepEqual(res.body.interactions, {
+        votes: {
+            agree: { count: 2 },
+            neutral: { count: 1 },
+            disagree: { count: 0 }
+        },
+        comments: []
+    })
 })
