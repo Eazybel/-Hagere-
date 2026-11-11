@@ -81,7 +81,7 @@ function renderActivity(data) {
         const footer=document.createElement("div")
         footer.className="pt-4 border-t border-antique-border font-sans text-xs flex items-center justify-between"
         const stance=document.createElement("span")
-        stance.className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 font-semibold text-blue-700"
+        stance.className="rounded-full border border-antique-border bg-antique-bg px-3 py-1 font-semibold text-antique-accent"
         stance.textContent=entry.stance || "Recorded"
         const link=document.createElement("a")
         link.className="text-antique-accent font-medium hover:underline"

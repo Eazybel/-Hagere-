@@ -13,13 +13,13 @@
                 extend: {
                     colors: {
                         antique: {
-                            bg: '#F7F5F0',
-                            card: '#FBFBFA',
-                            border: '#D6CEC2',
-                            text: '#1E293B',
-                            muted: '#57534E',
-                            accent: '#92400E',
-                            accentHover: '#78350F'
+                            bg: '#F6F1E7',
+                            card: '#FCFAF5',
+                            border: '#DED4C2',
+                            text: '#332F2B',
+                            muted: '#6E655B',
+                            accent: '#7B2D3B',
+                            accentHover: '#5F1F2C'
                         }
                     }
                 }
@@ -82,9 +82,10 @@
                 </div>
             </div>
         </section>
-        <div id="profileLoading" class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6" role="status" aria-label="Loading profile activity">
-            <div class="h-52 animate-pulse rounded-lg border border-antique-border bg-antique-card"></div>
-            <div class="h-52 animate-pulse rounded-lg border border-antique-border bg-antique-card"></div>
+        <div id="profileLoading" class="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="status" aria-label="Loading profile activity">
+            <div class="h-52 animate-pulse rounded-xl border border-antique-border bg-antique-card shadow-sm"></div>
+            <div class="h-52 animate-pulse rounded-xl border border-antique-border bg-antique-card shadow-sm"></div>
+            <div class="h-52 animate-pulse rounded-xl border border-antique-border bg-antique-card shadow-sm"></div>
         </div>
         <section id="profileError" class="hidden mb-6 rounded-lg border border-rose-300 bg-rose-50 p-5 font-sans" role="alert">
             <h2 class="font-semibold text-rose-900">Unable to load your activity</h2>

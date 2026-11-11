@@ -49,6 +49,26 @@ test("shared responsive styles support narrow screens, form entry, and scrollabl
     assert.match(styles, /\.policy-chat-controls\s*\{[^}]*flex-direction: column/s)
 })
 
+test("shared design tokens provide antique burgundy accents and responsive three-column card grids", () => {
+    const styles = fs.readFileSync(path.join(publicDirectory, "header.css"), "utf8")
+    assert.match(styles, /--hagere-parchment:\s*#f6f1e7/)
+    assert.match(styles, /--hagere-border:\s*#ded4c2/)
+    assert.match(styles, /--hagere-bronze:\s*#7b2d3b/)
+    assert.match(styles, /box-shadow:\s*0 0 0 4px var\(--hagere-focus\)/)
+    assert.match(styles, /transition:\s*color 200ms ease, background-color 200ms ease/)
+
+    for (const page of pages) {
+        const html = fs.readFileSync(path.join(publicDirectory, page), "utf8")
+        assert.match(html, /accent: '#7B2D3B'/, `${page} should use the antique burgundy accent`)
+        assert.match(html, /bg: '#F6F1E7'/, `${page} should use the warm parchment background`)
+    }
+
+    for (const page of ["index.html", "feed.html", "news.html", "dashboard.html"]) {
+        const html = fs.readFileSync(path.join(publicDirectory, page), "utf8")
+        assert.match(html, /grid-cols-1 md:grid-cols-2 lg:grid-cols-3/)
+    }
+})
+
 test("admin publishing dialog has accessible labeling and a narrow-screen table indicator is present", () => {
     const admin = fs.readFileSync(path.join(publicDirectory, "admin.html"), "utf8")
     const docs = fs.readFileSync(path.join(publicDirectory, "docs.html"), "utf8")
