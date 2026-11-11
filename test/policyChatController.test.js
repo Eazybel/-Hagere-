@@ -144,8 +144,43 @@ test("policy chat sends the PDF as base64 inline data and returns Gemini's answe
             ]
         }]
     })
-    assert.equal(SYSTEM_INSTRUCTION, "You are an expert AI civic assistant for Hagere. Read the attached policy document carefully, and answer the user's question accurately and thoroughly in Amharic (አማርኛ).")
+    assert.match(SYSTEM_INSTRUCTION, /natural, professional answer in plain text/)
+    assert.match(SYSTEM_INSTRUCTION, /Do not use Markdown, headings, bullet lists, asterisks, hash symbols/)
     assert.equal(fetchMock.requests.find(request => request.url === geminiUrl).url.includes("?key="), false)
+})
+
+test("policy chat strips Markdown from immediate and polled Gemini answers", async () => {
+    const markdownAnswer = "## **Policy answer**\n\n* First point\n* Second point\n\nSee [the policy](https://example.test)."
+    const createController = makeChatController({
+        Policy: makePolicyModel(),
+        apiKey: "server-side-gemini-key",
+        fetchImpl: createPdfFetchMock({
+            geminiResponse: Response.json({
+                candidates: [{ content: { parts: [{ text: markdownAnswer }] } }]
+            })
+        }).fetchImpl
+    })
+    const createResponse = makeResponse()
+    await createController.create({
+        params: { id: policyId },
+        body: { message: "Question" }
+    }, createResponse)
+    assert.equal(createResponse.statusCode, 200)
+    assert.equal(createResponse.body.reply, "Policy answer\n\nFirst point\nSecond point\n\nSee the policy.")
+
+    const pollController = createPolicyChatController({
+        apiKey: "server-side-gemini-key",
+        fetchImpl: async () => Response.json({
+            status: "completed",
+            output_text: markdownAnswer
+        })
+    })
+    const pollResponse = makeResponse()
+    await pollController.poll({
+        params: { id: policyId, interactionId: "interaction-123" }
+    }, pollResponse)
+    assert.equal(pollResponse.statusCode, 200)
+    assert.equal(pollResponse.body.reply, "Policy answer\n\nFirst point\nSecond point\n\nSee the policy.")
 })
 
 test("policy chat reports PDF fetch timeouts as gateway timeouts", async () => {

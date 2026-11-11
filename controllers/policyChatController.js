@@ -7,7 +7,7 @@
 const mongoose = require("mongoose")
 const { fetchPdfBuffer, PDF_FETCH_TIMEOUT_MS, MAX_PDF_BYTES } = require("../utils/pdfFetcher")
 
-const SYSTEM_INSTRUCTION = "You are an expert AI civic assistant for Hagere. Read the attached policy document carefully, and answer the user's question accurately and thoroughly in Amharic (አማርኛ)."
+const SYSTEM_INSTRUCTION = "You are an expert AI civic assistant for Hagere. Read the attached policy document carefully, and answer the user's question accurately and thoroughly in Amharic (አማርኛ). Write a natural, professional answer in plain text. Do not use Markdown, headings, bullet lists, asterisks, hash symbols, backticks, underscores, or other formatting syntax."
 const MAX_MESSAGE_LENGTH = 4000
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com"
 const GEMINI_MODEL = "gemini-3.1-flash-lite"
@@ -32,12 +32,26 @@ async function parseGeminiResponse(response, operation) {
     return result
 }
 
+/** @param {string} text Gemini response text. @returns {string} Plain-text response. */
+function sanitizePlainText(text) {
+    return text
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+        .replace(/^[ \t]{0,3}(?:#{1,6}[ \t]*|>[ \t]*)/gm, "")
+        .replace(/^[ \t]{0,3}(?:[-+*]|\d+[.)])[ \t]+/gm, "")
+        .replace(/^\s*(?:-{3,}|\*{3,}|_{3,})\s*$/gm, "")
+        .replace(/[*#`_~]/g, "")
+        .replace(/[ \t]+/g, " ")
+        .replace(/[ \t]+\n/g, "\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim()
+}
+
 /** @param {object} result Gemini generateContent response. @returns {string} Combined candidate text. */
 function getGenerateContentReply(result) {
-    return result.candidates?.[0]?.content?.parts
+    const text = result.candidates?.[0]?.content?.parts
         ?.map(part => typeof part.text === "string" ? part.text : "")
         .join("")
-        .trim() || ""
+    return typeof text === "string" ? sanitizePlainText(text) : ""
 }
 
 /** @param {Error & {status?: number}} error Gemini/network failure. @param {string} operation Operation label. @returns {{status:number,error:string}} Safe HTTP status and client-facing failure message. */
@@ -81,17 +95,17 @@ function getGeminiFailure(error, operation) {
 /** @param {object} interaction Gemini interaction resource. @returns {string} Combined response text or empty string. */
 function getInteractionReply(interaction) {
     if (typeof interaction.output_text === "string" && interaction.output_text.trim()) {
-        return interaction.output_text.trim()
+        return sanitizePlainText(interaction.output_text)
     }
     if (!Array.isArray(interaction.outputs)) return ""
 
-    return interaction.outputs
+    const text = interaction.outputs
         .map(output => {
             if (typeof output.text === "string") return output.text
             return output.content?.parts?.map(part => part.text || "").join("") || ""
         })
         .join("")
-        .trim()
+    return sanitizePlainText(text)
 }
 
 /**
@@ -293,6 +307,7 @@ module.exports = {
     GEMINI_503_RETRIES,
     GEMINI_RETRY_DELAY_MS,
     GEMINI_MODEL,
+    sanitizePlainText,
     getGenerateContentReply,
     getInteractionReply
 }
